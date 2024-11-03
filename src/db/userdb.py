@@ -41,7 +41,7 @@ class UserDB:
 
     def register_table(self, table) -> None:
         self.table.add(table)
-
+    
     def query_all(self, tableCls):
         return self.session.query(tableCls).all()
 

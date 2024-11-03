@@ -18,7 +18,7 @@ class BizContactHeadImg(Base, UserTable):
     mHeadImgMD5 = Column("m_headImgMD5", String)
 
     def __hash__(self):
-        return hash(self.usrName)
+        return self.usrName
 
     def __eq__(self, other: BizContactHeadImg):
         return (
@@ -32,7 +32,6 @@ class BizContactHeadImg(Base, UserTable):
         return f"<联系人头像: {self.usrName}>"
 
     def update(self, obj: BizContactHeadImg):
-        self.usrName = obj.usrName
         self.createTime = obj.createTime
         self.smallHeadImgBuf = obj.smallHeadImgBuf
         self.mHeadImgMD5 = obj.mHeadImgMD5
@@ -62,4 +61,5 @@ class Misc(UserDB):
         super().__init__(wxid, MISC)
 
     def get_avatar_buffer(self, userName):
-        pass
+        cls = BizContactHeadImg
+        self.session.query(cls).filter(cls.usrName == userName).one_or_none()
