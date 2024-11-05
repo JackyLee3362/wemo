@@ -2,7 +2,8 @@ import logging
 import datetime
 from rich.logging import RichHandler
 
-from .settings import config, LOG_DIR
+from .config import config
+from .constant import LOG_DIR
 
 # 读取配置
 logging_name = config.get("logging.name")
@@ -20,5 +21,3 @@ LOG.addHandler(console_handler)
 date = datetime.datetime.now().strftime("%Y-%m-%d")
 file_handler = logging.FileHandler(filename=LOG_DIR / date, encoding="utf-8")
 LOG.addHandler(file_handler)
-
-__all__ = ["LOG"]

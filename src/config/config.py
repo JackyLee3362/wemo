@@ -1,14 +1,6 @@
-from pathlib import Path
 import toml
-
 from utils import singleton
-
-# 路径配置
-PROJECT_DIR = Path(__file__).resolve().parent.parent.parent
-SRC_DIR = PROJECT_DIR.joinpath("src")
-DB_DIR = PROJECT_DIR.joinpath("db")
-CONFIG_DIR = PROJECT_DIR.joinpath("config")
-LOG_DIR = PROJECT_DIR.joinpath("logs")
+from .constant import CONFIG_DIR
 
 
 @singleton
