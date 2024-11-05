@@ -1,7 +1,5 @@
 from __future__ import annotations
 from typing import Optional
-from .userdb import UserDB
-from utils.singleton import singleton
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import or_, and_, asc, desc, case
 
@@ -75,7 +73,12 @@ class CommentV20(Base):
     Reserved7 = Column("Reserved7", LargeBinary)
 
     def __hash__(self):
-        return str(self.CommentId) + str(self.FeedId) + str(self.FromUserName) + str(self.CommentType)
+        return (
+            str(self.CommentId)
+            + str(self.FeedId)
+            + str(self.FromUserName)
+            + str(self.CommentType)
+        )
 
     def __eq__(self, o: CommentV20):
         return (
@@ -111,8 +114,8 @@ class SnsConfigV20(Base):
 
 @singleton
 class Sns(UserDB):
-    def __init__(self, wxid=None):
-        super().__init__(wxid, SNS)
+    def __init__(self):
+        super().__init__(SNS)
         self.register_table(FeedsV20)
         self.register_table(CommentV20)
         self.register_table(SnsConfigV20)

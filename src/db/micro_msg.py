@@ -112,8 +112,8 @@ class ContactLabel(Base):
 
 @singleton
 class MicroMsg(UserDB):
-    def __init__(self, wxid):
-        super().__init__(wxid, MICRO_MSG)
+    def __init__(self):
+        super().__init__(MICRO_MSG)
         self.register_table(Contact)
         self.register_table(ContactHeadImgUrl)
         self.register_table(ContactLabel)

@@ -1,33 +1,29 @@
 from __future__ import annotations
-from functools import cache
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
-from pathlib import Path
 
-from config import LOG
+from config import USER_CACHE_DIR, USER_DB_DIR, LOG
 
 Base = declarative_base()
 
 
 class UserDB:
-    def __init__(self, wxid, db_name):
-        LOG.info(f"初始化数据库: {wxid}-{db_name}")
-        self.wxid = wxid
+    def __init__(self, db_name):
+        LOG.info(f"[{db_name}]: 初始化数据库")
         self.db_name = db_name
-        self.name = db_name
-        self.db_path = Path(f"db/{wxid}/{db_name}.db")
-        self.db_cache_path = Path(f"db/{wxid}/cache/{db_name}.db")
+        self.db_path = USER_DB_DIR.joinpath(db_name + ".db")
+        self.cache_path = USER_CACHE_DIR.joinpath(db_name + ".db")
         self.table = set()
 
     def connect(self):
-        LOG.info(f"连接数据库: {self.db_name}")
+        LOG.info(f"[{self.db_name}]: 连接数据库 {self.db_path} ")
         self.engine = create_engine(f"sqlite:///{self.db_path}")
         self.DBSession = sessionmaker(bind=self.engine)
 
     def query_cache_by_table(self, table) -> list:
-        LOG.info(f"连接缓存数据库: {self.db_name}")
-        cache_engine = create_engine(f"sqlite:///{self.db_cache_path}")
+        LOG.info(f"[{self.db_name}]: 连接缓存数据库: ")
+        cache_engine = create_engine(f"sqlite:///{self.cache_path}")
         DBSession = sessionmaker(bind=cache_engine)
         session = DBSession()
         res = session.query(table).all()
@@ -97,36 +93,31 @@ class UserDB:
         return res
 
     def close_session(self) -> None:
-        LOG.info(f"关闭连接: {self.name}")
+        LOG.info(f"[{self.db_name}] 关闭连接")
         self.session.close()
 
     def update_db_from_cache_by_table(self, tableCls):
-        LOG.info(f"更新数据表: {tableCls.__name__}")
+        LOG.info(f"[{self.db_name}][{tableCls.__name__}]: 更新数据表: ")
         # 获取字典
         db_data = self.query_all(tableCls)
-        LOG.info(f"主数据量: {len(db_data)}")
+        LOG.info(f"[{self.db_name}][{tableCls.__name__}]: 主数据量 {len(db_data)} 条")
         cache_data = self.query_cache_by_table(tableCls)
-        LOG.info(f"缓存数据量: {len(cache_data)}")
+        LOG.info(f"[{self.db_name}][{tableCls.__name__}]: 缓存数据量 {len(cache_data)} 条")
         cache_dict: dict = self.to_dict(cache_data)
         db_dict: dict = self.to_dict(db_data)
         # 计算需要更新的数据
         insert_data = self._data_for_insert(db_dict, cache_dict)
-        LOG.info(f"新增数据量: {len(insert_data)}")
+        LOG.info(f"[{self.db_name}][{tableCls.__name__}]: 新增数据量 {len(insert_data)} 条")
         update_data = self._data_for_update(db_dict, cache_dict)
-        LOG.info(f"更新数据量: {len(update_data)}")
+        LOG.info(f"[{self.db_name}][{tableCls.__name__}]: 更新数据量 {len(update_data)} 条")
         # 更新数据
         self.insert_all(insert_data, tableCls)
         self._update_all(update_data, tableCls)
 
-    def bulk_save(self, tableCls):
-        cache_data = self.query_cache_by_table(tableCls)
-        self.session.bulk_save_objects(cache_data)
-        self.session.commit()
-
     def update_db_from_cache_by_all(self):
-        LOG.info(f"全量更新: {self.db_name}")
+        LOG.info(f"[{self.db_name}]: 全量更新")
         for table in self.table:
             before = self.count_all(table)
             self.update_db_from_cache_by_table(table)
             after = self.count_all(table)
-            LOG.info(f"表数据更新 {table.__name__}: {before} -> {after}")
+            LOG.info(f"[{self.db_name}][{table.__name__}]: 表数据更新 {before} -> {after}")

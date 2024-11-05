@@ -1,10 +1,9 @@
 from __future__ import annotations
-from re import S
-from utils.singleton import singleton
+from sqlalchemy import LargeBinary, Column, String, Integer
 
+from utils import singleton
 
 from .userdb import Base, UserDB
-from sqlalchemy import LargeBinary, Column, String, Integer, select
 
 
 # 二进制头像
@@ -59,12 +58,12 @@ class ContactHeadImg1(Base):
 
 @singleton
 class Misc(UserDB):
-    def __init__(self, wxid):
-        super().__init__(wxid, MISC)
+    def __init__(self):
+        super().__init__(MISC)
         self.register_table(ContactHeadImg1)
         self.connect()
         self.init_session()
-    
+
     def get_avatar_buffer(self, usrName):
         cls = ContactHeadImg1
         return self.session.query(cls).filter(cls.usrName == usrName).one_or_none()
