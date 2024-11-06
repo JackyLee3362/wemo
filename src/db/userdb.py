@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 
-from config import USER_CACHE_DIR, USER_DB_DIR, LOG
+from config import APP_USER_DB_DIR, APP_USER_CACHE_DIR, LOG
 
 Base = declarative_base()
 
@@ -12,8 +12,8 @@ class UserDB:
     def __init__(self, db_name):
         LOG.info(f"[{db_name}]: 初始化数据库")
         self.db_name = db_name
-        self.db_path = USER_DB_DIR.joinpath(db_name + ".db")
-        self.cache_path = USER_CACHE_DIR.joinpath(db_name + ".db")
+        self.db_path = APP_USER_DB_DIR.joinpath(db_name + ".db")
+        self.cache_path = APP_USER_CACHE_DIR.joinpath(db_name + ".db")
         self.table = set()
 
     def connect(self):
@@ -102,14 +102,20 @@ class UserDB:
         db_data = self.query_all(tableCls)
         LOG.info(f"[{self.db_name}][{tableCls.__name__}]: 主数据量 {len(db_data)} 条")
         cache_data = self.query_cache_by_table(tableCls)
-        LOG.info(f"[{self.db_name}][{tableCls.__name__}]: 缓存数据量 {len(cache_data)} 条")
+        LOG.info(
+            f"[{self.db_name}][{tableCls.__name__}]: 缓存数据量 {len(cache_data)} 条"
+        )
         cache_dict: dict = self.to_dict(cache_data)
         db_dict: dict = self.to_dict(db_data)
         # 计算需要更新的数据
         insert_data = self._data_for_insert(db_dict, cache_dict)
-        LOG.info(f"[{self.db_name}][{tableCls.__name__}]: 新增数据量 {len(insert_data)} 条")
+        LOG.info(
+            f"[{self.db_name}][{tableCls.__name__}]: 新增数据量 {len(insert_data)} 条"
+        )
         update_data = self._data_for_update(db_dict, cache_dict)
-        LOG.info(f"[{self.db_name}][{tableCls.__name__}]: 更新数据量 {len(update_data)} 条")
+        LOG.info(
+            f"[{self.db_name}][{tableCls.__name__}]: 更新数据量 {len(update_data)} 条"
+        )
         # 更新数据
         self.insert_all(insert_data, tableCls)
         self._update_all(update_data, tableCls)
@@ -120,4 +126,6 @@ class UserDB:
             before = self.count_all(table)
             self.update_db_from_cache_by_table(table)
             after = self.count_all(table)
-            LOG.info(f"[{self.db_name}][{table.__name__}]: 表数据更新 {before} -> {after}")
+            LOG.info(
+                f"[{self.db_name}][{table.__name__}]: 表数据更新 {before} -> {after}"
+            )

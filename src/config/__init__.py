@@ -1,13 +1,14 @@
 from .logger import LOG
 from .config import config
-from .constant import DATA_DIR, CONFIG_DIR, LOG_DIR, PROJECT_DIR, SRC_DIR
+from .constant import DATA_DIR, CONFIG_DIR, LOG_DIR, PROJECT_DIR, SRC_DIR, BIN_DIR
 from .user_init import (
-    USER_DB_DIR,
-    USER_CACHE_DIR,
-    USER_WXID,
-    USER_BACK_DIR,
-    USER_WXDB_DIR,
-    USER_KEY,
+    WX_ID,
+    WX_KEY,
+    WX_DIR,
+    WX_SNS_CACHE_DIR,
+    APP_USER_BACKUP_DIR,
+    APP_USER_CACHE_DIR,
+    APP_USER_DB_DIR,
 )
 
 __all__ = [
@@ -18,10 +19,12 @@ __all__ = [
     "LOG_DIR",
     "PROJECT_DIR",
     "SRC_DIR",
-    "USER_DB_DIR",
-    "USER_CACHE_DIR",
-    "USER_WXID",
-    "USER_BACK_DIR",
-    "USER_WXDB_DIR",
-    "USER_KEY",
+    "WX_ID",
+    "WX_KEY",
+    "WX_DIR",
+    "WX_SNS_CACHE_DIR",
+    "APP_USER_BACKUP_DIR",
+    "APP_USER_CACHE_DIR",
+    "APP_USER_DB_DIR",
+    "BIN_DIR"
 ]
