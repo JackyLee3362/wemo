@@ -4,7 +4,6 @@ from .userdb import UserDB
 # 聊天信息
 MSG = "MSG.db"
 MSGS = [f"MSG{i}.db" for i in range(0, 50)]
-db_path = None  # DB_USER_DIR / MSG
 
 
 @singleton

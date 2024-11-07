@@ -1,6 +1,6 @@
 import toml
 from utils import singleton
-from .constant import CONFIG_DIR
+from .constant import SC
 
 
 @singleton
@@ -9,7 +9,7 @@ class Config:
     # 读取 config.toml 文件
     def __init__(self):
         conf = {}
-        with open(CONFIG_DIR.joinpath("config.toml"), "r", encoding="utf-8") as f:
+        with open(SC.CONFIG_DIR.joinpath("config.toml"), "r", encoding="utf-8") as f:
             tmp = toml.loads(f.read())
             conf.update(tmp)
         self.conf = conf

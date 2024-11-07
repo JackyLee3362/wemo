@@ -9,7 +9,7 @@ def timestamp_convert(timestamp: int):
     return d
 
 
-def get_all_month_between_dates(start: date, end: date) -> list[str]:
+def get_months_between_dates(start: date, end: date) -> list[str]:
     result = []
     cur: date = start
     while cur <= end:

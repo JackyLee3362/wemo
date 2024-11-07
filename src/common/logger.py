@@ -3,12 +3,12 @@ import datetime
 from rich.logging import RichHandler
 
 from .config import config
-from .constant import LOG_DIR
+from .constant import SC
 
 # 读取配置
 logging_name = config.get("logging.name")
 logging_level = config.get("logging.level")
-logging_dir = LOG_DIR
+logging_dir = SC.LOG_DIR
 # 设置日志
 LOG = logging.getLogger(logging_name)
 LOG.setLevel(logging_level)
@@ -19,5 +19,7 @@ LOG.addHandler(console_handler)
 
 # 文件输出
 date = datetime.datetime.now().strftime("%Y-%m-%d")
-file_handler = logging.FileHandler(filename=LOG_DIR / date, encoding="utf-8")
+file_handler = logging.FileHandler(
+    filename=SC.LOG_DIR.joinpath(date + ".log"), encoding="utf-8"
+)
 LOG.addHandler(file_handler)

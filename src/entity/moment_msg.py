@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from datetime import date
 from typing import Optional
 from dataclasses_json import dataclass_json, config
 
@@ -28,6 +27,7 @@ class Url:
 @dataclass_json
 @dataclass
 class Thumb:
+    # type=2 表示普通图片，5表示微信音乐
     type: str = field(metadata=config(field_name="@type"))
     text: str = field(metadata=config(field_name="#text"))
     token: str = field(metadata=config(field_name="@token"), default="")
@@ -65,6 +65,7 @@ class FinderFeed:
 @dataclass_json
 @dataclass
 class ContentObject:
+    # contentStyle = 3 表示超链接
     contentStyle: int
     contentUrl: Optional[str] = ""
     title: Optional[str] = ""
@@ -85,8 +86,8 @@ class TimelineObject:
     contentDesc: Optional[str] = ""
 
     @property
-    def create_date(self) -> date:
-        return timestamp_convert(self.createTime).date()
+    def create_date(self) -> str:
+        return timestamp_convert(self.createTime).strftime("%Y-%m-%d")
 
     @property
     def create_time(self) -> str:
@@ -101,3 +102,5 @@ class TimelineObject:
 @dataclass
 class MomentMsg:
     timelineObject: TimelineObject = field(metadata=config(field_name="TimelineObject"))
+
+    def from_dict(*args, **kwargs): ...
