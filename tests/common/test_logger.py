@@ -1,4 +1,4 @@
-from config.logger import LOG
+from common.logger import LOG
 
 
 def test_logger():

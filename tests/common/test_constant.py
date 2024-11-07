@@ -1,4 +1,4 @@
-import config
+import common
 
 
 def test_init_constant():

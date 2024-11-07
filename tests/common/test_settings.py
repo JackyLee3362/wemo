@@ -1,4 +1,4 @@
-from config.config import config
+from common.config import config
 
 
 def test_config():
