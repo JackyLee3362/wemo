@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from sqlalchemy import LargeBinary, Column, String, Integer
 
-from db.abstract_db import AbstractUserDB
-from db.abstract_db import Base
+from database.abstract_db import AbstractUserDB
+from database.abstract_db import Base
 from utils import singleton
 
 # 二进制头像
