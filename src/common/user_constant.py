@@ -34,6 +34,7 @@ class RC:
     USER_BACKUP_DIR = USER_DIR.joinpath("backup")
     USER_OUTPUT_DIR = USER_DIR.joinpath("output")
     USER_CACHE_DIR = USER_DIR.joinpath("cache")
+    USER_AVATAR_DIR = USER_DIR.joinpath("avatar")
     # 缓存目录
     USER_CACHE_DB = USER_CACHE_DIR.joinpath("db")
     USER_CACHE_SNS = USER_CACHE_DIR.joinpath("sns")

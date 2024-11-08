@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 from common import RC, LOG
 
@@ -43,16 +44,16 @@ class UserDB:
         res = self.session.query(tableCls).count()
         return res
 
-    def insert_all(self, data: list, tableCls) -> None:
+    def _insert_all(self, data: list, tableCls) -> None:
         for d in data:
             self.insert_one(d, tableCls)
+        self.session.commit()
 
     def insert_one(self, src, tableCls) -> None:
         dst = tableCls()
         for column in tableCls.__table__.columns:
             setattr(dst, column.name, getattr(src, column.name))
         self.session.add(dst)
-        self.session.commit()
 
     def update_one(self, d1, d2, tableCls) -> None:
         for column in tableCls.__table__.columns:
@@ -100,7 +101,8 @@ class UserDB:
         LOG.debug(f"[{self.db_name}][{tableCls.__name__}]: 更新数据表: ")
         # 获取字典
         db_data = self.query_all(tableCls)
-        LOG.debug(f"[{self.db_name}][{tableCls.__name__}]: 主数据量 {len(db_data)} 条")
+        LOG.debug(
+            f"[{self.db_name}][{tableCls.__name__}]: 主数据量 {len(db_data)} 条")
         cache_data = self.query_cache_by_table(tableCls)
         LOG.debug(
             f"[{self.db_name}][{tableCls.__name__}]: 缓存数据量 {len(cache_data)} 条"
@@ -117,7 +119,7 @@ class UserDB:
             f"[{self.db_name}][{tableCls.__name__}]: 更新数据量 {len(update_data)} 条"
         )
         # 更新数据
-        self.insert_all(insert_data, tableCls)
+        self._insert_all(insert_data, tableCls)
         self._update_all(update_data, tableCls)
 
     def update_db_from_cache_by_all(self):

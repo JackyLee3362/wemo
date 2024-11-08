@@ -7,7 +7,7 @@ import traceback
 from datetime import date
 from common import SC, RC, LOG
 import filetype
-from utils.helper import get_months_between_dates
+from utils import get_months_between_dates
 
 
 def calculate_md5(file_path):

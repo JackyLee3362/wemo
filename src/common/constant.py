@@ -17,3 +17,4 @@ class SC:
         BIN_DIR = Path(__file__).resolve().parent.parent.joinpath("bin")
     else:
         BIN_DIR = PROJECT_DIR.joinpath("bin")
+    

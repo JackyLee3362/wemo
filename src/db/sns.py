@@ -1,10 +1,12 @@
 from __future__ import annotations
+
 from typing import Optional
+
 from sqlalchemy import Column, String, Integer, LargeBinary
-from sqlalchemy import or_, and_, asc, desc, case
+from sqlalchemy import and_
 
+from common.logger import LOG
 from utils import singleton
-
 from .userdb import Base, UserDB
 
 # 朋友圈
@@ -122,16 +124,43 @@ class Sns(UserDB):
         self.connect()
         self.init_session()
 
-    def get_messages_in_time(self, start_time, end_time):
-        sql = """select UserName, Content, FeedId from FeedsV20  where CreateTime>=?
-                and  CreateTime<=? order by CreateTime desc"""
-        return self.execute_sql(sql, [start_time, end_time])
+    def get_feeds_by_duration(
+        self, begin_timestamp: int, end_timestamp: int
+    ) -> Optional[list[FeedsV20]]:
+        res = (
+            self.session.query(FeedsV20)
+            .filter(
+                and_(
+                    FeedsV20.CreateTime >= begin_timestamp,
+                    FeedsV20.CreateTime <= end_timestamp,
+                )
+            )
+            .order_by(FeedsV20.CreateTime.desc())
+            .all()
+        )
+        return res
 
-    def get_comment_by_feed_id(self, feed_id):
-        sql = """select FromUserName, CommentType, Content from CommentV20 where FeedId=?
-                order by CreateTime desc"""
-        return self.execute_sql(sql, [feed_id])
+    def get_feed_by_feed_id(self, feed_id: int) -> FeedsV20:
+        res = self.session.query(FeedsV20).filter(
+            FeedsV20.FeedId == feed_id).first()
+        if res is None:
+            LOG.error(f"feed_id:{feed_id} 未找到")
+            return FeedsV20()
+        return res
 
-    def get_cover_url(self) -> Optional[str]:
-        sql = """select StrValue from SnsConfigV20 where Key="6"  """
-        return self.execute_sql(sql)
+    def get_comment_by_feed_id(self, feed_id: int) -> Optional[CommentV20]:
+        res = (
+            self.session.query(CommentV20)
+            .filter(CommentV20.FeedId == feed_id)
+            .order_by(CommentV20.Createtime.desc())
+            .all()
+        )
+        return res
+
+    def get_cover_url(self) -> Optional[SnsConfigV20]:
+        res = (
+            self.session.query(SnsConfigV20)
+            .filter(SnsConfigV20.Key == "6")
+            .one_or_none()
+        )
+        return res

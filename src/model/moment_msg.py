@@ -1,8 +1,10 @@
-from dataclasses import dataclass, field
+from __future__ import annotations
 from typing import Optional
+from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json, config
+import xmltodict
 
-from utils.helper import timestamp_convert
+from utils.datetime_helper import timestamp_convert
 
 
 @dataclass_json
@@ -85,22 +87,81 @@ class TimelineObject:
     createTime: int
     contentDesc: Optional[str] = ""
 
-    @property
-    def create_date(self) -> str:
-        return timestamp_convert(self.createTime).strftime("%Y-%m-%d")
-
-    @property
-    def create_time(self) -> str:
-        return timestamp_convert(self.createTime).strftime("%Y-%m-%d %H:%M:%S")
-
-    @property
-    def create_year_month(self) -> str:
-        return timestamp_convert(self.createTime).strftime("%Y-%m")
-
 
 @dataclass_json
 @dataclass
 class MomentMsg:
-    timelineObject: TimelineObject = field(metadata=config(field_name="TimelineObject"))
+    timelineObject: TimelineObject = field(
+        metadata=config(field_name="TimelineObject"))
 
-    def from_dict(*args, **kwargs): ...
+    def from_dict(*args, **kwargs) -> MomentMsg:
+        ...
+
+    @property
+    def create_date(self) -> str:
+        return timestamp_convert(self.timelineObject.createTime).strftime(
+            "%Y-%m-%d")
+
+    @property
+    def create_time(self) -> str:
+        return timestamp_convert(self.timelineObject.createTime).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+
+    @property
+    def file_name(self) -> str:
+        return timestamp_convert(self.timelineObject.createTime).strftime(
+            "%Y年%m月%d日%H时%M分%S秒"
+        )
+
+    @property
+    def create_year_month(self) -> str:
+        return timestamp_convert(self.timelineObject.createTime).strftime(
+            "%Y-%m")
+
+    @property
+    def user_name(self) -> str:
+        return self.timelineObject.username
+
+    @property
+    def desc(self) -> str:
+        return self.timelineObject.contentDesc
+
+    @property
+    def desc_brief(self) -> str:
+
+        COUNT = 10
+        desc = self.desc
+        if desc is None:
+            return " " * COUNT
+        if len(desc) > COUNT:
+            desc_tmp = desc[: COUNT - 3] + "..."
+        else:
+            desc_tmp = desc.ljust(COUNT)
+        return desc_tmp
+
+    @property
+    def style(self):
+        return self.timelineObject.ContentObject.contentStyle
+
+
+def parse_xml(xml: str) -> MomentMsg:
+    try:
+        xml2 = _xml_replace_control_unicode(xml)
+        msg_dict = parse_xml_to_dict(xml2)
+    except Exception as e:
+        print(e)
+    return MomentMsg.from_dict(msg_dict)
+
+
+def parse_xml_to_dict(xml: str) -> dict:
+    msg_dict = xmltodict.parse(xml, force_list={"media"})
+    return msg_dict
+
+
+def _xml_replace_control_unicode(xml: str) -> MomentMsg:
+    char_e = "\u202e"
+    char_c = "\u202c"
+    t = xml.replace(char_e, r"u202e")
+    t = t.replace(char_c, r"u202c")
+    return t

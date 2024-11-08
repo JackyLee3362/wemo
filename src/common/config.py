@@ -9,6 +9,9 @@ class Config:
     # 读取 config.toml 文件
     def __init__(self):
         conf = {}
+        with open(SC.CONFIG_DIR.joinpath("default.toml"), "r", encoding="utf-8") as f:
+            tmp = toml.loads(f.read())
+            conf.update(tmp)
         with open(SC.CONFIG_DIR.joinpath("config.toml"), "r", encoding="utf-8") as f:
             tmp = toml.loads(f.read())
             conf.update(tmp)

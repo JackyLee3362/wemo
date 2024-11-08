@@ -1,9 +1,8 @@
-import shutil
 import os
+import shutil
 
 from common import RC, LOG
 from decrypter import db_decrypt
-
 from .micro_msg import MICRO_MSG, MicroMsg
 from .misc import MISC, Misc
 from .sns import SNS, Sns
@@ -15,6 +14,12 @@ class DataBaseSet:
         self.user_cache_db = RC.USER_CACHE_DB
         self.user_db = RC.USER_DB
         self.decrypter = db_decrypt.DatabaseDecrypter()
+
+    def run(self):
+        self.init_db_set()
+        self.update_user_db_by_cache(MISC)
+        self.update_user_db_by_cache(SNS)
+        self.update_user_db_by_cache(MICRO_MSG)
 
     def init_db_set(self):
         # 1. 初始化用户数据库

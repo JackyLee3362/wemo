@@ -1,10 +1,11 @@
 from __future__ import annotations
-import sqlite3
+
+from typing import List, Tuple
+
 from sqlalchemy import Column, String, Integer, LargeBinary
-from sqlalchemy import or_, and_, asc, desc, case
+from sqlalchemy import and_, case
 
 from utils import singleton
-
 from .userdb import Base, UserDB
 
 # 联系人信息
@@ -120,46 +121,42 @@ class MicroMsg(UserDB):
         self.connect()
         self.init_session()
 
-    def get_contact(self):
+    def list_contact(self):
+        """获取所有联系人信息"""
         res = (
-            self.session.query(Contact, ContactHeadImgUrl, ContactLabel)
-            .filter(Contact.UserName == ContactHeadImgUrl.usrName)
-            .filter(Contact.LabelIdList == ContactLabel.LabelID)
+            self.session.query(Contact)
             .filter(and_(Contact.Type != 4, Contact.VerifyFlag == 0))
             .order_by(
                 case(
                     (Contact.RemarkPYInitial == "", Contact.PYInitial),
                     else_=Contact.RemarkPYInitial,
                 )
-            ).all()
+            )
+            .all()
         )
         return res
 
-    def get_contact_by_username_old(self, username: object) -> object:
-        try:
-            sql = """
-                   SELECT UserName, Alias, Type, Remark, NickName, PYInitial, RemarkPYInitial, ContactHeadImgUrl.smallHeadImgUrl, ContactHeadImgUrl.bigHeadImgUrl,ExTraBuf,ContactLabel.LabelName
-                   FROM Contact
-                   INNER JOIN ContactHeadImgUrl ON Contact.UserName = ContactHeadImgUrl.usrName
-                   LEFT JOIN ContactLabel ON Contact.LabelIDList = ContactLabel.LabelId
-                   WHERE UserName = ?
-                """
-            result = self.execute_sql(sql, [username], fetchAll=False)
-        except sqlite3.OperationalError:
-            # 解决ContactLabel表不存在的问题
-            # lock.acquire(True)
-            sql = """
-                   SELECT UserName, Alias, Type, Remark, NickName, PYInitial, RemarkPYInitial, ContactHeadImgUrl.smallHeadImgUrl, ContactHeadImgUrl.bigHeadImgUrl,ExTraBuf,"None"
-                   FROM Contact
-                   INNER JOIN ContactHeadImgUrl ON Contact.UserName = ContactHeadImgUrl.usrName
-                   WHERE UserName = ?
-            """
-            result = self.execute_sql(sql, [username], fetchAll=False)
-        return result
-
-    def get_chatroom_info(self, chatroomname):
-        """
-        获取群聊信息
-        """
-        sql = """SELECT ChatRoomName, RoomData FROM ChatRoom WHERE ChatRoomName = ?"""
-        return self.execute_sql(sql, [chatroomname], fetchAll=False)
+    def get_contact_by_username(
+        self, username: str
+    ) -> Tuple[Contact, List[ContactLabel]]:
+        """根据用户名获取用户信息"""
+        contact = (
+            self.session.query(Contact)
+            .filter(Contact.UserName == username)
+            .one_or_none()
+        )
+        if contact is None:
+            return Contact(), []
+        contactImg = (
+            self.session.query(ContactHeadImgUrl)
+            .filter(ContactHeadImgUrl.usrName == username)
+            .one_or_none()
+        )
+        contact.BigHeadImgUrl = contactImg.bigHeadImgUrl
+        contact.SmallHeadImgUrl = contactImg.smallHeadImgUrl
+        contactLabel = (
+            self.session.query(ContactLabel)
+            .filter(ContactLabel.LabelID == contact.LabelIdList)
+            .all()
+        )
+        return (contact, contactLabel)
