@@ -91,16 +91,13 @@ class TimelineObject:
 @dataclass_json
 @dataclass
 class MomentMsg:
-    timelineObject: TimelineObject = field(
-        metadata=config(field_name="TimelineObject"))
+    timelineObject: TimelineObject = field(metadata=config(field_name="TimelineObject"))
 
-    def from_dict(*args, **kwargs) -> MomentMsg:
-        ...
+    def from_dict(*args, **kwargs) -> MomentMsg: ...
 
     @property
     def create_date(self) -> str:
-        return timestamp_convert(self.timelineObject.createTime).strftime(
-            "%Y-%m-%d")
+        return timestamp_convert(self.timelineObject.createTime).strftime("%Y-%m-%d")
 
     @property
     def create_time(self) -> str:
@@ -116,8 +113,7 @@ class MomentMsg:
 
     @property
     def create_year_month(self) -> str:
-        return timestamp_convert(self.timelineObject.createTime).strftime(
-            "%Y-%m")
+        return timestamp_convert(self.timelineObject.createTime).strftime("%Y-%m")
 
     @property
     def user_name(self) -> str:
@@ -130,11 +126,11 @@ class MomentMsg:
     @property
     def desc_brief(self) -> str:
 
-        COUNT = 10
+        COUNT = 20
         desc = self.desc
         if desc is None:
             return " " * COUNT
-        if len(desc) > COUNT:
+        elif len(desc) > COUNT:
             desc_tmp = desc[: COUNT - 3] + "..."
         else:
             desc_tmp = desc.ljust(COUNT)
@@ -144,24 +140,16 @@ class MomentMsg:
     def style(self):
         return self.timelineObject.ContentObject.contentStyle
 
+    @classmethod
+    def parse_xml(cls, xml: str) -> MomentMsg:
+        try:
+            msg_dict = cls.parse_xml_to_dict(xml)
+        except Exception as e:
+            print(e)
+            return None
+        return MomentMsg.from_dict(msg_dict)
 
-def parse_xml(xml: str) -> MomentMsg:
-    try:
-        xml2 = _xml_replace_control_unicode(xml)
-        msg_dict = parse_xml_to_dict(xml2)
-    except Exception as e:
-        print(e)
-    return MomentMsg.from_dict(msg_dict)
-
-
-def parse_xml_to_dict(xml: str) -> dict:
-    msg_dict = xmltodict.parse(xml, force_list={"media"})
-    return msg_dict
-
-
-def _xml_replace_control_unicode(xml: str) -> MomentMsg:
-    char_e = "\u202e"
-    char_c = "\u202c"
-    t = xml.replace(char_e, r"u202e")
-    t = t.replace(char_c, r"u202c")
-    return t
+    @staticmethod
+    def parse_xml_to_dict(xml: str) -> dict:
+        msg_dict = xmltodict.parse(xml, force_list={"media"})
+        return msg_dict
