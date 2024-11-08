@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
-from db.abstract_db import AbstractUserDB
+from database.abstract_db import AbstractUserDB
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_, case
 
