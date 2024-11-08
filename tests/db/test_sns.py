@@ -1,4 +1,4 @@
-from db.sns import Sns, CommentV20, FeedsV20, singleton
+from db.sns import Sns, CommentV20, FeedsV20
 import pytest
 
 
@@ -39,7 +39,7 @@ def test_update(sns: Sns):
 
 
 def test_update_db_by_table(sns: Sns):
-    # sns.update_db_from_cache_by_table(FeedsV20)
+    sns.update_db_from_cache_by_table(FeedsV20)
     sns.update_db_from_cache_by_table(CommentV20)
 
 

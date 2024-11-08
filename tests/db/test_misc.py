@@ -39,7 +39,7 @@ def test_count_all(misc: Misc):
 
 def test_insert(misc: Misc):
     """测试插入"""
-    misc.insert_all(
+    misc._insert_all(
         [
             BizContactHeadImg(
                 usrName=str(uuid.uuid4()), createTime=time.time(), smallHeadBuf=null()
@@ -60,7 +60,7 @@ def test_update(misc: Misc):
         .one_or_none()
     )
     if biz is None:
-        return 
+        return
     biz.createTime = time.time()
     misc.session.commit()
 

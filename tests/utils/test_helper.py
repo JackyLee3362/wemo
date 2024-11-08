@@ -2,7 +2,7 @@ import datetime
 from datetime import date
 
 from utils import get_months_between_dates
-from utils.helper import timestamp_convert
+from utils.datetime_helper import timestamp_convert
 
 
 def test_timestamp_convert():

@@ -24,3 +24,10 @@ def test_person():
     for k in keys:
         print(k, d2[k])
     print("item差值", d2.items() - d1.items())
+
+
+def test_2():
+    v = {"abc"}
+    print("----------")
+    print("type:",type(v))
+    print("value:", v)

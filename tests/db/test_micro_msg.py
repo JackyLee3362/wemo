@@ -34,7 +34,8 @@ def test_insert(microMsg: MicroMsg):
 
 
 def test_update_db_by_table(microMsg: MicroMsg):
-    microMsg.update_db_from_cache_by_table(Contact)
+    # microMsg.update_db_from_cache_by_table(Contact)
+    microMsg.update_db_from_cache_by_table(ContactHeadImgUrl)
 
 
 def test_update_db(microMsg: MicroMsg):
@@ -42,5 +43,5 @@ def test_update_db(microMsg: MicroMsg):
 
 
 def test_get_contact(microMsg: MicroMsg):
-    res = microMsg.get_contact()
+    res = microMsg.list_contact()
     assert len(res) > 0
