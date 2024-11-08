@@ -5,9 +5,10 @@ from typing import Optional
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_
 
+from common import RC
 from common.logger import LOG
+from db.abstract_user_db import Base, UserDB
 from utils import singleton
-from .userdb import Base, UserDB
 
 # 朋友圈
 SNS = "Sns"
@@ -115,14 +116,27 @@ class SnsConfigV20(Base):
 
 
 @singleton
+class SnsCache(UserDB):
+    def __init__(self):
+        super().__init__(RC.USER_CACHE_DB, SNS)
+        self.register_tables([
+            FeedsV20,
+            CommentV20,
+            SnsConfigV20,
+        ])
+        self.connect_db()
+
+
+@singleton
 class Sns(UserDB):
     def __init__(self):
-        super().__init__(SNS)
-        self.register_table(FeedsV20)
-        self.register_table(CommentV20)
-        self.register_table(SnsConfigV20)
-        self.connect()
-        self.init_session()
+        super().__init__(RC.USER_DB, SNS)
+        self.register_tables([
+            FeedsV20,
+            CommentV20,
+            SnsConfigV20,
+        ])
+        self.connect_db()
 
     def get_feeds_by_duration(
         self, begin_timestamp: int, end_timestamp: int

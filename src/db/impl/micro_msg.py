@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
+from db.abstract_db import AbstractUserDB
+from db.abstract_user_db import Base, UserDB
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_, case
 
+from common import RC
 from utils import singleton
-from .userdb import Base, UserDB
 
 # 联系人信息
 MICRO_MSG = "MicroMsg"
@@ -112,14 +114,18 @@ class ContactLabel(Base):
 
 
 @singleton
-class MicroMsg(UserDB):
+class MicroMsgCache(AbstractUserDB):
     def __init__(self):
-        super().__init__(MICRO_MSG)
-        self.register_table(Contact)
-        self.register_table(ContactHeadImgUrl)
-        self.register_table(ContactLabel)
-        self.connect()
-        self.init_session()
+        super().__init__(RC.USER_CACHE_DB, MICRO_MSG)
+        self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
+
+
+@singleton
+class MicroMsg(AbstractUserDB):
+    def __init__(self):
+        super().__init__(RC.USER_DB, MICRO_MSG)
+        self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
+        self.connect_db()
 
     def list_contact(self):
         """获取所有联系人信息"""

@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from sqlalchemy import LargeBinary, Column, String, Integer
 
+from common import RC
+from db.abstract_user_db import Base, UserDB
 from utils import singleton
-from .userdb import Base, UserDB
 
 # 二进制头像
 MISC = "Misc"
@@ -56,14 +57,27 @@ class ContactHeadImg1(Base):
 
 
 @singleton
+class MiscCache(UserDB):
+    def __init__(self):
+        super().__init__(RC.USER_CACHE_DB, MISC)
+        self.register_tables([
+            BizContactHeadImg,
+            ContactHeadImg1
+        ])
+        self.connect_db()
+
+
+@singleton
 class Misc(UserDB):
     def __init__(self):
-        super().__init__(MISC)
-        self.register_table(ContactHeadImg1)
-        self.connect()
-        self.init_session()
+        super().__init__(RC.USER_DB, MISC)
+        self.register_tables([
+            BizContactHeadImg,
+            ContactHeadImg1
+        ])
+        self.connect_db()
 
-    def get_avatar_buffer(self, usrName) -> ContactHeadImg1:
+    def get_avatar_buffer(self, usr_name: str) -> ContactHeadImg1:
         cls = ContactHeadImg1
         return self.session.query(cls).filter(
-            cls.usrName == usrName).one_or_none()
+            cls.usrName == usr_name).one_or_none()
