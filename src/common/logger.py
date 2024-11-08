@@ -19,7 +19,6 @@ LOG.addHandler(console_handler)
 
 # 文件输出
 date = datetime.datetime.now().strftime("%Y-%m-%d")
-file_handler = logging.FileHandler(
-    filename=SC.LOG_DIR.joinpath(date + ".log"), encoding="utf-8"
-)
+logging_file_name = filename = SC.LOG_DIR.joinpath(date + ".log")
+file_handler = logging.FileHandler(logging_file_name, encoding="utf-8")
 LOG.addHandler(file_handler)
