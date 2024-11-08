@@ -1,0 +1,6 @@
+[app]
+env='test'
+
+[logging]
+level = 20
+name = "root"

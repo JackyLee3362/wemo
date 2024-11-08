@@ -1,9 +1,9 @@
 [app]
 name = "微信朋友圈备份软件"
 version = "1.0.0"
+env = "prod"
 
 [logging]
-# DEBUG=10, INFO=20, WARNING=30, ERROR=40, FATAL=50
-level = 10
+level = 20
 name = "root"
 
