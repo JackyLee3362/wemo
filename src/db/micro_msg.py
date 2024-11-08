@@ -3,12 +3,11 @@ from __future__ import annotations
 from typing import List, Tuple
 
 from db.abstract_db import AbstractUserDB
-from db.abstract_user_db import Base, UserDB
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_, case
 
-from common import RC
 from utils import singleton
+from .abstract_db import Base
 
 # 联系人信息
 MICRO_MSG = "MicroMsg"
@@ -115,15 +114,15 @@ class ContactLabel(Base):
 
 @singleton
 class MicroMsgCache(AbstractUserDB):
-    def __init__(self):
-        super().__init__(RC.USER_CACHE_DB, MICRO_MSG)
+    def __init__(self, user_cache_db, logger):
+        super().__init__(user_cache_db, MICRO_MSG, logger)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
 
 
 @singleton
 class MicroMsg(AbstractUserDB):
-    def __init__(self):
-        super().__init__(RC.USER_DB, MICRO_MSG)
+    def __init__(self, user_cache_db, logger):
+        super().__init__(user_cache_db, MICRO_MSG, logger)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
         self.connect_db()
 

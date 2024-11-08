@@ -1,21 +1,19 @@
-import os
-import shutil
-
-from common import RC, LOG
-from decrypter import db_decrypt
-from db.impl.micro_msg import MicroMsg, MICRO_MSG, MicroMsgCache
-from db.impl.misc import MISC, Misc, MiscCache
-from db.impl.sns import Sns, SNS, SnsCache
+from decrypter import db_decrypter
 from utils import singleton
+from pathlib import Path
+
+from .micro_msg import MICRO_MSG, MicroMsg, MicroMsgCache
+from .misc import MISC, Misc, MiscCache
+from .sns import SNS, Sns, SnsCache
 
 
 @singleton
 class DBCluster:
-    def __init__(self):
-        self.wx_dir = RC.WX_DIR
-        self.user_cache_db = RC.USER_CACHE_DB
-        self.user_db = RC.USER_DB
-        self.decrypter = db_decrypt.DatabaseDecrypter()
+    def __init__(self, src_dir: Path, dst_dir: Path, db_dir: Path):
+        self.wx_dir = src_dir
+        self.user_cache_db = dst_dir
+        self.user_db = db_dir
+        self.decrypter = db_decrypter.DatabaseDecrypter()
         # 数据库
         self.dbs = None
         # 缓存数据
@@ -25,7 +23,7 @@ class DBCluster:
         self.dbs = {MICRO_MSG: MicroMsg(), MISC: Misc(), SNS: Sns()}
 
     def init_caches(self):
-        self.decrypter.decrypt_and_move()
+        self.decrypter.decrypt_and_copy()
         self.caches = {MICRO_MSG: MicroMsgCache(), MISC: MiscCache(), SNS: SnsCache()}
 
     def update_user_db_by_cache(self, db_name: str):

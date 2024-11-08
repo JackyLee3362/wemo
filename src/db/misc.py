@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from sqlalchemy import LargeBinary, Column, String, Integer
 
-from common import RC
-from db.abstract_user_db import Base, UserDB
+from db.abstract_db import AbstractUserDB
+from db.abstract_db import Base
 from utils import singleton
 
 # 二进制头像
@@ -57,9 +57,9 @@ class ContactHeadImg1(Base):
 
 
 @singleton
-class MiscCache(UserDB):
-    def __init__(self):
-        super().__init__(RC.USER_CACHE_DB, MISC)
+class MiscCache(AbstractUserDB):
+    def __init__(self, user_cache_db_dir):
+        super().__init__(user_cache_db_dir, MISC)
         self.register_tables([
             BizContactHeadImg,
             ContactHeadImg1
@@ -68,9 +68,9 @@ class MiscCache(UserDB):
 
 
 @singleton
-class Misc(UserDB):
-    def __init__(self):
-        super().__init__(RC.USER_DB, MISC)
+class Misc(AbstractUserDB):
+    def __init__(self, user_cache_db_dir):
+        super().__init__(user_cache_db_dir, MISC)
         self.register_tables([
             BizContactHeadImg,
             ContactHeadImg1

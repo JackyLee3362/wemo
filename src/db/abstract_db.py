@@ -1,18 +1,19 @@
 from __future__ import annotations
 
+from logging import Logger, getLogger
 from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-from common import LOG
 
 Base = declarative_base()
 
 
 class AbstractUserDB:
-    def __init__(self, db_dir: Path, db_name: str):
-        LOG.debug(f"[{db_name}]: 初始化数据库")
+    def __init__(self, db_dir: Path, db_name: str, logger: Logger = None):
+        self.logger = logger or getLogger(__name__)
+        self.logger.debug(f"[ INIT ] {db_name}]")
         self.db_name = db_name
         self.db_url = db_dir.joinpath(db_name + ".db")
         self.tables = []
@@ -21,7 +22,7 @@ class AbstractUserDB:
         self.session = None
 
     def connect_db(self):
-        LOG.debug(f"[{self.db_name}]: 连接数据库 {self.db_url} 建立会话")
+        self.logger.debug(f"[ CONNECT ] {self.db_url} with session...")
         self.engine = create_engine(f"sqlite:///{self.db_url}")
         self.db_session = sessionmaker(bind=self.engine)
         self.session = self.db_session()
@@ -56,5 +57,5 @@ class AbstractUserDB:
             self.update_one(d1, d2, table_cls)
 
     def close_session(self) -> None:
-        LOG.debug(f"[{self.db_name}] 关闭连接")
+        self.logger.debug(f"[ CLOSE ] {self.db_name}")
         self.session.close()

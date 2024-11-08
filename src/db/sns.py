@@ -5,10 +5,9 @@ from typing import Optional
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_
 
-from common import RC
-from common.logger import LOG
-from db.abstract_user_db import Base, UserDB
 from utils import singleton
+
+from .abstract_db import AbstractUserDB, Base
 
 # 朋友圈
 SNS = "Sns"
@@ -116,26 +115,30 @@ class SnsConfigV20(Base):
 
 
 @singleton
-class SnsCache(UserDB):
-    def __init__(self):
-        super().__init__(RC.USER_CACHE_DB, SNS)
-        self.register_tables([
-            FeedsV20,
-            CommentV20,
-            SnsConfigV20,
-        ])
+class SnsCache(AbstractUserDB):
+    def __init__(self, user_cache_db_dir, logger):
+        super().__init__(user_cache_db_dir, SNS, logger)
+        self.register_tables(
+            [
+                FeedsV20,
+                CommentV20,
+                SnsConfigV20,
+            ]
+        )
         self.connect_db()
 
 
 @singleton
-class Sns(UserDB):
-    def __init__(self):
-        super().__init__(RC.USER_DB, SNS)
-        self.register_tables([
-            FeedsV20,
-            CommentV20,
-            SnsConfigV20,
-        ])
+class Sns(AbstractUserDB):
+    def __init__(self, user_cache_db_dir, logger):
+        super().__init__(user_cache_db_dir, SNS, logger)
+        self.register_tables(
+            [
+                FeedsV20,
+                CommentV20,
+                SnsConfigV20,
+            ]
+        )
         self.connect_db()
 
     def get_feeds_by_duration(
@@ -155,10 +158,9 @@ class Sns(UserDB):
         return res
 
     def get_feed_by_feed_id(self, feed_id: int) -> FeedsV20:
-        res = self.session.query(FeedsV20).filter(
-            FeedsV20.FeedId == feed_id).first()
+        res = self.session.query(FeedsV20).filter(FeedsV20.FeedId == feed_id).first()
         if res is None:
-            LOG.error(f"feed_id:{feed_id} 未找到")
+            self.logger.error(f"feed_id:{feed_id} 未找到")
             return FeedsV20()
         return res
 
