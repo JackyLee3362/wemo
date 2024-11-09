@@ -1,4 +1,4 @@
-from wemo.config import Config, ConfigAttribute
+from wemo.base.config import Config, ConfigAttribute
 from wemo.helper import get_debug_flag
 from wemo.logging import create_logger
 from .scaffold import Scaffold

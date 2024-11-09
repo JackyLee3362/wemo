@@ -11,7 +11,7 @@ from werkzeug.utils import import_string
 if t.TYPE_CHECKING:
     import typing_extensions as te
 
-    from .base.app import App
+    from .app import App
 T = t.TypeVar("T")
 
 

@@ -1,4 +1,4 @@
-from ..config import Config
+from .config import Config
 from ..helper import get_root_path
 
 
