@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+# 2024-10-26
+
+
 class Person:
     def __init__(self, name, age):
         self.name = name
@@ -6,7 +11,7 @@ class Person:
     def __hash__(self):
         return hash(self.name)
 
-    def __eq__(self, value):
+    def __eq__(self, value: Person):
         return self.name == value.name
 
     def __repr__(self):
@@ -29,5 +34,16 @@ def test_person():
 def test_2():
     v = {"abc"}
     print("----------")
-    print("type:",type(v))
+    print("type:", type(v))
     print("value:", v)
+
+
+def test_3():
+    print("test_3")
+    print(__name__)
+
+
+def test_4():
+    print("test_4")
+    d = {"a": 1}
+    print(d.get("b"))

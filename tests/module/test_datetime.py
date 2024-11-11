@@ -6,6 +6,6 @@ def test_1():
     print(type(d))
     res = d - datetime.timedelta(days=2)
     print(res)
-    d2 = datetime.date()
+    d2 = datetime.datetime.now()
     print(d2)
 
