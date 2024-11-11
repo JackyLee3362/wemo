@@ -4,10 +4,10 @@ from wemo.base.logging import default_console_logger
 from wemo.database.micro_msg import MicroMsg, Contact, ContactHeadImgUrl, ContactLabel
 from wemo import constant
 
-cur_file_name = Path(__file__).stem
-user_dir = constant.DATA_DIR.joinpath(cur_file_name)
 N = 200
-LOG = default_console_logger(__name__)
+name = "test_database"
+user_dir = constant.DATA_DIR.joinpath(name)
+LOG = default_console_logger(name)
 
 
 class TestMock:

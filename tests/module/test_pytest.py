@@ -1,3 +1,6 @@
+import pytest
+
+
 def setup_module():
     print("测试模块准备")
 
@@ -12,6 +15,13 @@ def setup_function():
 
 def teardown_function():
     print("测试函数清理")
+
+
+@pytest.fixture(autouse=True)
+def run_around_test():
+    print("before")
+    yield
+    print("after")
 
 
 def test_add():  # 测试函数

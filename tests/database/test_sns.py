@@ -7,10 +7,10 @@ from wemo.database.sns import Sns, FeedsV20, CommentV20, SnsConfigV20
 from wemo import constant
 from wemo.utils import to_timestamp
 
-cur_file_name = Path(__file__).stem
-user_dir = constant.DATA_DIR.joinpath(cur_file_name)
 N = 200
-LOG = default_console_logger(__name__)
+name = "test_database"
+user_dir = constant.DATA_DIR.joinpath(name)
+LOG = default_console_logger(name)
 
 
 class TestMock:

@@ -9,6 +9,3 @@ def test_mock_user():
     user.init_user_dir()
     assert user.wx_id == mock_wx_id
     assert user.wx_key is None
-
-
-def a(): ...
