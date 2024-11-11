@@ -3,7 +3,6 @@ import logging
 from rich.logging import RichHandler
 
 
-
 console_handler = RichHandler(rich_tracebacks=True)
 
 
@@ -16,4 +15,11 @@ def create_logger(app) -> logging.Logger:
         logger.setLevel(logging.DEBUG)
     logger.addHandler(console_handler)
 
+    return logger
+
+
+def default_console_logger(name) -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(console_handler)
     return logger

@@ -91,7 +91,7 @@ class Config(dict):
         return self.from_pyfile(rv, silent=silent)
 
     def from_prefixed_env(
-        self, prefix: str = "FLASK", *, loads: t.Callable[[str], t.Any] = json.loads
+        self, prefix: str = "WEMO", *, loads: t.Callable[[str], t.Any] = json.loads
     ) -> bool:
         prefix = f"{prefix}_"
         len_prefix = len(prefix)
