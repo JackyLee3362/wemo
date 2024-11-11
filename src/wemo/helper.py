@@ -16,11 +16,17 @@ def get_root_path(import_name: str) -> str:
 
 
 def get_wx_info(info: dict = None):
-    return info or pywxdump_get_wx_info()
+    if info is not None:
+        return info
+    infos = pywxdump_get_wx_info()
+    res = infos[0]
+    wx_dir = res.get("wx_dir")
+    res["wx_dir"] = Path(wx_dir)
+    return res
 
 
 def decrypt(key: str, db_path: Path | str, out_path: Path | str) -> bool:
     if key is None:
         shutil.copy(db_path, out_path)
         return
-    pywxdump_decrypt(key, db_path, out_path)
+    return pywxdump_decrypt(key, db_path, out_path)

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from ast import Return
 from logging import Logger, getLogger
 from pathlib import Path
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
 from sqlalchemy.schema import MetaData
 
 
@@ -26,7 +25,7 @@ class AbsUserDB:
         self.table_cls_list: list[UserTable] = []
         self.engine = None
         self.db_session = None
-        self.session = None
+        self.session: Session = None
         self.metadata = None
 
     def init_db(self):

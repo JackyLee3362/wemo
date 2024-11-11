@@ -13,6 +13,8 @@ def create_logger(app) -> logging.Logger:
 
     if app.debug and not logger.level:
         logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
     logger.addHandler(console_handler)
 
     return logger

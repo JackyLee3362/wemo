@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 from wemo.base.config import Config, ConfigAttribute
+from wemo.base.logging import default_console_logger
 
 
 class UserDirStructure(Path):
@@ -36,18 +37,19 @@ class UserDirStructure(Path):
 
 class User:
     # runtime constant 运行时常量
-    wx_id = ConfigAttribute[str]("wx_id")
+    wx_id = ConfigAttribute[str]("wxid")
     wx_dir: Path = ConfigAttribute[Path]("wx_dir")
-    wx_key = ConfigAttribute[str]("wx_key")
+    wx_key = ConfigAttribute[str]("key")
+    db_name_list = ["Sns", "MicroMsg", "Misc"]
 
     def __init__(
         self,
-        proj_data_dir: Path,
+        proj_dir: Path,
         info: dict,
         config: Config,
         logger: logging.Logger = None,
     ):
-        self.proj_data_dir = proj_data_dir
+        self.proj_dir = proj_dir
         self.info = info
         config.update(info)
         self.config = config
@@ -55,6 +57,7 @@ class User:
         if logger is None:
             logger = logging.getLogger(__name__)
         self.logger = logger
+        self.logger.info("[ INIT USER ] {}".format(self.wx_id))
 
     def init_user_dir(self):
         if self.data_dir is None:
@@ -71,7 +74,8 @@ class User:
 
     @cached_property
     def user_dir(self) -> Path:
-        return self.proj_data_dir.joinpath(self.wx_id)
+        proj_data_dir: Path = self.config.get("DATA_DIR")
+        return proj_data_dir.joinpath(self.wx_id)
 
     @cached_property
     def data_dir(self) -> UserDirStructure:
@@ -85,15 +89,15 @@ class User:
     def mock_user(mock_wx_id: str) -> User:
         from wemo import constant
 
-        project_path = constant.PROJECT_DIR
+        proj_path = constant.PROJECT_DIR
 
-        config = Config(project_path)
+        config = Config(proj_path)
         config.from_object(constant)
 
-        data_dir: Path = config.get("DATA_DIR")
         mock_dir: Path = config.get("MOCK_DIR")
         mock_wx_dir = mock_dir.joinpath(mock_wx_id)
 
-        info = {"wx_id": mock_wx_id, "wx_key": None, "wx_dir": mock_wx_dir}
+        info = {"wxid": mock_wx_id, "key": None, "wx_dir": mock_wx_dir}
+        logger = default_console_logger(__name__)
 
-        return User(proj_data_dir=data_dir, info=info, config=config)
+        return User(proj_dir=proj_path, info=info, config=config, logger=logger)

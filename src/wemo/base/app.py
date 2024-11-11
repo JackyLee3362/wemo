@@ -17,8 +17,7 @@ class App(Scaffold):
         self.config = self.make_config()
     @property
     def name(self) -> str:  # type: ignore
-        # :todo:
-        return
+        return self.import_name
 
     @property
     def logger(self) -> Logger:

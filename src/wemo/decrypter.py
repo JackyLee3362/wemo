@@ -30,7 +30,7 @@ class Decrypter:
 
     def get_months_by_existing_dir(self):
         res = []
-        pattern = re.compile("^20\d{2}-[01][0-9]$")
+        pattern = re.compile(r"^20\d{2}-[01][0-9]$")
         for file in self.src_dir.iterdir():
             if file.is_dir() and pattern.match(file.name) is not None:
                 res.append(file.name)
@@ -75,10 +75,10 @@ class DBDecrypter(Decrypter):
         for k, task in tasks.items():
             if self.wx_key is None:
                 # :todo: 语义有点问题
-                self.logger.debug(f"[{k}] 数据库已解密，复制数据库")
+                self.logger.debug(f"[ COPY ] {k} has decrypted, copy it.")
                 shutil.copy(*task)
                 continue
-            self.logger.debug(f"[{k}] 开始解密，并复制数据库")
+            self.logger.debug(f"[ DECRYPTED COPY ] {k} is decrypting. then copy.")
             flag, result = decrypt(self.wx_key, *task)
             if not flag:
                 self.logger.error(result)
@@ -121,9 +121,9 @@ class ImageDecrypter(Decrypter):
             dst_thm_dir.mkdir(exist_ok=True)
             for file in src_dir.rglob("*"):
                 if file.is_file() and not file.name.endswith("_t"):
-                    self._handle_file(y_m, file)
+                    self._handle_img(y_m, file)
 
-    def _handle_file(self, year_month: str, file: Path) -> None:
+    def _handle_img(self, year_month: str, file: Path) -> None:
         """
         处理单个文件，解密图片，并重命名（假设都有缩略图）
         """
@@ -134,7 +134,7 @@ class ImageDecrypter(Decrypter):
         magic = self.guess_image_encoding_magic(encrypt_img_buf)
         if magic is None:
             return
-        self.logger.info(f"[ FIND ] IMG {file.name}")
+        self.logger.debug(f"[ FIND IMG ] {file.name}")
         thm_src = file.parent.joinpath(file.name + "_t")
         img_size = file.stat().st_size
         thm_size = thm_src.stat().st_size if thm_src.exists() else 0
@@ -145,11 +145,11 @@ class ImageDecrypter(Decrypter):
         img_dst = self.dst_dir.joinpath(year_month, img_name)
         # 如果目标目录已存在，则跳过
         if img_dst.exists():
-            self.logger.debug(f"[ SKIP ] IMG/THUMB:{img_name}")
+            self.logger.debug(f"[ SKIP IMG/THUMB ]  {img_name}")
             return
         # 读缩略图加密
         if thm_src.exists() and not thm_dst.exists():
-            self.logger.info(f"[ HANDLE ] THUMB: {thm_name}")
+            self.logger.info(f"[ HANDLE THUMB ] file name is {thm_name}")
             # 读取加密缩略图
             with open(thm_src, "rb") as f:
                 encrypt_thm_buf = bytearray(f.read())
@@ -160,7 +160,7 @@ class ImageDecrypter(Decrypter):
         # 写主图
         decrypt_img_buf = self.xor_decode(magic, encrypt_img_buf)
         with open(img_dst, "wb") as f:
-            self.logger.info(f"[ HANDLE ] IMG {img_name}")
+            self.logger.info(f"[ HANDLE IMG ] {img_name}")
             f.write(decrypt_img_buf)
 
     @staticmethod
@@ -196,7 +196,7 @@ class VideoDecrypter(Decrypter):
     def decrypt(self, *args, **kwargs):
         begin = kwargs.get("begin", None)
         end = kwargs.get("end", None)
-        self._decrypt_videos(begin, end)
+        self._handle_videos(begin, end)
 
     @property
     def ffprobe_path(self):
@@ -206,7 +206,7 @@ class VideoDecrypter(Decrypter):
     def ffmpeg_path(self):
         return self.bin_path.joinpath("ffmpeg.exe")
 
-    def _decrypt_videos(self, begin: date = None, end: date = None) -> None:
+    def _handle_videos(self, begin: date = None, end: date = None) -> None:
         """
         将视频文件从缓存中复制出来，重命名为 [md5_duration.mp4]
         """
@@ -216,16 +216,20 @@ class VideoDecrypter(Decrypter):
             y_m_list = get_months_between_dates(begin, end)
 
         for y_m in y_m_list:
-            src_dir = self.dst_dir.joinpath(y_m)
-            src_dir.mkdir(exist_ok=True)
+            src_dir = self.src_dir.joinpath(y_m)
+            dst_dir = self.dst_dir.joinpath(y_m)
+            dst_dir.mkdir(exist_ok=True)
             for file in src_dir.rglob("*"):
                 file_type = filetype.guess(file)
                 if file_type and file_type.extension == "mp4":
-                    self.logger.info(f"[ HANDLE VIDEO ]: {file}")
                     md5 = self._calculate_md5(file)
                     duration = self._get_video_duration(file)
-                    video_dst_path = self.src_dir.joinpath(f"{md5}_{duration}.mp4")
-                    shutil.copy(file.resolve(), video_dst_path)
+                    video_dst_path = dst_dir.joinpath(f"{md5}_{duration}.mp4")
+                    if not video_dst_path.exists():
+                        self.logger.info(f"[ COPY VIDEO ]: {file}")
+                        shutil.copy(file.resolve(), video_dst_path)
+                    else:
+                        self.logger.debug(f"[ SKIP VIDEO ]: {file}")
 
     def _calculate_md5(self, file: Path):
         with open(file, "rb") as f:
@@ -236,16 +240,16 @@ class VideoDecrypter(Decrypter):
         """获取视频时长"""
         ffprobe_path = self.ffprobe_path
         if not ffprobe_path.exists():
-            self.logger.error(f"[ NOT EXIST ]: {ffprobe_path}")
+            self.logger.error(f"[ FFPROBE NOT EXIST ]: {ffprobe_path}")
             return 0
         ffprobe_cmd = f'"{ffprobe_path}"  -i "{video_path}" -show_entries format=duration -v quiet -of csv="p=0"'
         p = subprocess.Popen(
             ffprobe_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
         )
-        self.logger.debug(f"ffprobe cmd: {ffprobe_cmd}")
+        # self.logger.debug(f"ffprobe cmd: {ffprobe_cmd}")
         out, err = p.communicate()
         if len(str(err, "gbk")) > 0:
-            self.logger.info(f"subprocess 执行结果: out:{out} err:{str(err, 'gbk')}")
+            self.logger.error(f"[ SUBPROCESS RESULT ] out:{out} err:{str(err, 'gbk')}")
             return 0
         if len(str(out, "gbk")) == 0:
             return 0
