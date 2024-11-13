@@ -1,0 +1,56 @@
+import shutil
+from collections import namedtuple
+from logging import Logger
+from pathlib import Path
+from typing import override
+
+from wemo.decrypt.decrypter import Decrypter
+from wemo.utils.helper import decrypt
+
+
+class DBDecrypter(Decrypter):
+    """
+    数据库解密器
+    """
+
+    def __init__(
+        self,
+        wx_key: str,
+        src_dir: Path,
+        dst_dir: Path,
+        db_name_list: list[str],
+        logger: Logger = None,
+    ):
+        super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
+        self.wx_key = wx_key
+        self.db_name_list = db_name_list
+
+    @override
+    def decrypt(self, *args, **kwargs):
+        self._decrypt_db()
+
+    def _decrypt_db(self) -> None:
+        if not self.src_dir.exists():
+            self.logger.error("源目录不存在")
+            return
+        Task = namedtuple("Task", ["src", "dst"])
+        tasks = {}
+
+        # 遍历源数据库中的 db 数据库，并存入 cache 中
+        for src_path in self.src_dir.rglob("*.db"):
+            name = src_path.stem
+            if src_path.stem in self.db_name_list:
+                dst_db_path = self.dst_dir.joinpath(src_path.name)
+                tasks[name] = Task(src=src_path, dst=dst_db_path)
+        # 调用 pywxdump 解密
+        for k, task in tasks.items():
+            if self.wx_key is None:
+                # :todo: 语义有点问题
+                self.logger.debug(f"[ COPY ] {k} has decrypted, copy it.")
+                shutil.copy(*task)
+                continue
+            self.logger.debug(
+                f"[ DECRYPTED COPY ] {k} is decrypting. then copy.")
+            flag, result = decrypt(self.wx_key, *task)
+            if not flag:
+                self.logger.error(result)

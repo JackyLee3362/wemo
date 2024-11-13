@@ -1,5 +1,5 @@
 from .config import Config
-from ..helper import get_root_path
+from ..utils.helper import get_root_path
 
 
 class Scaffold:

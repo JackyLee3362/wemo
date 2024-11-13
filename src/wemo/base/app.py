@@ -1,5 +1,5 @@
 from wemo.base.config import Config, ConfigAttribute
-from wemo.helper import get_debug_flag
+from wemo.utils.helper import get_debug_flag
 from wemo.base.logging import create_logger
 from .scaffold import Scaffold
 import typing as t

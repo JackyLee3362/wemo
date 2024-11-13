@@ -7,7 +7,7 @@ from wemo.base.db import AbsUserDB
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_, case
 
-from wemo.utils import mock_url, mock_user, singleton
+from wemo.utils.utils import mock_url, mock_user, singleton
 from wemo.base.db import UserTable
 
 # 联系人信息
@@ -113,15 +113,15 @@ class ContactLabel(UserTable):
 
 @singleton
 class MicroMsgCache(AbsUserDB):
-    def __init__(self, user_cache_db_dir, logger=None):
-        super().__init__(user_cache_db_dir, db_name=MicroMsg.__name__, logger=logger)
+    def __init__(self, user_cache_db_url, logger=None):
+        super().__init__(user_cache_db_url, db_name=MicroMsg.__name__, logger=logger)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
 
 
 @singleton
 class MicroMsg(AbsUserDB):
-    def __init__(self, user_db_dir, logger=None):
-        super().__init__(user_db_dir, logger=logger)
+    def __init__(self, user_db_url, logger=None):
+        super().__init__(user_db_url, logger=logger)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
 
     def list_contact(self):

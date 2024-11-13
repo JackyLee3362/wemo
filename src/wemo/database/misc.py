@@ -1,12 +1,11 @@
 from __future__ import annotations
 import random
-from venv import create
 
 from sqlalchemy import LargeBinary, Column, String, Integer
 
 from wemo.base.db import AbsUserDB
 from wemo.base.db import UserTable
-from wemo.utils import mock_bytes, mock_timestamp, mock_user, singleton
+from wemo.utils.utils import mock_bytes, mock_timestamp, mock_user, singleton
 
 # 二进制头像
 

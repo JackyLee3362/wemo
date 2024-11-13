@@ -6,9 +6,9 @@ from typing import Optional
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_
 
-from wemo.utils import mock_sns_content, mock_timestamp, mock_user, singleton
+from wemo.utils.utils import mock_sns_content, mock_timestamp, mock_user, singleton
 
-from ..base.db import AbsUserDB, UserTable
+from wemo.base.db import AbsUserDB, UserTable
 
 # 朋友圈
 

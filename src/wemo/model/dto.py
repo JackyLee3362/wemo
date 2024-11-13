@@ -1,10 +1,12 @@
 from __future__ import annotations
-from typing import Optional
-from dataclasses import dataclass, field
-from dataclasses_json import dataclass_json, config
-import xmltodict
 
-from wemo.utils import timestamp_convert
+from dataclasses import dataclass, field
+from typing import NamedTuple, Optional
+
+import xmltodict
+from dataclasses_json import dataclass_json, config
+
+from wemo.utils.utils import timestamp_convert
 
 
 @dataclass_json
@@ -25,6 +27,23 @@ class Url:
     token: str = field(metadata=config(field_name="@token"), default="")
     enc_idx: str = field(metadata=config(field_name="@enc_idx"), default="")
 
+    @property
+    def url(self):
+        return self.text
+
+    @property
+    def urn(self):
+        return self.text.split("/")[-2]
+
+    @property
+    def params(self):
+        res = {}
+        if self.token not in ("", None):
+            res["token"] = self.token
+        if self.enc_idx not in ("", None):
+            res["enc_idx"] = self.enc_idx
+        return res
+
 
 @dataclass_json
 @dataclass
@@ -34,6 +53,23 @@ class Thumb:
     text: str = field(metadata=config(field_name="#text"))
     token: str = field(metadata=config(field_name="@token"), default="")
     enc_idx: str = field(metadata=config(field_name="@enc_idx"), default="")
+
+    @property
+    def url(self):
+        return self.text
+
+    @property
+    def urn(self):
+        return self.text.split("/")[-2]
+
+    @property
+    def params(self):
+        res = {}
+        if self.token not in ("", None):
+            res["token"] = self.token
+        if self.enc_idx not in ("", None):
+            res["enc_idx"] = self.enc_idx
+        return res
 
 
 @dataclass_json
@@ -47,6 +83,10 @@ class Media:
     thumb: Optional[Thumb] = None
     thumbUrl: Optional[str] = None
     videoDuration: Optional[str] = None
+
+    @property
+    def thumbUrn(self):
+        return self.thumbUrl.split("/")[-2]
 
 
 @dataclass_json
@@ -93,7 +133,38 @@ class TimelineObject:
 class MomentMsg:
     timelineObject: TimelineObject = field(metadata=config(field_name="TimelineObject"))
 
-    def from_dict(*args, **kwargs) -> MomentMsg: ...
+    def from_dict(self, *args, **kwargs) -> MomentMsg: ...
+
+    @property
+    def imgs(self) -> list[Media]:
+        res = []
+        medias: MediaList = self.medias
+        for media in medias:
+            if media.type == "2":
+                res.append(media)
+            elif media.type == 5 or self.style == 3:
+                media.url = media.thumb
+                res.append(media)
+        return res
+
+    @property
+    def videos(self) -> list[Media]:
+        res = []
+        for media in self.medias:
+            if media.type == "6":
+                res.append(media)
+        return res
+
+    @property
+    def medias(self) -> list[Media]:
+        return self.timelineObject.ContentObject.mediaList.media
+
+    @property
+    def finder(self) -> list[Media]:
+        finder_feed = self.timelineObject.ContentObject.finderFeed
+        if not finder_feed or not finder_feed.mediaList:
+            return []
+        return finder_feed.mediaList
 
     @property
     def date(self) -> str:
@@ -127,6 +198,7 @@ class MomentMsg:
     def desc_brief(self) -> str:
         COUNT = 20
         desc = self.desc or ""
+        desc = desc.replace("\n", " ")
         return (desc[: COUNT - 3] + "...") if len(desc) > COUNT else desc.ljust(COUNT)
 
     @property

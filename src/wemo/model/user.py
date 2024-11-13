@@ -1,6 +1,7 @@
 from __future__ import annotations
-from functools import cached_property
+
 import logging
+from functools import cached_property
 from pathlib import Path
 
 from wemo.base.config import Config, ConfigAttribute
@@ -9,8 +10,8 @@ from wemo.base.logging import default_console_logger
 
 class UserDirStructure(Path):
 
-    def __init__(self, user_root_dir: Path, *args, **kwargs):
-        super().__init__(user_root_dir, *args, **kwargs)
+    def __init__(self, user_root_dir: Path, *args):
+        super().__init__(user_root_dir, *args)
 
     @property
     def db_dir(self):
@@ -54,9 +55,7 @@ class User:
         config.update(info)
         self.config = config
 
-        if logger is None:
-            logger = logging.getLogger(__name__)
-        self.logger = logger
+        self.logger = logger or logging.getLogger(__name__)
         self.logger.info("[ INIT USER ] {}".format(self.wx_id))
 
     def init_user_dir(self):
@@ -86,18 +85,18 @@ class User:
         return UserDirStructure(self.user_dir.joinpath("cache"))
 
     @staticmethod
-    def mock_user(mock_wx_id: str) -> User:
-        from wemo import constant
+    def mock_user(wxid: str) -> User:
+        from wemo.base import constant
 
         proj_path = constant.PROJECT_DIR
 
         config = Config(proj_path)
         config.from_object(constant)
 
-        mock_dir: Path = config.get("MOCK_DIR")
-        mock_wx_dir = mock_dir.joinpath(mock_wx_id)
+        wx_dir: Path = config.get("MOCK_DIR")
+        wx_user_dir = wx_dir.joinpath(wxid)
 
-        info = {"wxid": mock_wx_id, "key": None, "wx_dir": mock_wx_dir}
+        info = {"wxid": wxid, "key": None, "wx_dir": wx_user_dir}
         logger = default_console_logger(__name__)
 
         return User(proj_dir=proj_path, info=info, config=config, logger=logger)

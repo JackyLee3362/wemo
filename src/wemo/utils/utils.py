@@ -1,9 +1,11 @@
+import math
+import random
+import re
 import time
-import os
 from datetime import datetime, timezone, timedelta, date
 from functools import wraps
-import random
-import uuid
+from pathlib import Path
+from typing import Optional
 
 random.seed(42)
 
@@ -13,7 +15,8 @@ def get_months_between_dates(start: date, end: date) -> list[str]:
         raise ValueError("Start date must be before end date.")
 
     months = []
-    current = start.replace(day=1)  # Start from the first day of the start month
+    # Start from the first day of the start month
+    current = start.replace(day=1)
 
     while current <= end:
         month_name = current.strftime("%Y-%m")  # Get the full month name
@@ -98,3 +101,41 @@ def mock_timestamp():
 
 def mock_sns_content():
     return ""
+
+
+def find_video_by_md5_or_duration(path: Path, md5: str, duration: float) -> Path:
+    """
+    使用 MD5 和 视频 匹配视频
+    """
+    p1 = re.compile(r"^(.*?)(?=_)")
+    p2 = re.compile(r"_([0-9.]+)\.mp4")
+    round_duration = round(float(duration), 2)
+
+    for file_path in path.iterdir():
+        # 使用 md5 匹配视频
+        m1 = p1.search(file_path.name)
+        if m1 and m1.group() == md5:
+            return file_path
+        # 使用视频时长匹配视频
+        m2 = p2.search(file_path.name)
+        if m2 is None:
+            continue
+        filename_duration = float(m2.group(1))
+        if math.isclose(filename_duration, round_duration, abs_tol=0.005):
+            return file_path
+
+
+def find_img_thumb_by_url(path: Path, url: str) -> tuple[Path, Path]:
+    dst_path = path.joinpath(url)
+    img_path = thm_path = None
+    if not dst_path.exists():
+        return img_path, thm_path
+    for idx, item in enumerate(dst_path.iterdir()):
+        if item.suffix == ".jpg":
+            if not item.stem.endswith("_t"):
+                img_path = item
+            if item.stem.endswith("_t"):
+                thm_path = item
+        if idx >= 2:
+            raise FileExistsError("文件过多")
+    return img_path, thm_path
