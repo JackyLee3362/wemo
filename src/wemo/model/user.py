@@ -46,21 +46,16 @@ class User:
     db_name_list = ["Sns", "MicroMsg", "Misc"]
 
     def __init__(
-        self,
-        proj_dir: Path,
-        info: dict,
-        config: Config,
-        logger: logging.Logger = None,
+        self, proj_dir: Path, info: dict, config: Config, logger: logging.Logger = None
     ):
         self.proj_dir = proj_dir
         self.info = info
         config.update(info)
         self.config = config
-
         self.logger = logger or logging.getLogger(__name__)
-        self.logger.debug(f"[ USER ] user({self.wx_id}) init.")
 
-    def init_user_dir(self):
+    def init_user(self):
+        self.logger.info(f"[ USER ] init user({self.wx_id})...")
         if self.data_dir is None:
             raise ValueError("data dir is None!")
         self.data_dir.init_dir()

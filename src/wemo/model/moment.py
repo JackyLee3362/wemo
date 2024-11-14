@@ -201,7 +201,7 @@ class MomentMsg:
         return timestamp_convert(self.timelineObject.createTime).strftime("%Y-%m")
 
     @property
-    def user_name(self) -> str:
+    def username(self) -> str:
         return self.timelineObject.username
 
     @property
@@ -231,26 +231,3 @@ class MomentMsg:
     @staticmethod
     def mock():
         return MomentMsg(TimelineObject.mock())
-
-
-@dataclass
-class Contact:
-    userName: str
-    alias: str
-    type: int
-    remark: str
-    nickName: str
-    pYInitial: str
-    remarkPYInitial: str
-    smallHeadImgUrl: str
-    bigHeadImgUrl: str
-    exTraBuf: str
-    labelName: str
-    latestTalkTime: int
-
-
-@dataclass
-class Comment:
-    from_user_name: str
-    comment_type: int
-    content: str

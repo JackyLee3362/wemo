@@ -1,12 +1,35 @@
 import logging
 from pathlib import Path
 from threading import Thread
-from typing import List
 
 from wemo.database.micro_msg import Contact
-from wemo.model.dto import MomentMsg
+from wemo.model.moment import  MomentMsg
 from wemo.model.user import User
 from wemo.utils.utils import find_img_thumb_by_url, find_video_by_md5_or_duration
+
+md_template = """# 朋友圈记录
+
+头像: {avatar_url}
+
+用户名: {username}
+
+昵称: {nickName}
+
+备注: {remark}
+
+内容: 
+
+{desc}
+
+图片: 
+
+{img_urls}
+
+视频:
+
+{video_urls}
+
+"""
 
 
 class ElementRender:
@@ -14,7 +37,7 @@ class ElementRender:
         self.user = user
         self.user_data_dir = user.data_dir
 
-    def render_imgs(self, img_paths: List[Path]):
+    def render_imgs(self, img_paths: list[Path]):
         if img_paths is None or len(img_paths) == 0:
             return ""
         res = []
@@ -46,38 +69,37 @@ class MarkdownExporter(Thread):
         self.render = ElementRender(user)
         super().__init__()
 
-    def export_moment(self, user: Contact, moment: MomentMsg) -> str:
-        username = moment.user_name
+    def export_moment(self, contact: Contact, moment: MomentMsg) -> str:
+        username = moment.username
         create_time = moment.time
         desc = moment.desc
         self.logger.debug(
-            f"[ EXPORTER ] {create_time} {user.Remark} push moment({moment.desc_brief})"
+            f"[ EXPORTER ] {create_time} {contact.remark} push moment({moment.desc_brief})"
         )
 
         img_paths = self.find_imgs(moment)
-        img_md_content = self.render.render_imgs(img_paths)
+        img_urls = self.render.render_imgs(img_paths)
 
         v_path = self.find_videos(moment)
-        v_md_content = self.render.render_videos(v_path)
+        video_urls = self.render.render_videos(v_path)
 
         a_path = self.find_avater(moment)
-        a_md_content = self.render.render_avatar(a_path)
+        avatar_url = self.render.render_avatar(a_path)
 
         # 输出为 md 文件
-        md_content = f"""# 朋友圈记录
-用户名: {username}
-头像: {a_md_content}
-自取昵称: {user.NickName}
-备注: {user.Remark}
-内容: {desc}
-图片: 
-{img_md_content}
-视频:
-{v_md_content}
-"""
-        user_name_repr = user.Remark if user.Remark else user.NickName
+        md_content = md_template.format(
+            avatar_url=avatar_url,
+            username=username,
+            nickname=contact.nick_name,
+            remark=contact.remark,
+            desc=desc,
+            img_urls=img_urls,
+            video_urls=video_urls,
+        )
+
+        username_repr = contact.remark if contact.remark else contact.nick_name
         with open(
-            self.output_dir.joinpath(f"{moment.datetime_cn}-{user_name_repr}.md"),
+            self.output_dir.joinpath(f"{moment.datetime_cn}-{username_repr}.md"),
             "w",
             encoding="utf-8",
         ) as f:
@@ -108,7 +130,7 @@ class MarkdownExporter(Thread):
 
     def find_avater(self, moment: MomentMsg):
         dst_dir = self.user.data_dir.avatar_dir
-        file_name = moment.user_name + ".png"
+        file_name = moment.username + ".png"
         dst_path = dst_dir.joinpath(file_name)
         if dst_path.exists():
             return dst_path

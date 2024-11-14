@@ -1,47 +1,43 @@
 import logging
 import shutil
 from pathlib import Path
+from typing import override
 
-from wemo.model.dto import MomentMsg
+from wemo.model.moment import MomentMsg
+from wemo.update.updater import Updater
 from wemo.utils.utils import singleton, find_video_by_md5_or_duration
 
 
 @singleton
-class VideoUpdater:
-    def __init__(
-        self,
-        user_data_video_dir: Path,
-        user_cache_video_dir: Path,
-        logger: logging.Logger = None,
-    ):
-        self.data_video_dir = user_data_video_dir
-        self.cache_video_dir = user_cache_video_dir
-        self.logger = logger
+class VideoUpdater(Updater):
+    def __init__(self, src_dir: Path, dst_dir: Path, logger: logging.Logger = None):
+        super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
 
-    def update_by_moment(self, msg: MomentMsg) -> list[str]:
+    @override
+    def update_by_moment(self, moment: MomentMsg) -> list[str]:
         """获取一条朋友圈的全部视频， 返回值是一个文件路径列表"""
-        media_list = msg.medias
-        year_month = msg.year_month
-        src_path = self.cache_video_dir.joinpath(year_month)
-        dst_path = self.data_video_dir.joinpath(year_month)
+        media_list = moment.medias
+        year_month = moment.year_month
+        src_path = self.src_dir.joinpath(year_month)
+        dst_path = self.dst_dir.joinpath(year_month)
         dst_path.mkdir(parents=True, exist_ok=True)
         if not media_list:
             return []
-        for video in msg.videos:
+        for video in moment.videos:
             self.handle_video(src_path, dst_path, video.url.md5, video.videoDuration)
 
     def handle_video(self, src_path: Path, dst_path: Path, md5: str, duration: str):
-        video_name = f"{md5}_{duration}.mp4"
-        video_path = dst_path.joinpath(video_name)
+        v_name = f"{md5}_{duration}.mp4"
+        video_path = dst_path.joinpath(v_name)
         if video_path.exists():
             return video_path
         # 使用 md5 和视频匹配
         video_cached_path = find_video_by_md5_or_duration(
             src_path, md5, float(duration)
         )
-        if video_cached_path:
+        if not video_cached_path:
+            self.logger.warning(
+                f"[ VIDEO UPDATER ] Video({v_name}) not found in cache!"
+            )
+        else:
             shutil.copy(video_cached_path, video_path)
-            return video_path
-        self.logger.warning(
-            f"[ VIDEO UPDATER ] Video({video_name}) not found in cache!"
-        )

@@ -6,21 +6,21 @@ from typing import Optional
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_
 
-from wemo.database.db import AbsUserDB, UserTable
-from wemo.model.dto import FeedDTO
+from wemo.database.db import AbsUserDB
+from wemo.database.db import UserTable
 from wemo.utils.utils import mock_sns_content, mock_timestamp, mock_user, singleton
 
 
 # 朋友圈
 
 
-class Feeds(UserTable):
+class Feed(UserTable):
     __tablename__ = "FeedsV20"
     feed_id = Column("FeedId", Integer, primary_key=True)
     create_time = Column("CreateTime", Integer)
     fault_id = Column("FaultId", Integer)
     type = Column("Type", Integer)
-    user_name = Column("UserName", String)
+    username = Column("UserName", String)
     status = Column("Status", Integer)
     ext_flag = Column("ExtFlag", Integer)
     priv_flag = Column("PrivFlag", Integer)
@@ -38,7 +38,7 @@ class Feeds(UserTable):
     @staticmethod
     def mock(seed):
         random.seed(seed)
-        return Feeds(
+        return Feed(
             FeedId=-mock_timestamp() * 10,
             CreateTime=mock_timestamp(),
             FaultId=0,
@@ -49,14 +49,6 @@ class Feeds(UserTable):
             PrivFlag=0,
             StringId=str(mock_timestamp() * 100),
             Content=mock_sns_content(),
-        )
-
-    def map2dto(self):
-        return FeedDTO(
-            feed_id=self.feed_id,
-            create_time=self.create_time,
-            user_name=self.user_name,
-            content=self.content,
         )
 
 
@@ -70,10 +62,10 @@ class Comment(UserTable):
     comment_type = Column("CommentType", Integer, primary_key=True)
     comment_flag = Column("CommentFlag", Integer)
     content = Column("Content", String)
-    from_user_name = Column("FromUserName", String, primary_key=True)
+    from_username = Column("FromUserName", String, primary_key=True)
     client_id = Column("ClientId", Integer)
     reply_id = Column("ReplyId", Integer)
-    reply_user_name = Column("ReplyUserName", String)
+    reply_username = Column("ReplyUserName", String)
     del_flag = Column("DeleteFlag", Integer)
     comment_id_64 = Column("CommentId64", Integer)
     reply_id_64 = Column("ReplyId64", Integer)
@@ -130,7 +122,7 @@ class SnsCache(AbsUserDB):
         super().__init__(user_cache_db_url, logger=logger)
         self.register_tables(
             [
-                Feeds,
+                Feed,
                 Comment,
                 SnsConfig,
             ]
@@ -143,31 +135,31 @@ class Sns(AbsUserDB):
         super().__init__(user_db_url, logger=logger)
         self.register_tables(
             [
-                Feeds,
+                Feed,
                 Comment,
                 SnsConfig,
             ]
         )
 
-    def get_feeds_by_duration_and_wxid(
-        self, begin_timestamp: int, end_timestamp: int, wx_ids: list[str] = None
-    ) -> list[FeedDTO]:
-        query = self.session.query(Feeds).filter(
+    def get_feeds_by_dur_and_wxids(
+        self, begin: int, end: int, wx_ids: list[str] = None
+    ) -> list[Feed]:
+        query = self.session.query(Feed).filter(
             and_(
-                Feeds.create_time >= begin_timestamp,
-                Feeds.create_time <= end_timestamp,
+                Feed.create_time >= begin,
+                Feed.create_time <= end,
             )
         )
         if wx_ids:
-            query = query.filter(Feeds.user_name.in_(wx_ids))
-        res = query.order_by(Feeds.create_time.desc()).all()
+            query = query.filter(Feed.username.in_(wx_ids))
+        res = query.order_by(Feed.create_time.desc()).all()
         return res
 
-    def get_feed_by_feed_id(self, feed_id: int) -> Feeds:
-        res = self.session.query(Feeds).filter(Feeds.feed_id == feed_id).first()
+    def get_feed_by_feed_id(self, feed_id: int) -> Feed:
+        res = self.session.query(Feed).filter(Feed.feed_id == feed_id).first()
         if res is None:
             self.logger.warning(f"[ SNS ] feed_id({feed_id}) NOT FIND")
-            return Feeds()
+            return Feed()
         return res
 
     def get_comment_by_feed_id(self, feed_id: int) -> Optional[Comment]:

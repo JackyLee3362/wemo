@@ -4,6 +4,7 @@ from pathlib import Path
 from flask.helpers import get_root_path as flask_get_root_path
 from pywxdump import decrypt as pywxdump_decrypt
 from pywxdump import get_wx_info as pywxdump_get_wx_info
+import requests
 
 
 def get_root_path(import_name: str) -> str:
@@ -25,3 +26,12 @@ def decrypt(key: str, db_path: Path | str, out_path: Path | str) -> bool:
         shutil.copy(db_path, out_path)
         return
     return pywxdump_decrypt(key, db_path, out_path)
+
+
+def get_img_from_server(url, params: dict) -> bytes:
+    if params:
+        query_string = "&".join(f"{key}={value}" for key, value in params.items())
+        url = f"{url}?{query_string}"
+    response = requests.get(url)
+    if response.ok:
+        return response.content

@@ -1,49 +1,34 @@
 import logging
 import shutil
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Tuple, Optional, override
 
-import requests
 
-from wemo.model.dto import MomentMsg, Thumb, Url
+from wemo.model.moment import MomentMsg, Thumb, Url
+from wemo.update.updater import Updater
 from wemo.utils.utils import find_img_thumb_by_url, singleton
-
-
-def get_img_from_server(url, params: dict) -> bytes:
-    """向微信服务器请求图片"""
-    if params:
-        query_string = "&".join(f"{key}={value}" for key, value in params.items())
-        url = f"{url}?{query_string}"
-    response = requests.get(url)
-    if response.ok:
-        return response.content
+from wemo.utils.helper import get_img_from_server
 
 
 @singleton
-class ImageUpdater:
-    def __init__(
-        self,
-        user_data_img_dir: Path,
-        user_cache_img_dir: Path,
-        logger: logging.Logger = None,
-    ):
-        self.data_img_dir = user_data_img_dir
-        self.cache_img_dir = user_cache_img_dir
-        self.logger = logger or logging.getLogger(__name__)
+class ImageUpdater(Updater):
+    def __init__(self, dst_dir: Path, src_dir: Path, logger: logging.Logger = None):
+        super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
 
     def save_server_img(self, urn: str, params: dict, img_type: str):
-        self.logger.debug("[ IMGAE UPDATER ]")
+        self.logger.debug("[ IMG UPDATER ]")
         img_type_lower = img_type.lower()
         if img_type_lower not in ("image", "thumb"):
             self.logger.warning("[ IMG UPDATER ] type is not img.")
             return
         content = get_img_from_server(urn, params)
         if content:
-            tmp_p = Path(self.data_img_dir).joinpath(urn)
+            tmp_p = Path(self.dst_dir).joinpath(urn)
             self.logger.debug(f"[ IMG UPDATER ] save a img, {urn}.")
             with open(tmp_p, "wb") as f:
                 f.write(content)
 
+    @override
     def update_by_moment(self, moment: MomentMsg) -> None:
         """根据 moment 更新朋友圈信息
         ~/year-month/img-url/content-length.jpg
@@ -55,8 +40,8 @@ class ImageUpdater:
                 url_info = img.url
                 thm_info = img.thumb
                 urn = url_info.text.split("/")[-2]
-                dst_img_dir = self.data_img_dir.joinpath(moment.year_month)
-                src_img_dir = self.cache_img_dir.joinpath(moment.year_month)
+                dst_img_dir = self.dst_dir.joinpath(moment.year_month)
+                src_img_dir = self.src_dir.joinpath(moment.year_month)
                 dst_img_urn_dir = dst_img_dir.joinpath(urn)
                 res0, _ = find_img_thumb_by_url(dst_img_dir, urn)
                 # 如果存在，则不处理

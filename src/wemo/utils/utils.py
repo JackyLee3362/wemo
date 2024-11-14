@@ -7,6 +7,7 @@ from functools import wraps
 from pathlib import Path
 import os
 
+
 random.seed(42)
 
 
@@ -146,3 +147,5 @@ def find_img_thumb_by_url(path: Path, url: str) -> tuple[Path, Path]:
 def get_debug_flag() -> bool:
     val = os.environ.get("WEMO_DEBUG")
     return bool(val and val.lower() not in {"0", "false", "no"})
+
+

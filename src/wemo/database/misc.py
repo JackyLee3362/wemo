@@ -15,7 +15,7 @@ from wemo.utils.utils import mock_bytes, mock_timestamp, mock_user, singleton
 class BizContactHeadImg(UserTable):
     __tablename__ = "BizContactHeadImg"
 
-    user_name = Column("usrName", String, primary_key=True)
+    username = Column("usrName", String, primary_key=True)
     create_time = Column("createTime", Integer)
     buf = Column("smallHeadBuf", LargeBinary)
     md5 = Column("m_headImgMD5", String)
@@ -33,13 +33,13 @@ class BizContactHeadImg(UserTable):
 class ContactHeadImg1(UserTable):
     __tablename__ = "ContactHeadImg1"
 
-    user_name = Column("usrName", String, primary_key=True)
+    username = Column("usrName", String, primary_key=True)
     create_time = Column("createTime", Integer)
     buf = Column("smallHeadBuf", LargeBinary)
     md5 = Column("m_headImgMD5", String)
 
     def __repr__(self):
-        return f"<联系人头像: {self.user_name}>"
+        return f"<联系人头像: {self.username}>"
 
     @staticmethod
     def mock(seed):
@@ -64,6 +64,9 @@ class Misc(AbsUserDB):
         super().__init__(user_db_url, logger=logger)
         self.register_tables([BizContactHeadImg, ContactHeadImg1])
 
-    def get_avatar_buffer(self, usr_name: str) -> ContactHeadImg1:
-        cls = ContactHeadImg1
-        return self.session.query(cls).filter(cls.user_name == usr_name).one_or_none()
+    def get_avatar_buffer(self, username: str) -> ContactHeadImg1:
+        return (
+            self.session.query(ContactHeadImg1)
+            .filter(ContactHeadImg1.username == username)
+            .one_or_none()
+        )

@@ -7,7 +7,6 @@ from sqlalchemy import and_, case
 
 from wemo.database.db import AbsUserDB
 from wemo.database.db import UserTable
-from wemo.model.dto import ContactDTO
 from wemo.utils.utils import mock_url, mock_user, singleton
 
 
@@ -17,9 +16,9 @@ from wemo.utils.utils import mock_url, mock_user, singleton
 class Contact(UserTable):
     __tablename__ = "Contact"
 
-    user_name = Column("UserName", String, primary_key=True)  # 原始微信号
+    username = Column("UserName", String, primary_key=True)  # 原始微信号
     alias = Column("Alias", String)  # 更改后的微信号
-    encrypt_user_name = Column("EncryptUserName", String)
+    encrypt_username = Column("EncryptUserName", String)
     del_flag = Column("DelFlag", Integer)
     type = Column("Type", Integer)  # type 4: 表示是群友
     verify_flag = Column("VerifyFlag", Integer)  # 0 表示是好友
@@ -50,7 +49,7 @@ class Contact(UserTable):
     r11 = Column("Reserved11", String)
 
     def __repr__(self):
-        return f"{self.user_name}-NickName:{self.nick_name}-Remark:{self.remark}"
+        return f"{self.username}-NickName:{self.nick_name}-Remark:{self.remark}"
 
     @staticmethod
     def mock(seed):
@@ -68,26 +67,11 @@ class Contact(UserTable):
             VerifyFlag=0,  # 0 表示是好友
         )
 
-    def mapper2dto(self) -> ContactDTO:
-        return ContactDTO(
-            user_name=self.user_name,
-            alias=self.alias,
-            type=self.type,
-            remark=self.remark,
-            nick_name=self.nick_name,
-            py_initial=self.py_initial,
-            remark_py_initial=self.remark_py_initial,
-            small_head_img_url=self.small_head_img_url,
-            big_head_img_url=self.big_head_img_url,
-            exTra_buf=self.extra_buf,
-            label_name_list=self.label_id_list,
-        )
-
 
 class ContactHeadImgUrl(UserTable):
     __tablename__ = "ContactHeadImgUrl"
 
-    user_name = Column("usrName", String, primary_key=True)
+    username = Column("usrName", String, primary_key=True)
     small_head_img_url = Column("smallHeadImgUrl", String)
     big_head_img_url = Column("bigHeadImgUrl", String)
     head_img_md5 = Column("headImgMd5", String)
@@ -140,7 +124,7 @@ class MicroMsg(AbsUserDB):
         super().__init__(user_db_url, logger=logger)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
 
-    def list_contact(self):
+    def get_contact_list(self) -> list[Contact]:
         """获取所有联系人信息"""
         res = (
             self.session.query(Contact)
@@ -155,27 +139,32 @@ class MicroMsg(AbsUserDB):
         )
         return res
 
-    def get_contact_and_labels_by_username(
-        self, username: str
-    ) -> tuple[Contact, list[ContactLabel]]:
+    def get_contact_by_username(self, username: str) -> Contact:
         """根据用户名获取用户信息"""
         contact = (
             self.session.query(Contact)
-            .filter(Contact.user_name == username)
+            .filter(Contact.username == username)
             .one_or_none()
         )
-        if contact is None:
-            return Contact(), []
+        if not contact:
+            return
         contact_img = (
             self.session.query(ContactHeadImgUrl)
-            .filter(ContactHeadImgUrl.user_name == username)
+            .filter(ContactHeadImgUrl.username == username)
             .one_or_none()
         )
         contact.big_head_img_url = contact_img.big_head_img_url
         contact.small_head_img_url = contact_img.small_head_img_url
-        contact_labels = (
+        return contact
+
+    def get_labels_by_username(self, username: str) -> list[ContactLabel]:
+        # :todo: 优化项
+        contact = self.get_contact_by_username(username)
+        if contact is None:
+            return []
+        labels = (
             self.session.query(ContactLabel)
-            .filter(ContactLabel.label_id == contact.label_id_list)
+            .filter(ContactLabel.label_id.in_(contact.label_id_list.split(",")))
             .all()
         )
-        return (contact, contact_labels)
+        return labels

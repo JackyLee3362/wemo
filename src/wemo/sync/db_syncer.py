@@ -4,11 +4,11 @@ from logging import Logger
 from pathlib import Path
 from typing import override
 
-from wemo.decrypt.decrypter import Decrypter
+from wemo.sync.sync import Syncer
 from wemo.utils.helper import decrypt
 
 
-class DBDecrypter(Decrypter):
+class DBSyncer(Syncer):
     """
     数据库解密器
     """
@@ -26,7 +26,7 @@ class DBDecrypter(Decrypter):
         self.db_name_list = db_name_list
 
     @override
-    def decrypt(self, *args, **kwargs):
+    def sync(self, *args, **kwargs):
         self._decrypt_db()
 
     def _decrypt_db(self) -> None:

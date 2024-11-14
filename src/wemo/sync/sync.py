@@ -3,7 +3,7 @@ from logging import Logger, getLogger
 from pathlib import Path
 
 
-class Decrypter:
+class Syncer:
     def __init__(
         self, src_dir: Path = None, dst_dir: Path = None, logger: Logger = None
     ):
@@ -11,7 +11,7 @@ class Decrypter:
         self.dst_dir = dst_dir
         self.logger = logger or getLogger(__name__)
 
-    def decrypt(self, *args, **kwargs):
+    def sync(self, *args, **kwargs):
         raise NotImplementedError("Not Implemented")
 
     def get_months_by_existing_dir(self):
