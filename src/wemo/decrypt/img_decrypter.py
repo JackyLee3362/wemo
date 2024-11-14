@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from logging import Logger
 from pathlib import Path
 from typing import override
@@ -12,18 +12,11 @@ class ImageDecrypter(Decrypter):
     图片解密器
     """
 
-    def __init__(
-        self,
-        src_dir: Path,
-        dst_dir: Path,
-        logger: Logger = None,
-    ):
-        super().__init__(logger=logger, src_dir=src_dir, dst_dir=dst_dir)
+    def __init__(self, src_dir: Path, dst_dir: Path, logger: Logger = None):
+        super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
 
     @override
-    def decrypt(self, *args, **kwargs):
-        begin = kwargs.get("begin", None)
-        end = kwargs.get("end", None)
+    def decrypt(self, begin: datetime = None, end: datetime = None, *args, **kwargs):
         self._decrypt_images(begin, end)
 
     def _decrypt_images(self, begin: date = None, end: date = None) -> None:
@@ -37,6 +30,7 @@ class ImageDecrypter(Decrypter):
 
         # 初始化创建路径
         for y_m in y_m_list:
+            self.logger.debug(f"[ DECRYPT IMAGE ] Dir({y_m}) start decrypt.")
             src_dir = self.src_dir.joinpath(y_m)
             dst_img_dir = self.dst_dir.joinpath(y_m)
             dst_thm_dir = self.dst_dir.joinpath(y_m)
@@ -44,6 +38,7 @@ class ImageDecrypter(Decrypter):
             dst_thm_dir.mkdir(exist_ok=True)
             for file in src_dir.rglob("*"):
                 if file.is_file() and not file.name.endswith("_t"):
+                    self.logger.debug(f"[ DECRYPT IMAGE ] File({file.name}) start decrypt.")
                     self._handle_img(y_m, file)
 
     def _handle_img(self, year_month: str, file: Path) -> None:
@@ -72,7 +67,9 @@ class ImageDecrypter(Decrypter):
             return
         # 读缩略图加密
         if thm_src.exists() and not thm_dst.exists():
-            self.logger.info(f"[ HANDLE THUMB ] file name is {thm_name}")
+            self.logger.debug(
+                f"[ DECRYPT IMAGE ] Handle with Dir({year_month})/Thumb({thm_name})"
+            )
             # 读取加密缩略图
             with open(thm_src, "rb") as f:
                 encrypt_thm_buf = bytearray(f.read())
@@ -83,7 +80,9 @@ class ImageDecrypter(Decrypter):
         # 写主图
         decrypt_img_buf = self.xor_decode(magic, encrypt_img_buf)
         with open(img_dst, "wb") as f:
-            self.logger.info(f"[ HANDLE IMG ] {img_name}")
+            self.logger.debug(
+                f"[ DECRYPT IMAGE ] Handle with Dir({year_month})/Img({img_name})"
+            )
             f.write(decrypt_img_buf)
 
     @staticmethod

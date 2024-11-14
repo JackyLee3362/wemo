@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import random
-from typing import List, Tuple
 
-from wemo.base.db import AbsUserDB
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_, case
 
+from wemo.database.db import AbsUserDB
+from wemo.database.db import UserTable
 from wemo.utils.utils import mock_url, mock_user, singleton
-from wemo.base.db import UserTable
+
 
 # 联系人信息
 
@@ -114,7 +114,7 @@ class ContactLabel(UserTable):
 @singleton
 class MicroMsgCache(AbsUserDB):
     def __init__(self, user_cache_db_url, logger=None):
-        super().__init__(user_cache_db_url, db_name=MicroMsg.__name__, logger=logger)
+        super().__init__(user_cache_db_url, logger=logger)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
 
 
@@ -139,9 +139,9 @@ class MicroMsg(AbsUserDB):
         )
         return res
 
-    def get_contact_by_username(
+    def get_contact_and_labels_by_username(
         self, username: str
-    ) -> Tuple[Contact, List[ContactLabel]]:
+    ) -> tuple[Contact, list[ContactLabel]]:
         """根据用户名获取用户信息"""
         contact = (
             self.session.query(Contact)
@@ -150,16 +150,16 @@ class MicroMsg(AbsUserDB):
         )
         if contact is None:
             return Contact(), []
-        contactImg = (
+        contact_img = (
             self.session.query(ContactHeadImgUrl)
             .filter(ContactHeadImgUrl.usrName == username)
             .one_or_none()
         )
-        contact.BigHeadImgUrl = contactImg.bigHeadImgUrl
-        contact.SmallHeadImgUrl = contactImg.smallHeadImgUrl
-        contactLabel = (
+        contact.BigHeadImgUrl = contact_img.bigHeadImgUrl
+        contact.SmallHeadImgUrl = contact_img.smallHeadImgUrl
+        contact_labels = (
             self.session.query(ContactLabel)
             .filter(ContactLabel.LabelID == contact.LabelIdList)
             .all()
         )
-        return (contact, contactLabel)
+        return (contact, contact_labels)

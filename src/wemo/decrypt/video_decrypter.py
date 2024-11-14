@@ -1,8 +1,8 @@
 import hashlib
 import shutil
 import subprocess
-from datetime import date
-from logging import Logger, getLogger
+from datetime import date, datetime
+from logging import Logger
 from pathlib import Path
 from typing import override
 
@@ -15,19 +15,13 @@ from wemo.utils.utils import get_months_between_dates
 class VideoDecrypter(Decrypter):
 
     def __init__(
-        self, src_dir: Path, dst_dir: Path, bin_path: Path,
-        logger: Logger = None
+        self, src_dir: Path, dst_dir: Path, bin_path: Path, logger: Logger = None
     ):
         super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
         self.bin_path = bin_path
-        self.src_dir = src_dir
-        self.dst_dir = dst_dir
-        self.logger = logger or getLogger(__name__)
 
     @override
-    def decrypt(self, *args, **kwargs):
-        begin = kwargs.get("begin", None)
-        end = kwargs.get("end", None)
+    def decrypt(self, begin: datetime, end: datetime):
         self._handle_videos(begin, end)
 
     @property
@@ -54,11 +48,16 @@ class VideoDecrypter(Decrypter):
             for file in src_dir.rglob("*"):
                 file_type = filetype.guess(file)
                 if file_type and file_type.extension == "mp4":
+                    self.logger.debug(
+                        f"[ DECRYPT VIDEO ] File({file.name}) start decrypt."
+                    )
                     md5 = self._calculate_md5(file)
                     duration = self._get_video_duration(file)
                     video_dst_path = dst_dir.joinpath(f"{md5}_{duration}.mp4")
                     if not video_dst_path.exists():
-                        self.logger.info(f"[ COPY VIDEO ]: {file}")
+                        self.logger.debug(
+                            f"[ DECRYPT VIDEO ] copy file from Path({file.name})"
+                        )
                         shutil.copy(file.resolve(), video_dst_path)
                     else:
                         pass
@@ -73,18 +72,20 @@ class VideoDecrypter(Decrypter):
         """获取视频时长"""
         ffprobe_path = self.ffprobe_path
         if not ffprobe_path.exists():
-            self.logger.error(f"[ FFPROBE NOT EXIST ]: {ffprobe_path}")
+            self.logger.warning(
+                f"[ DECRYPT VIDEO ] ffprobe Path({ffprobe_path}) is not exist."
+            )
             return 0
         ffprobe_cmd = f'"{ffprobe_path}"  -i "{video_path}" -show_entries format=duration -v quiet -of csv="p=0"'
         p = subprocess.Popen(
-            ffprobe_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            shell=True
+            ffprobe_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
         )
         # self.logger.debug(f"ffprobe cmd: {ffprobe_cmd}")
         out, err = p.communicate()
         if len(str(err, "gbk")) > 0:
-            self.logger.error(
-                f"[ SUBPROCESS RESULT ] out:{out} err:{str(err, 'gbk')}")
+            self.logger.warning(
+                f"[ DECRYPT VIDEO ] out({out}) and err({str(err, 'gbk')})"
+            )
             return 0
         if len(str(out, "gbk")) == 0:
             return 0

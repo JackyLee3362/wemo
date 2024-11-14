@@ -24,6 +24,7 @@ class AvatarUpdater:
             image = Image.open(io.BytesIO(blob_data.smallHeadBuf))
             image.save(avatar_path, "PNG")
             return avatar_path
-        self.logger.error(
-            f"[ FAIL AVATAR ] can't get {user_name} avatar, use default.")
-        return
+        self.logger.warning(
+            f"[ AVATAR UPDATER ] can't get {user_name} avatar, use default."
+        )
+        return self.user_avatar_dir.joinpath("default.png")

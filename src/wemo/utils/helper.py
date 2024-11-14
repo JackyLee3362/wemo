@@ -1,14 +1,9 @@
-import os
-from pathlib import Path
 import shutil
+from pathlib import Path
+
 from flask.helpers import get_root_path as flask_get_root_path
-from pywxdump import get_wx_info as pywxdump_get_wx_info
 from pywxdump import decrypt as pywxdump_decrypt
-
-
-def get_debug_flag() -> bool:
-    val = os.environ.get("WEMO_DEBUG")
-    return bool(val and val.lower() not in {"0", "false", "no"})
+from pywxdump import get_wx_info as pywxdump_get_wx_info
 
 
 def get_root_path(import_name: str) -> str:

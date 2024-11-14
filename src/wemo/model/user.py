@@ -4,8 +4,10 @@ import logging
 from functools import cached_property
 from pathlib import Path
 
+from wemo.base.constant import MOCK_DIR
+from wemo.base.logger import default_console_logger
+
 from wemo.base.config import Config, ConfigAttribute
-from wemo.base.logging import default_console_logger
 
 
 class UserDirStructure(Path):
@@ -56,7 +58,7 @@ class User:
         self.config = config
 
         self.logger = logger or logging.getLogger(__name__)
-        self.logger.info("[ INIT USER ] {}".format(self.wx_id))
+        self.logger.debug(f"[ USER ] user({self.wx_id}) init.")
 
     def init_user_dir(self):
         if self.data_dir is None:
@@ -93,8 +95,7 @@ class User:
         config = Config(proj_path)
         config.from_object(constant)
 
-        wx_dir: Path = config.get("MOCK_DIR")
-        wx_user_dir = wx_dir.joinpath(wxid)
+        wx_user_dir = MOCK_DIR.joinpath(wxid)
 
         info = {"wxid": wxid, "key": None, "wx_dir": wx_user_dir}
         logger = default_console_logger(__name__)

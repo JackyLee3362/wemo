@@ -6,9 +6,9 @@ from typing import Optional
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_
 
+from wemo.database.db import AbsUserDB, UserTable
 from wemo.utils.utils import mock_sns_content, mock_timestamp, mock_user, singleton
 
-from wemo.base.db import AbsUserDB, UserTable
 
 # 朋友圈
 
@@ -118,7 +118,7 @@ class SnsConfigV20(UserTable):
 @singleton
 class SnsCache(AbsUserDB):
     def __init__(self, user_cache_db_dir, logger=None):
-        super().__init__(user_cache_db_dir, db_name=Sns.__name__, logger=logger)
+        super().__init__(user_cache_db_dir, logger=logger)
         self.register_tables(
             [
                 FeedsV20,
@@ -140,26 +140,24 @@ class Sns(AbsUserDB):
             ]
         )
 
-    def get_feeds_by_duration(
-        self, begin_timestamp: int, end_timestamp: int
-    ) -> Optional[list[FeedsV20]]:
-        res = (
-            self.session.query(FeedsV20)
-            .filter(
-                and_(
-                    FeedsV20.CreateTime >= begin_timestamp,
-                    FeedsV20.CreateTime <= end_timestamp,
-                )
+    def get_feeds_by_duration_and_wxid(
+        self, begin_timestamp: int, end_timestamp: int, wx_ids: list[str] = None
+    ) -> list[FeedsV20]:
+        query = self.session.query(FeedsV20).filter(
+            and_(
+                FeedsV20.CreateTime >= begin_timestamp,
+                FeedsV20.CreateTime <= end_timestamp,
             )
-            .order_by(FeedsV20.CreateTime.desc())
-            .all()
         )
+        if wx_ids:
+            query = query.filter(FeedsV20.UserName.in_(wx_ids))
+        res = query.order_by(FeedsV20.CreateTime.desc()).all()
         return res
 
     def get_feed_by_feed_id(self, feed_id: int) -> FeedsV20:
         res = self.session.query(FeedsV20).filter(FeedsV20.FeedId == feed_id).first()
         if res is None:
-            self.logger.error(f"feed_id:{feed_id} 未找到")
+            self.logger.warning(f"[ SNS ] feed_id({feed_id}) NOT FIND")
             return FeedsV20()
         return res
 

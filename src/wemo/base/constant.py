@@ -1,12 +1,11 @@
-# import sys
 from pathlib import Path
 
 # app setting
-PROJECT_DIR = Path(__file__).resolve().parent.parent.parent
+PROJECT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 SRC_DIR = PROJECT_DIR.joinpath("src")
 DATA_DIR = PROJECT_DIR.joinpath("data")
 CONFIG_DIR = PROJECT_DIR.joinpath("config")
-LOG_DIR = PROJECT_DIR.joinpath("logs")
+LOGS_DIR = PROJECT_DIR.joinpath("logs")
 MOCK_DIR = PROJECT_DIR.joinpath("mock")
 OUTPUT_DIR = PROJECT_DIR.joinpath("output")
 BIN_DIR = PROJECT_DIR.joinpath("bin")

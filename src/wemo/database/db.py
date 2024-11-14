@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from logging import Logger, getLogger
 import logging
-from pathlib import Path
+from logging import Logger, getLogger
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
@@ -21,7 +20,7 @@ class AbsUserDB:
         self.logger = logger or getLogger(__name__)
         db_name = db_name or self.__class__.__name__
         self.db_name = db_name
-        self.logger.debug(f"[ DB INIT ] {db_name}")
+        self.logger.debug(f"[ DB ] db({db_name}) init.")
         self.db_url = db_url
         self.table_cls_list: list[UserTable] = []
         self.engine = None
@@ -48,12 +47,11 @@ class AbsUserDB:
         )
 
     def connect_db(self):
-        self.logger.debug(f"[ DB CONNECT ] {self.db_name} ")
+        self.logger.debug(f"[ DB ] db({self.db_name}) is connected.")
         self.engine = create_engine(f"sqlite:///{self.db_url}", echo=False)
-        self.build_session()
 
     def build_session(self):
-        self.logger.debug(f"[ SESSION BUILD ] {self.db_name}")
+        self.logger.debug(f"[ DB ] db({self.db_name})'s session build.")
         self.db_session = sessionmaker(bind=self.engine)
         self.session = self.db_session()
 
@@ -62,51 +60,59 @@ class AbsUserDB:
 
     def query_all(self, table_cls: UserTable):
         data = self.session.query(table_cls).all()
-        self.logger.debug(f"[ QUERY ALL ] {table_cls.__name__} count is {len(data)}")
+        self.logger.debug(
+            f"[ DB ] db({self.db_name}).table({table_cls.__name__}) query all, and count({len(data)})."
+        )
         return data
 
     def count_all(self, table_cls: UserTable) -> int:
         cnt = self.session.query(table_cls).count()
-        self.logger.debug(f"[ COUNT ALL ] {table_cls.__name__} count is {cnt}")
+        self.logger.debug(
+            f"[ DB ] db({self.db_name}).table({table_cls.__name__}) count({cnt})."
+        )
         return cnt
 
     def insert_all(self, data_list: list[UserTable]) -> None:
         if len(data_list) < 0:
             return
-        self.logger.debug(f"[ INSERT ALL ] {data_list[0].__class__.__tablename__}")
         for d in data_list:
+            self.logger.debug(
+                f"[ DB ] db({self.db_name}).table({d.__class__.__tablename__}) insert all."
+            )
             self.session.add(d)
         self.session.commit()
 
     def merge_all(self, data_list: list[UserTable]) -> None:
         if len(data_list) <= 0:
             return
-        self.logger.debug(f"[ MERGE ALL ] {data_list[0].__class__.__tablename__}")
         for d in data_list:
+            self.logger.debug(
+                f"[ DB ] db({self.db_name}).table({d.__class__.__tablename__}) merge all."
+            )
             self.session.merge(d)
         self.session.commit()
 
     def close_session(self) -> None:
-        self.logger.debug(f"[ SESSION CLOSED ] {self.db_name}")
+        self.logger.debug(f"[ DB ] db({self.db_name}) session closed.")
         self.session.close()
 
 
-class DbCacheSet:
+class DbCacheTuple:
     def __init__(self, db: AbsUserDB, cache: AbsUserDB, logger=None):
         self.db = db
         self.cache = cache
-        if db.db_name != cache.db_name:
-            raise ValueError("db_name 不一致")
+        if db.db_name not in cache.db_name:
+            raise ValueError("db_name not match.")
         self.name = db.db_name
         self.logger = logger or logging.getLogger(__name__)
 
     def init_db_cache(self):
-        self.logger.info(f"[ INIT DB/CACHE SET ] {self.name}")
+        self.logger.debug(f"[ DBCACHE ] dataset({self.name}) init.")
         self.db.init_db()
         self.cache.init_db()
 
     def update_db_by_cache(self):
         for t_cls in self.db.table_cls_list:
-            self.logger.info(f"[ UPDATE DB BY CACHE ] {t_cls.__name__}")
+            self.logger.debug(f"[ DBCACHE ] table({t_cls.__name__}) update")
             data_list = self.cache.query_all(t_cls)
             self.db.merge_all(data_list)

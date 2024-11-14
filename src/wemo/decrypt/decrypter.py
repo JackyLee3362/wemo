@@ -5,10 +5,7 @@ from pathlib import Path
 
 class Decrypter:
     def __init__(
-        self,
-        src_dir: Path = None,
-        dst_dir: Path = None,
-        logger: Logger = None,
+        self, src_dir: Path = None, dst_dir: Path = None, logger: Logger = None
     ):
         self.src_dir = src_dir
         self.dst_dir = dst_dir

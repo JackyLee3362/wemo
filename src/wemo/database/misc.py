@@ -1,11 +1,13 @@
 from __future__ import annotations
+
 import random
 
 from sqlalchemy import LargeBinary, Column, String, Integer
 
-from wemo.base.db import AbsUserDB
-from wemo.base.db import UserTable
+from wemo.database.db import AbsUserDB
+from wemo.database.db import UserTable
 from wemo.utils.utils import mock_bytes, mock_timestamp, mock_user, singleton
+
 
 # 二进制头像
 
@@ -52,7 +54,7 @@ class ContactHeadImg1(UserTable):
 @singleton
 class MiscCache(AbsUserDB):
     def __init__(self, user_cache_db_dir, logger=None):
-        super().__init__(user_cache_db_dir, db_name=Misc.__name__, logger=logger)
+        super().__init__(user_cache_db_dir, logger=logger)
         self.register_tables([BizContactHeadImg, ContactHeadImg1])
 
 

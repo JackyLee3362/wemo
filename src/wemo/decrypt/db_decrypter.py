@@ -31,7 +31,7 @@ class DBDecrypter(Decrypter):
 
     def _decrypt_db(self) -> None:
         if not self.src_dir.exists():
-            self.logger.error("源目录不存在")
+            self.logger.warning("[ DECRYPT ] src dir not exists.")
             return
         Task = namedtuple("Task", ["src", "dst"])
         tasks = {}
@@ -46,11 +46,10 @@ class DBDecrypter(Decrypter):
         for k, task in tasks.items():
             if self.wx_key is None:
                 # :todo: 语义有点问题
-                self.logger.debug(f"[ COPY ] {k} has decrypted, copy it.")
+                self.logger.debug(f"[ DECRYPT ] db({k}) is None, only copy.")
                 shutil.copy(*task)
                 continue
-            self.logger.debug(
-                f"[ DECRYPTED COPY ] {k} is decrypting. then copy.")
+            self.logger.debug(f"[ DECRYPT ] db({k}) exists, decrypt and copy.")
             flag, result = decrypt(self.wx_key, *task)
             if not flag:
-                self.logger.error(result)
+                self.logger.warning(result)

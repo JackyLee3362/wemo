@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import NamedTuple, Optional
+from typing import Optional
 
 import xmltodict
 from dataclasses_json import dataclass_json, config
@@ -41,7 +41,7 @@ class Url:
         if self.token not in ("", None):
             res["token"] = self.token
         if self.enc_idx not in ("", None):
-            res["enc_idx"] = self.enc_idx
+            res["idx"] = self.enc_idx
         return res
 
 
@@ -68,7 +68,7 @@ class Thumb:
         if self.token not in ("", None):
             res["token"] = self.token
         if self.enc_idx not in ("", None):
-            res["enc_idx"] = self.enc_idx
+            res["idx"] = self.enc_idx
         return res
 
 
@@ -127,6 +127,17 @@ class TimelineObject:
     createTime: int
     contentDesc: Optional[str] = ""
 
+    @staticmethod
+    def mock():
+        return TimelineObject(
+            id=0,
+            username="mock-from-time-object",
+            location=None,
+            ContentObject=None,
+            createTime=1730123456,
+            contentDesc="",
+        )
+
 
 @dataclass_json
 @dataclass
@@ -157,14 +168,17 @@ class MomentMsg:
 
     @property
     def medias(self) -> list[Media]:
-        return self.timelineObject.ContentObject.mediaList.media
+        try:
+            return self.timelineObject.ContentObject.mediaList.media
+        except Exception:
+            return []
 
     @property
     def finder(self) -> list[Media]:
         finder_feed = self.timelineObject.ContentObject.finderFeed
         if not finder_feed or not finder_feed.mediaList:
             return []
-        return finder_feed.mediaList
+        return finder_feed.mediaList or []
 
     @property
     def date(self) -> str:
@@ -199,7 +213,7 @@ class MomentMsg:
         COUNT = 20
         desc = self.desc or ""
         desc = desc.replace("\n", " ")
-        return (desc[: COUNT - 3] + "...") if len(desc) > COUNT else desc.ljust(COUNT)
+        return (desc[: COUNT - 3] + "...") if len(desc) > COUNT else desc
 
     @property
     def style(self):
@@ -208,16 +222,15 @@ class MomentMsg:
     @classmethod
     def parse_xml(cls, xml: str) -> MomentMsg:
         try:
-            msg_dict = cls.parse_xml_to_dict(xml)
+            msg_dict = xmltodict.parse(xml, force_list={"media"})
         except Exception as e:
-            print(e)
-            return None
+            print("[ XML PARSE ERROR ]", e)
+            return MomentMsg.mock()
         return MomentMsg.from_dict(msg_dict)
 
     @staticmethod
-    def parse_xml_to_dict(xml: str) -> dict:
-        msg_dict = xmltodict.parse(xml, force_list={"media"})
-        return msg_dict
+    def mock():
+        return MomentMsg(TimelineObject.mock())
 
 
 @dataclass
