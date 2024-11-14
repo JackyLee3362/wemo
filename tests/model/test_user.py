@@ -1,5 +1,5 @@
 from pathlib import Path
-from wemo.user import User
+from wemo.model.user import User
 
 mock_wx_id = Path(__file__).stem
 

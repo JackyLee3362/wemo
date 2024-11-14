@@ -1,0 +1,84 @@
+<TimelineObject>
+  <id>1234567890</id>
+  <username>wxid_1</username>
+  <createTime>1730123456</createTime>
+  <contentDesc>Wemo 用户朋友圈&#x0A;测试</contentDesc>
+  <contentDescShowType>0</contentDescShowType>
+  <contentDescScene>3</contentDescScene>
+  <private>0</private>
+  <sightFolded>0</sightFolded>
+  <showFlag>0</showFlag>
+  <location poiClassifyId="" poiName="" poiAddress="" poiClassifyType="0" city=""></location>
+  <appInfo>
+    <id></id>
+    <version></version>
+    <appName></appName>
+    <installUrl></installUrl>
+    <fromUrl></fromUrl>
+    <isForceUpdate>0</isForceUpdate>
+    <isHidden>0</isHidden>
+  </appInfo>
+  <sourceUserName></sourceUserName>
+  <sourceNickName></sourceNickName>
+  <statisticsData></statisticsData>
+  <statExtStr></statExtStr>
+  <ContentObject>
+    <contentStyle>1</contentStyle>
+    <title></title>
+    <description></description>
+    <mediaList>
+      <media>
+        <id>1234567891</id>
+        <type>2</type>
+        <title></title>
+        <description>Wemo 用户朋友圈&#x0A;测试</description>
+        <private>0</private>
+        <userData></userData>
+        <subType>0</subType>
+        <videoSize width="4032" height="3024"></videoSize>
+        <url type="1" md5="79d4776eb5c4cb207e2944c79e7d1767" videomd5="" key="17127114952213344536"
+          token="WSEN6qDsKwV8A02w3onOGQYfxnkibdqSOkmHhZGNB4DE8JYkiatbCI0J4iccoyCOGZSyefa2rmIzllXmN53fUlaBQ"
+          enc_idx="1">
+          http://example.com/test-template/0</url>
+        <thumb type="1" key="17127114952213344536"
+          token="WSEN6qDsKwV8A02w3onOGQYfxnkibdqSOkmHhZGNB4DE8JYkiatbCI0J4iccoyCOGZSSeHhv4KnLkt8LUG0icBlghQ"
+          enc_idx="1">
+          http://example.com/test-template/150</thumb>
+        <size width="1080.000000" height="1440.000000" totalSize="183290"></size>
+      </media>
+      <media>
+        <id>1234567892</id>
+        <type>6</type>
+        <title></title>
+        <description>Wemo 用户朋友圈&#x0A;测试</description>
+        <private>0</private>
+        <userData></userData>
+        <subType>0</subType>
+        <videoSize width="590" height="1002"></videoSize>
+        <url type="1" md5="cd6cfd51c2d9675068a06960fbe28259"
+          videomd5="xxx">
+          http://shzjwxsns.video.qq.com/102/20202/snsvideodownload?encfilekey=WTva9YVXqXcSUicrMCercmGqzPeuNbNee11u9N2WZLib7yujh3N0Ria65ZbEtoaWBzeUTjtdXRbgqSLyxBz2pqx2nWCo4DNHV4v7jFAeqnoRQETQIrlqS4qBkHF6VNONib88qLmqvjibs4WI&amp;token=x5Y29zUxcibAOIibjUyZj2ZX7qjNRqFlN6YsmoJwSY25Q80s4gEgiac5YBiamkYWqhB2&amp;idx=1&amp;bizid=1023&amp;dotrans=1&amp;dur=14&amp;ef=30_0&amp;hy=SH&amp;ilogo=2</url>
+        <thumb type="1">
+          http://vweixinthumb.tc.qq.com/150/20250/snsvideodownload?encfilekey=WTva9YVXqXcSUicrMCercmBpUQNWanXicGOTjicM0kicbDTX1OWhPbeRp7BySl8B7IznKs9c37dr7lcicxKCDEm6ll4iawbJXhM8VMeceTnzrarstmMSibibOz9Q6pWc4EvzG8Gl5Yj1xpUTJLU&amp;token=x5Y29zUxcibAOIibjUyZj2ZX7qjNRqFlN6fN37yzOgLza6HZd1YZT8abkjBZEREL1ic&amp;idx=1&amp;bizid=1023&amp;hy=SH</thumb>
+        <size width="224" height="380" totalSize="595188"></size>
+        <videoDuration>30.000205</videoDuration>
+        <VideoColdDLRule>
+          <All>CAISBAgXEAEoAjAc</All>
+        </VideoColdDLRule>
+        <enc key="4288511393">1</enc>
+      </media>
+    </mediaList>
+    <contentUrl></contentUrl>
+  </ContentObject>
+  <actionInfo>
+    <appMsg>
+      <messageAction></messageAction>
+    </appMsg>
+  </actionInfo>
+  <publicUserName></publicUserName>
+  <streamvideo>
+    <streamvideourl></streamvideourl>
+    <streamvideothumburl></streamvideothumburl>
+    <streamvideoweburl></streamvideoweburl>
+  </streamvideo>
+</TimelineObject>

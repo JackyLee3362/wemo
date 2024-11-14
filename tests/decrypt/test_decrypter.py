@@ -1,22 +1,21 @@
-from pathlib import Path
 import shutil
 
-import pytest
-from wemo import constant
+from wemo.base import constant
 from wemo.database.micro_msg import MicroMsgCache, Contact
 from wemo.database.misc import ContactHeadImg1, MiscCache
 from wemo.database.sns import FeedsV20, SnsCache
-from wemo.decrypter import DBDecrypter, ImageDecrypter, VideoDecrypter
-from wemo.user import User
+from wemo.decrypt.video_decrypter import VideoDecrypter
+from wemo.decrypt.db_decrypter import DBDecrypter
+from wemo.decrypt.img_decrypter import ImageDecrypter
+from wemo.model.user import User
 
-user_dir = constant.DATA_DIR.joinpath(__name__)
-user = User.mock_user(__name__)
+wxid = "test_decrypt"
+user = User.mock_user(wxid)
 
 
 def setup_module():
-    shutil.rmtree(user_dir, ignore_errors=True)
+    shutil.rmtree(user.user_dir, ignore_errors=True)
     user.init_user_dir()
-    pass
 
 
 def teardown_module():
@@ -36,13 +35,13 @@ def test_db_decrypter():
 
 def test_cache():
     db_dir = user.cache_dir.db_dir
-    c1 = MicroMsgCache(user_cache_db_dir=db_dir, logger=user.logger)
+    c1 = MicroMsgCache(user_cache_db_url=db_dir.joinpath("MicroMsg.db"), logger=user.logger)
     c1.init_db()
     c1.count_all(Contact)
-    c2 = MiscCache(user_cache_db_dir=db_dir, logger=user.logger)
+    c2 = MiscCache(user_cache_db_dir=db_dir.joinpath("Misc.db"), logger=user.logger)
     c2.init_db()
     c2.count_all(ContactHeadImg1)
-    c3 = SnsCache(user_cache_db_dir=db_dir, logger=user.logger)
+    c3 = SnsCache(user_cache_db_dir=db_dir.joinpath("Sns.db"), logger=user.logger)
     c3.init_db()
     c3.count_all(FeedsV20)
 

@@ -1,5 +1,5 @@
 from wemo.app import Wemo
-from wemo import constant
+from wemo.base import constant
 
 
 def test_config_of_constant():

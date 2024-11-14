@@ -1,13 +1,22 @@
-from pathlib import Path
-from wemo.base.db import UserTable
-from wemo.base.logging import default_console_logger
-from wemo.database.misc import BizContactHeadImg, ContactHeadImg1, Misc
-from wemo import constant
+from wemo.database.db import DbCacheTuple, UserTable
+from wemo.base.logger import default_console_logger
+from wemo.database.misc import (
+    Misc as DB,
+    MiscCache as DBCache,
+    BizContactHeadImg,
+    ContactHeadImg1,
+)
+from wemo.base import constant
 
-N = 200
+DB_N = 200
+CACHE_N = 300
 name = "test_database"
-user_dir = constant.DATA_DIR.joinpath(name)
+db_name = "Misc.db"
+user_db_dir = constant.DATA_DIR.joinpath(name, "data")
+user_cache_db_dir = constant.DATA_DIR.joinpath(name, "cache")
 LOG = default_console_logger(name)
+db = DB(user_db_dir.joinpath(db_name), LOG)
+cache = DBCache(user_cache_db_dir.joinpath(db_name), LOG)
 
 
 class TestMock:
@@ -29,19 +38,19 @@ class TestMock:
         assert c1.usrName != c2.usrName
 
 
-class TestMisc:
+class TestDB:
 
     def setup_class(self):
         # 指定目录
-        self.db_dir = user_dir
+        self.db_dir = user_db_dir
         self.db_dir.mkdir(parents=True, exist_ok=True)
 
         # 准备数据库
-        self.db = Misc(self.db_dir, LOG)
+        self.db = db
         self.db.init_db()
 
     def test_singleton(self):
-        db2 = Misc(self.db_dir, LOG)
+        db2 = DB(self.db_dir, LOG)
         assert self.db == db2
 
     def test_count_all(self):
@@ -56,7 +65,7 @@ class TestMisc:
         self.merge_by_table(BizContactHeadImg)
         self.merge_by_table(ContactHeadImg1)
 
-    def merge_by_table(self, cls: UserTable = None, n=N):
+    def merge_by_table(self, cls: UserTable = None, n=DB_N):
         res = [cls.mock(i) for i in range(n)]
         self.test_count_all()
         self.db.merge_all(res)
@@ -72,3 +81,41 @@ class TestMisc:
 
     def teardown_class(self):
         self.db.close_session()
+
+
+class TestCache:
+    def setup_class(self):
+        # 指定目录
+        self.cache_dir = user_cache_db_dir
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # 准备数据库
+        self.db = cache
+        self.db.init_db()
+
+    def test_count_all(self):
+        for table in self.db.table_cls_list:
+            self.db.count_all(table)
+
+    def test_merge_all(self):
+        self.merge_by_table(BizContactHeadImg)
+        self.merge_by_table(ContactHeadImg1)
+
+    def merge_by_table(self, cls: UserTable = None, n=CACHE_N):
+        res = [cls.mock(i) for i in range(n)]
+        self.test_count_all()
+        self.db.merge_all(res)
+        self.test_count_all()
+
+
+class TestDBCache:
+
+    def test_update_db_by_cache(self):
+        dcs = DbCacheTuple(db, cache)
+        dcs.init_db_cache()
+        dcs.update_db_by_cache()
+        for table in dcs.db.table_cls_list:
+            c1 = dcs.db.count_all(table)
+            c2 = dcs.cache.count_all(table)
+            print("c1 is ", c1, "c2 is ", c2)
+            assert c1 == c2

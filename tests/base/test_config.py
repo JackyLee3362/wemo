@@ -1,15 +1,15 @@
 from pathlib import Path
 import pytest
 import json
-from wemo.base.app import App
 
+from wemo.base.scaffold import AbsApp
 from wemo.app import Wemo
 
 TEST_KEY = "foo"
 SECRET_KEY = "config"
 
 
-def common_object_test(app: App):
+def common_object_test(app: AbsApp):
     assert app.secret_key == "config"
     assert app.config["TEST_KEY"] == "foo"
     assert "TestConfig" not in app.config
@@ -17,7 +17,7 @@ def common_object_test(app: App):
 
 def test_config_from_pyfile():
     app = Wemo(__name__)
-    app.config.from_pyfile(f"{__file__.rsplit('.', 1)[0]}.py")
+    app.config.from_pyfile(__file__)
     common_object_test(app)
 
 
