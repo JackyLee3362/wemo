@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from logging import Logger, getLogger
 
 from sqlalchemy import create_engine
@@ -28,7 +27,7 @@ class AbsUserDB:
         self.session: Session = None
         self.metadata = None
 
-    def init_db(self):
+    def init(self):
         """初始化数据库
         1. 连接数据库
         2. 建立会话
@@ -51,7 +50,7 @@ class AbsUserDB:
         self.engine = create_engine(f"sqlite:///{self.db_url}", echo=False)
 
     def build_session(self):
-        self.logger.debug(f"[ DB ] db({self.db_name})'s session build.")
+        self.logger.debug(f"[ DB ] db({self.db_name}) session is build.")
         self.db_session = sessionmaker(bind=self.engine)
         self.session = self.db_session()
 
@@ -75,20 +74,20 @@ class AbsUserDB:
     def insert_all(self, data_list: list[UserTable]) -> None:
         if len(data_list) < 0:
             return
+        self.logger.debug(
+            f"[ DB ] db({self.db_name}).table({data_list[0].__class__.__tablename__}) insert all."
+        )
         for d in data_list:
-            self.logger.debug(
-                f"[ DB ] db({self.db_name}).table({d.__class__.__tablename__}) insert all."
-            )
             self.session.add(d)
         self.session.commit()
 
     def merge_all(self, data_list: list[UserTable]) -> None:
         if len(data_list) <= 0:
             return
+        self.logger.debug(
+            f"[ DB ] db({self.db_name}).table({data_list[0].__class__.__tablename__}) merge all."
+        )
         for d in data_list:
-            self.logger.debug(
-                f"[ DB ] db({self.db_name}).table({d.__class__.__tablename__}) merge all."
-            )
             self.session.merge(d)
         self.session.commit()
 
@@ -96,23 +95,6 @@ class AbsUserDB:
         self.logger.debug(f"[ DB ] db({self.db_name}) session closed.")
         self.session.close()
 
-
-class DbCacheTuple:
-    def __init__(self, db: AbsUserDB, cache: AbsUserDB, logger=None):
-        self.db = db
-        self.cache = cache
-        if db.db_name not in cache.db_name:
-            raise ValueError("db_name not match.")
-        self.name = db.db_name
-        self.logger = logger or logging.getLogger(__name__)
-
-    def init_db_cache(self):
-        self.logger.debug(f"[ DBCACHE ] dataset({self.name}) init.")
-        self.db.init_db()
-        self.cache.init_db()
-
-    def update_db_by_cache(self):
-        for t_cls in self.db.table_cls_list:
-            self.logger.debug(f"[ DBCACHE ] table({t_cls.__name__}) update")
-            data_list = self.cache.query_all(t_cls)
-            self.db.merge_all(data_list)
+    def close_connection(self) -> None:
+        self.logger.debug(f"[ DB ] db({self.db_name}) connection closed.")
+        self.engine.dispose()

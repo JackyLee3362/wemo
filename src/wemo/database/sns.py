@@ -7,37 +7,38 @@ from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_
 
 from wemo.database.db import AbsUserDB, UserTable
+from wemo.model.dto import FeedDTO
 from wemo.utils.utils import mock_sns_content, mock_timestamp, mock_user, singleton
 
 
 # 朋友圈
 
 
-class FeedsV20(UserTable):
+class Feeds(UserTable):
     __tablename__ = "FeedsV20"
-    FeedId = Column("FeedId", Integer, primary_key=True)
-    CreateTime = Column("CreateTime", Integer)
-    FaultId = Column("FaultId", Integer)
-    Type = Column("Type", Integer)
-    UserName = Column("UserName", String)
-    Status = Column("Status", Integer)
-    ExtFlag = Column("ExtFlag", Integer)
-    PrivFlag = Column("PrivFlag", Integer)
-    StringId = Column("StringId", String)
-    Content = Column("Content", String)
-    Reserved1 = Column("Reserved1", Integer)
-    Reserved2 = Column("Reserved2", Integer)
-    Reserved3 = Column("Reserved3", String)
-    Reserved4 = Column("Reserved4", String)
-    Reserved5 = Column("Reserved5", Integer)
-    Reserved6 = Column("Reserved6", String)
-    ExtraBuf = Column("ExtraBuf", LargeBinary)
-    Reserved7 = Column("Reserved7", LargeBinary)
+    feed_id = Column("FeedId", Integer, primary_key=True)
+    create_time = Column("CreateTime", Integer)
+    fault_id = Column("FaultId", Integer)
+    type = Column("Type", Integer)
+    user_name = Column("UserName", String)
+    status = Column("Status", Integer)
+    ext_flag = Column("ExtFlag", Integer)
+    priv_flag = Column("PrivFlag", Integer)
+    string_id = Column("StringId", String)
+    content = Column("Content", String)
+    r1 = Column("Reserved1", Integer)
+    r2 = Column("Reserved2", Integer)
+    r3 = Column("Reserved3", String)
+    r4 = Column("Reserved4", String)
+    r5 = Column("Reserved5", Integer)
+    r6 = Column("Reserved6", String)
+    extra_buf = Column("ExtraBuf", LargeBinary)
+    r7 = Column("Reserved7", LargeBinary)
 
     @staticmethod
     def mock(seed):
         random.seed(seed)
-        return FeedsV20(
+        return Feeds(
             FeedId=-mock_timestamp() * 10,
             CreateTime=mock_timestamp(),
             FaultId=0,
@@ -50,38 +51,46 @@ class FeedsV20(UserTable):
             Content=mock_sns_content(),
         )
 
+    def map2dto(self):
+        return FeedDTO(
+            feed_id=self.feed_id,
+            create_time=self.create_time,
+            user_name=self.user_name,
+            content=self.content,
+        )
 
-class CommentV20(UserTable):
+
+class Comment(UserTable):
     __tablename__ = "CommentV20"
 
-    FeedId = Column("FeedId", Integer, primary_key=True)
-    CommentId = Column("CommentId", Integer, primary_key=True)
-    Createtime = Column("Createtime", Integer)
-    Flag = Column("Flag", Integer)
-    CommentType = Column("CommentType", Integer, primary_key=True)
-    CommentFlag = Column("CommentFlag", Integer)
-    Content = Column("Content", String)
-    FromUserName = Column("FromUserName", String, primary_key=True)
-    ClientId = Column("ClientId", Integer)
-    ReplyId = Column("ReplyId", Integer)
-    ReplyUserName = Column("ReplyUserName", String)
-    DeleteFlag = Column("DeleteFlag", Integer)
-    CommentId64 = Column("CommentId64", Integer)
-    ReplyId64 = Column("ReplyId64", Integer)
-    IsAd = Column("IsAd", Integer)
-    Reserved1 = Column("Reserved1", Integer)
-    Reserved2 = Column("Reserved2", Integer)
-    Reserved3 = Column("Reserved3", String)
-    Reserved4 = Column("Reserved4", String)
-    Reserved5 = Column("Reserved5", Integer)
-    Reserved6 = Column("Reserved6", String)
-    RefActionBuf = Column("RefActionBuf", LargeBinary)
-    Reserved7 = Column("Reserved7", LargeBinary)
+    feed_id = Column("FeedId", Integer, primary_key=True)
+    comment_id = Column("CommentId", Integer, primary_key=True)
+    create_time = Column("Createtime", Integer)
+    flag = Column("Flag", Integer)
+    comment_type = Column("CommentType", Integer, primary_key=True)
+    comment_flag = Column("CommentFlag", Integer)
+    content = Column("Content", String)
+    from_user_name = Column("FromUserName", String, primary_key=True)
+    client_id = Column("ClientId", Integer)
+    reply_id = Column("ReplyId", Integer)
+    reply_user_name = Column("ReplyUserName", String)
+    del_flag = Column("DeleteFlag", Integer)
+    comment_id_64 = Column("CommentId64", Integer)
+    reply_id_64 = Column("ReplyId64", Integer)
+    is_ad = Column("IsAd", Integer)
+    r1 = Column("Reserved1", Integer)
+    r2 = Column("Reserved2", Integer)
+    r3 = Column("Reserved3", String)
+    r4 = Column("Reserved4", String)
+    r5 = Column("Reserved5", Integer)
+    r6 = Column("Reserved6", String)
+    ref_action_buf = Column("RefActionBuf", LargeBinary)
+    r7 = Column("Reserved7", LargeBinary)
 
     @staticmethod
     def mock(seed):
         random.seed(seed)
-        return CommentV20(
+        return Comment(
             FeedId=-mock_timestamp() * 10,
             CommentId=-mock_timestamp() * 10 + 1,
             Createtime=mock_timestamp(),
@@ -99,81 +108,77 @@ class CommentV20(UserTable):
         )
 
 
-class SnsConfigV20(UserTable):
+class SnsConfig(UserTable):
     __tablename__ = "SnsConfigV20"
 
-    Key = Column("Key", String, primary_key=True)
-    IValue = Column("IValue", Integer)
-    StrValue = Column("StrValue", String)
-    BufValue = Column("BufValue", LargeBinary)
-    Reserved1 = Column("Reserved1", Integer)
-    Reserved2 = Column("Reserved2", String)
-    Reserved3 = Column("Reserved3", LargeBinary)
+    key = Column("Key", String, primary_key=True)
+    i_val = Column("IValue", Integer)
+    str_val = Column("StrValue", String)
+    buf_val = Column("BufValue", LargeBinary)
+    r1 = Column("Reserved1", Integer)
+    r2 = Column("Reserved2", String)
+    r3 = Column("Reserved3", LargeBinary)
 
     @staticmethod
     def mock(seed):
-        return SnsConfigV20(Key=str(seed), IValue="Ivalue" + str(seed))
+        return SnsConfig(Key=str(seed), IValue="Ivalue" + str(seed))
 
 
 @singleton
 class SnsCache(AbsUserDB):
-    def __init__(self, user_cache_db_dir, logger=None):
-        super().__init__(user_cache_db_dir, logger=logger)
+    def __init__(self, user_cache_db_url, logger=None):
+        super().__init__(user_cache_db_url, logger=logger)
         self.register_tables(
             [
-                FeedsV20,
-                CommentV20,
-                SnsConfigV20,
+                Feeds,
+                Comment,
+                SnsConfig,
             ]
         )
 
 
 @singleton
 class Sns(AbsUserDB):
-    def __init__(self, user_db_dir, logger=None):
-        super().__init__(user_db_dir, logger=logger)
+    def __init__(self, user_db_url, logger=None):
+        super().__init__(user_db_url, logger=logger)
         self.register_tables(
             [
-                FeedsV20,
-                CommentV20,
-                SnsConfigV20,
+                Feeds,
+                Comment,
+                SnsConfig,
             ]
         )
 
     def get_feeds_by_duration_and_wxid(
         self, begin_timestamp: int, end_timestamp: int, wx_ids: list[str] = None
-    ) -> list[FeedsV20]:
-        query = self.session.query(FeedsV20).filter(
+    ) -> list[FeedDTO]:
+        query = self.session.query(Feeds).filter(
             and_(
-                FeedsV20.CreateTime >= begin_timestamp,
-                FeedsV20.CreateTime <= end_timestamp,
+                Feeds.create_time >= begin_timestamp,
+                Feeds.create_time <= end_timestamp,
             )
         )
         if wx_ids:
-            query = query.filter(FeedsV20.UserName.in_(wx_ids))
-        res = query.order_by(FeedsV20.CreateTime.desc()).all()
+            query = query.filter(Feeds.user_name.in_(wx_ids))
+        res = query.order_by(Feeds.create_time.desc()).all()
         return res
 
-    def get_feed_by_feed_id(self, feed_id: int) -> FeedsV20:
-        res = self.session.query(FeedsV20).filter(FeedsV20.FeedId == feed_id).first()
+    def get_feed_by_feed_id(self, feed_id: int) -> Feeds:
+        res = self.session.query(Feeds).filter(Feeds.feed_id == feed_id).first()
         if res is None:
             self.logger.warning(f"[ SNS ] feed_id({feed_id}) NOT FIND")
-            return FeedsV20()
+            return Feeds()
         return res
 
-    def get_comment_by_feed_id(self, feed_id: int) -> Optional[CommentV20]:
+    def get_comment_by_feed_id(self, feed_id: int) -> Optional[Comment]:
         res = (
-            self.session.query(CommentV20)
-            .filter(CommentV20.FeedId == feed_id)
-            .order_by(CommentV20.Createtime.desc())
+            self.session.query(Comment)
+            .filter(Comment.feed_id == feed_id)
+            .order_by(Comment.create_time.desc())
             .all()
         )
         return res
 
-    def get_cover_url(self) -> Optional[SnsConfigV20]:
-        res = (
-            self.session.query(SnsConfigV20)
-            .filter(SnsConfigV20.Key == "6")
-            .one_or_none()
-        )
+    def get_cover_url(self) -> Optional[SnsConfig]:
+        res = self.session.query(SnsConfig).filter(SnsConfig.key == "6").one_or_none()
         return res
