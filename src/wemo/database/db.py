@@ -60,7 +60,7 @@ class AbsUserDB:
     def query_all(self, table_cls: UserTable):
         data = self.session.query(table_cls).all()
         self.logger.debug(
-            f"[ DB ] db({self.db_name}).table({table_cls.__name__}) query all, and count({len(data)})."
+            f"[ DB ] db({self.db_name}).table({table_cls.__name__}) query all and count({len(data)})."
         )
         return data
 
@@ -75,7 +75,7 @@ class AbsUserDB:
         if len(data_list) < 0:
             return
         self.logger.debug(
-            f"[ DB ] db({self.db_name}).table({data_list[0].__class__.__tablename__}) insert all."
+            f"[ DB ] db({self.db_name}).table({data_list[0].__class__.__name__}) inserting..."
         )
         for d in data_list:
             self.session.add(d)
@@ -85,7 +85,7 @@ class AbsUserDB:
         if len(data_list) <= 0:
             return
         self.logger.debug(
-            f"[ DB ] db({self.db_name}).table({data_list[0].__class__.__tablename__}) merge all."
+            f"[ DB ] db({self.db_name}).table({data_list[0].__class__.__name__}) merging..."
         )
         for d in data_list:
             self.session.merge(d)

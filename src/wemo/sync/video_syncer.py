@@ -21,7 +21,7 @@ class VideoSync(Syncer):
         self.bin_path = bin_path
 
     @override
-    def sync(self, begin: datetime, end: datetime):
+    def sync(self, begin: datetime = None, end: datetime = None):
         self._sync_video_list(begin, end)
 
     @property
@@ -51,12 +51,14 @@ class VideoSync(Syncer):
                     self._handle_video(file, dst_dir)
 
     def _handle_video(self, file: Path, dst_dir: Path):
-        self.logger.debug(f"[ VIDEO DECRYPTER ] File({file.name}) decrypting...")
+        self.logger.debug(f"[ VIDEO SYNCER ] File({file.name}) decrypting...")
         md5 = self._calculate_md5(file)
         dur = self._get_video_duration(file)
         video_dst_path = dst_dir.joinpath(f"{md5}_{dur}.mp4")
         if not video_dst_path.exists():
-            self.logger.debug(f"[ VIDEO DECRYPTER ] copy file from Path({file.name})")
+            self.logger.debug(
+                f"[ VIDEO SYNCER ] copy file from Dir({dst_dir.name})/Path({file.name})"
+            )
             shutil.copy(file, video_dst_path)
 
         pass
@@ -71,7 +73,7 @@ class VideoSync(Syncer):
         ffprobe_path = self.ffprobe_path
         if not ffprobe_path.exists():
             self.logger.warning(
-                f"[ VIDEO DECRYPTER ] ffprobe Path({ffprobe_path}) is not exist."
+                f"[ VIDEO SYNCER ] ffprobe Path({ffprobe_path}) is not exist."
             )
             return 0
         ffprobe_cmd = f'"{ffprobe_path}"  -i "{video_path}" -show_entries format=duration -v quiet -of csv="p=0"'
@@ -82,7 +84,7 @@ class VideoSync(Syncer):
         out, err = p.communicate()
         if len(str(err, "gbk")) > 0:
             self.logger.warning(
-                f"[ VIDEO DECRYPTER ] out({out}) and err({str(err, 'gbk')})"
+                f"[ VIDEO SYNCER ] out({out}) and err({str(err, 'gbk')})"
             )
             return 0
         if len(str(out, "gbk")) == 0:

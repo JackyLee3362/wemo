@@ -21,7 +21,7 @@ class ImgSyncer(Syncer):
 
         for ym in ym_list:
             # ym 是 [2024-10, 2024-11, ...] 诸如此类
-            self.logger.debug(f"[ IMG DECRYPTER ] Dir({ym}) start decrypt.")
+            self.logger.debug(f"[ IMG SYNCER ] Dir({ym}) start decrypt.")
             src_ym_dir = self.src_dir.joinpath(ym)
             dst_ym_dir = self.dst_dir.joinpath(ym)
             dst_ym_dir.mkdir(parents=True, exist_ok=True)
@@ -34,7 +34,7 @@ class ImgSyncer(Syncer):
         # 初始化创建路径
         for p in src_ym_dir.rglob("*"):
             if p.is_file() and not p.stem.endswith("_t"):
-                self.logger.debug(f"[ IMG DECRYPTER ] File({p.stem}) start decrypt.")
+                self.logger.debug(f"[ IMG SYNCER ] File({p.stem}) start decrypt.")
                 self._decrypt_img(dst_ym_dir, p)
 
     def _decrypt_img(self, dst_ym_dir: Path, src_file_path: Path) -> None:
@@ -54,22 +54,22 @@ class ImgSyncer(Syncer):
 
         # 找到对应缩略图
         img_name = f"{img_size}_{thm_size}.jpg"
-        img_dst = self.dst_dir.joinpath(img_name)
+        img_dst = dst_ym_dir.joinpath(img_name)
         # 如果目标目录已存在，则跳过
         if not img_dst.exists():
             # 处理 IMG
             decrypt_img_buf = self.xor_decode(magic, encrypt_img_buf)
             with open(img_dst, "wb") as f:
                 self.logger.debug(
-                    f"[ IMG DECRYPTER ] Handle with Dir({dst_ym_dir.name})/Img({img_name})"
+                    f"[ IMG SYNCER ] Handle with Dir({dst_ym_dir.name})/Img({img_name})"
                 )
                 f.write(decrypt_img_buf)
         # 处理 THUMB
         thm_name = f"{img_size}_{thm_size}_t.jpg"
-        thm_dst = self.dst_dir.joinpath(thm_name)
+        thm_dst = dst_ym_dir.joinpath(thm_name)
         if thm_src.exists() and not thm_dst.exists():
             self.logger.debug(
-                f"[ IMG DECRYPTER ] Handle with Dir({dst_ym_dir})/Thumb({thm_name})"
+                f"[ IMG SYNCER ] Handle with Dir({dst_ym_dir.name})/Thumb({thm_name})"
             )
             # 读取加密缩略图
             with open(thm_src, "rb") as f:

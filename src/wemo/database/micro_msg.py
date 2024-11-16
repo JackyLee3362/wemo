@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import random
 
 from sqlalchemy import Column, String, Integer, LargeBinary
@@ -60,21 +61,22 @@ class Contact(UserTable):
             alias = "alias:" + user
 
         return Contact(
-            UserName=user,
-            Alias=alias,
-            DelFlag=0,
-            Type=3,
-            VerifyFlag=0,  # 0 表示是好友
+            username=user,
+            alias=alias,
+            del_flag=0,
+            type=3,
+            verify_flag=0,  # 0 表示是好友
         )
 
 
+@dataclass
 class ContactHeadImgUrl(UserTable):
     __tablename__ = "ContactHeadImgUrl"
 
     username = Column("usrName", String, primary_key=True)
-    small_head_img_url = Column("smallHeadImgUrl", String)
-    big_head_img_url = Column("bigHeadImgUrl", String)
-    head_img_md5 = Column("headImgMd5", String)
+    small_url = Column("smallHeadImgUrl", String)
+    big_url = Column("bigHeadImgUrl", String)
+    md5 = Column("headImgMd5", String)
     r0 = Column("reverse0", Integer)
     r1 = Column("reverse1", String)
 
@@ -84,13 +86,14 @@ class ContactHeadImgUrl(UserTable):
         username = mock_user(seed)
         url = mock_url(seed)
         return ContactHeadImgUrl(
-            usrName=username,
-            smallHeadImgUrl=url,
-            bigHeadImgUrl=url + "bigHead",
-            reverse0=0,
+            username=username,
+            small_url=url,
+            big_url=url + "bigHead",
+            r0=0,
         )
 
 
+@dataclass
 class ContactLabel(UserTable):
     __tablename__ = "ContactLabel"
 
@@ -108,7 +111,7 @@ class ContactLabel(UserTable):
         names = {0: "默认", 1: "家人", 2: "朋友", 3: "同事", 4: "同学", 5: "其他"}
         if seed not in names.keys():
             raise ValueError("seed too large")
-        return ContactLabel(LabelID=seed, LabelName=names[seed])
+        return ContactLabel(label_id=seed, label_name=names[seed])
 
 
 @singleton
@@ -153,8 +156,8 @@ class MicroMsg(AbsUserDB):
             .filter(ContactHeadImgUrl.username == username)
             .one_or_none()
         )
-        contact.big_head_img_url = contact_img.big_head_img_url
-        contact.small_head_img_url = contact_img.small_head_img_url
+        contact.big_head_img_url = contact_img.big_url
+        contact.small_head_img_url = contact_img.small_url
         return contact
 
     def get_labels_by_username(self, username: str) -> list[ContactLabel]:

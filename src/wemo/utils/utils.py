@@ -128,10 +128,10 @@ def find_video_by_md5_or_duration(path: Path, md5: str, duration: float) -> Path
 
 def find_img_thumb_by_url(path: Path, url: str) -> tuple[Path, Path]:
     dst_path = path.joinpath(url)
+    if not dst_path.exists():
+        return None, None
     img_path = thm_path = None
     # 如果不存在，跳过
-    if not dst_path.exists():
-        return img_path, thm_path
     # 否则遍历文件夹
     for idx, item in enumerate(dst_path.iterdir()):
         if item.suffix == ".jpg":
@@ -147,5 +147,3 @@ def find_img_thumb_by_url(path: Path, url: str) -> tuple[Path, Path]:
 def get_debug_flag() -> bool:
     val = os.environ.get("WEMO_DEBUG")
     return bool(val and val.lower() not in {"0", "false", "no"})
-
-

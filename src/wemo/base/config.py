@@ -11,7 +11,7 @@ from werkzeug.utils import import_string
 if t.TYPE_CHECKING:
     import typing_extensions as te
 
-    from .scaffold import AbsApp
+    from .scaffold import Scaffold
 T = t.TypeVar("T")
 
 
@@ -28,10 +28,10 @@ class ConfigAttribute(t.Generic[T]):
     def __get__(self, obj: None, owner: None) -> te.Self: ...
 
     @t.overload
-    def __get__(self, obj: AbsApp, owner: type[AbsApp]) -> T: ...
+    def __get__(self, obj: Scaffold, owner: type[Scaffold]) -> T: ...
 
     def __get__(
-        self, obj: AbsApp | None, owner: type[AbsApp] | None = None
+        self, obj: Scaffold | None, owner: type[Scaffold] | None = None
     ) -> T | te.Self:
         if obj is None:
             return self
@@ -43,7 +43,7 @@ class ConfigAttribute(t.Generic[T]):
 
         return rv  # type: ignore[no-any-return]
 
-    def __set__(self, obj: AbsApp, value: t.Any) -> None:
+    def __set__(self, obj: Scaffold, value: t.Any) -> None:
         obj.config[self.__name__] = value
 
 

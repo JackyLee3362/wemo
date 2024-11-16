@@ -5,36 +5,33 @@ from wemo.database.db_service import DBService
 from wemo.update.avatar_updater import AvatarUpdater
 from wemo.update.img_updater import ImageUpdater
 from wemo.update.video_updater import VideoUpdater
-from wemo.model.user import User
+from wemo.model.ctx import Context
 
 
 class UserDataUpdateService:
 
-    def __init__(self, user: User, db: DBService, logger: logging.Logger = None):
-        self.user = user
+    def __init__(self, ctx: Context, db: DBService, logger: logging.Logger = None):
         self.db = db
-        self.logger = logger or user.logger
+        self.img_dir = ctx.user_data_dir.img_dir
+        self.cache_img_dir = ctx.cache_dir.img_dir
+        self.video_dir = ctx.user_data_dir.video_dir
+        self.cache_video_dir = ctx.cache_dir.video_dir
+        self.avatar_dir = ctx.user_data_dir.avatar_dir
+        self.logger = logger or ctx.logger or logging.getLogger(__name__)
 
     def init(self):
         self.logger.info("[ UPDATE SERVICE ] init update service...")
         self._init_exporter()
 
     def _init_exporter(self):
-        user = self.user
         self.img_updater = ImageUpdater(
-            dst_dir=user.data_dir.img_dir,
-            src_dir=user.cache_dir.img_dir,
-            logger=user.logger,
+            dst_dir=self.img_dir, src_dir=self.cache_img_dir, logger=self.logger
         )
         self.video_updater = VideoUpdater(
-            dst_dir=user.data_dir.video_dir,
-            src_dir=user.cache_dir.video_dir,
-            logger=user.logger,
+            dst_dir=self.video_dir, src_dir=self.cache_video_dir, logger=self.logger
         )
         self.avatar_updater = AvatarUpdater(
-            db=self.db,
-            dst_dir=user.data_dir.avatar_dir,
-            logger=user.logger,
+            db=self.db, dst_dir=self.avatar_dir, logger=self.logger
         )
 
     def update_db(self):
@@ -45,7 +42,9 @@ class UserDataUpdateService:
             self.logger.exception(e)
 
     # :todo: 这里的服务不能依赖 exporter 才行
-    def update_img_video(self, begin: datetime = None, end: datetime = None):
+    def update_img_video(
+        self, begin: datetime = None, end: datetime = None, wx_ids: list[str] = None
+    ):
         self.logger.info("[ UPDATE SERVICE ] Img and video start are updating...")
 
         begin = begin or datetime.now() - timedelta(days=1)
@@ -54,20 +53,21 @@ class UserDataUpdateService:
         begin_int = int(begin.timestamp())
         end_int = int(end.timestamp())
 
-        self.db.get_feeds_and_by_duration_and_wxids(begin_int, end_int)
-        res = self.db.get_feeds_and_by_duration_and_wxids(begin_int, end_int)
+        res = self.db.get_feeds_and_by_duration_and_wxids(
+            begin_int, end_int, wx_ids=wx_ids
+        )
         total = len(res)
-        for idx, item in enumerate(res):
+        for idx, feed in enumerate(res):
             try:
                 self.logger.info(
-                    f"[ UPDATE SERVICE ] Process({idx+1}/{total}) starting..."
+                    f"[ UPDATE SERVICE ] Process({idx+1}/{total}) start handing feed_id({feed.feed_id})..."
                 )
-                xml = item.content
+                xml = feed.content
                 moment = MomentMsg.parse_xml(xml)
                 contact = self.db.get_contact_by_username(moment.username)
                 contact_name = contact.remark if contact.remark else contact.nick_name
                 self.logger.debug(
-                    f"[ UPDATE SERVICE ] CreateTime({moment.time}) UserName({contact_name}) Desc({moment.desc_brief})"
+                    f"[ UPDATE SERVICE ] CreateTime({moment.time}) UserName({contact_name}) wxid({contact.username}) \nDesc({moment.desc_brief})"
                 )
 
                 self.img_updater.update_by_moment(moment)

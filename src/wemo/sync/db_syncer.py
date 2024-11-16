@@ -34,7 +34,7 @@ class DBSyncer(Syncer):
             self.logger.warning("[ DECRYPT ] src dir not exists.")
             return
         Task = namedtuple("Task", ["src", "dst"])
-        tasks = {}
+        tasks: dict[str, Task] = {}
 
         # 遍历源数据库中的 db 数据库，并存入 cache 中
         for src_path in self.src_dir.rglob("*.db"):
@@ -50,6 +50,6 @@ class DBSyncer(Syncer):
                 shutil.copy(*task)
                 continue
             self.logger.debug(f"[ DECRYPT ] db({k}) exists, decrypt and copy.")
-            flag, result = decrypt(self.wx_key, *task)
+            flag, result = decrypt(self.wx_key, task.src, task.dst)
             if not flag:
                 self.logger.warning(result)

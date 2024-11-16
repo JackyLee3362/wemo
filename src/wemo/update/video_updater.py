@@ -20,6 +20,7 @@ class VideoUpdater(Updater):
         year_month = moment.year_month
         src_path = self.src_dir.joinpath(year_month)
         dst_path = self.dst_dir.joinpath(year_month)
+        src_path.mkdir(parents=True, exist_ok=True)
         dst_path.mkdir(parents=True, exist_ok=True)
         if not media_list:
             return []

@@ -1,7 +1,8 @@
 from pathlib import Path
+from wemo.utils.helper import get_root_path
 
 # app setting
-PROJECT_DIR = Path(__file__).resolve().parent.parent.parent.parent
+PROJECT_DIR = Path(get_root_path("wemo")).parent.parent
 SRC_DIR = PROJECT_DIR.joinpath("src")
 DATA_DIR = PROJECT_DIR.joinpath("data")
 CONFIG_DIR = PROJECT_DIR.joinpath("config")

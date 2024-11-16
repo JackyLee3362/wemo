@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import random
 
 from sqlalchemy import LargeBinary, Column, String, Integer
@@ -24,12 +25,13 @@ class BizContactHeadImg(UserTable):
     def mock(seed):
         random.seed(seed)
         return BizContactHeadImg(
-            usrName=mock_user(seed),
-            createTime=mock_timestamp(),
-            smallHeadBuf=mock_bytes(),
+            username=mock_user(seed),
+            create_time=mock_timestamp(),
+            buf=mock_bytes(),
         )
 
 
+@dataclass
 class ContactHeadImg1(UserTable):
     __tablename__ = "ContactHeadImg1"
 
@@ -45,9 +47,9 @@ class ContactHeadImg1(UserTable):
     def mock(seed):
         random.seed(seed)
         return ContactHeadImg1(
-            usrName=mock_user(seed),
-            createTime=mock_timestamp(),
-            smallHeadBuf=mock_bytes(),
+            username=mock_user(seed),
+            create_time=mock_timestamp(),
+            buf=mock_bytes(),
         )
 
 

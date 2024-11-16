@@ -38,27 +38,36 @@ class UserDirStructure(Path):
         self.avatar_dir.mkdir(parents=True, exist_ok=True)
 
 
-class User:
+class Context:
     # runtime constant 运行时常量
     wx_id = ConfigAttribute[str]("wxid")
-    wx_dir: Path = ConfigAttribute[Path]("wx_dir")
     wx_key = ConfigAttribute[str]("key")
+    wx_dir: Path = ConfigAttribute[Path]("wx_dir")
+    proj_dir: Path = ConfigAttribute[Path]("PROJECT_DIR")
     db_name_list = ["Sns", "MicroMsg", "Misc"]
 
     def __init__(
-        self, proj_dir: Path, info: dict, config: Config, logger: logging.Logger = None
+        self, root_dir: Path, info: dict, config: Config, logger: logging.Logger = None
     ):
-        self.proj_dir = proj_dir
+        """_summary_
+
+        Args:
+            root_path (Path): 配置文件 DIR
+            info (dict): _description_
+            config (Config): _description_
+            logger (logging.Logger, optional): _description_. Defaults to None.
+        """
+        self.root_dir = root_dir
         self.info = info
         config.update(info)
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
 
-    def init_user(self):
-        self.logger.info(f"[ USER ] init user({self.wx_id})...")
-        if self.data_dir is None:
+    def init(self):
+        self.logger.info(f"[ CTX ] init user({self.wx_id})...")
+        if self.user_data_dir is None:
             raise ValueError("data dir is None!")
-        self.data_dir.init_dir()
+        self.user_data_dir.init_dir()
 
         if self.cache_dir is None:
             raise ValueError("cache dir is None!")
@@ -69,12 +78,15 @@ class User:
         return self.wx_dir.joinpath("FileStorage", "Sns", "Cache")
 
     @cached_property
-    def user_dir(self) -> Path:
-        proj_data_dir: Path = self.config.get("DATA_DIR")
-        return proj_data_dir.joinpath(self.wx_id)
+    def data_dir(self) -> Path:
+        return self.proj_dir.joinpath("data")
 
     @cached_property
-    def data_dir(self) -> UserDirStructure:
+    def user_dir(self) -> Path:
+        return self.data_dir.joinpath(self.wx_id)
+
+    @cached_property
+    def user_data_dir(self) -> UserDirStructure:
         return UserDirStructure(self.user_dir.joinpath("data"))
 
     @cached_property
@@ -82,7 +94,7 @@ class User:
         return UserDirStructure(self.user_dir.joinpath("cache"))
 
     @staticmethod
-    def mock_user(wxid: str) -> User:
+    def mock_ctx(wxid: str) -> Context:
         from wemo.base import constant
 
         proj_path = constant.PROJECT_DIR
@@ -95,4 +107,4 @@ class User:
         info = {"wxid": wxid, "key": None, "wx_dir": wx_user_dir}
         logger = default_console_logger(__name__)
 
-        return User(proj_dir=proj_path, info=info, config=config, logger=logger)
+        return Context(root_dir=proj_path, info=info, config=config, logger=logger)

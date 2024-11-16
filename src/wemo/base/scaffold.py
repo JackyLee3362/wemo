@@ -9,7 +9,7 @@ from wemo.utils.utils import get_debug_flag
 from wemo.utils.helper import get_root_path
 
 
-class AbsApp:
+class Scaffold:
     name: str
     config: Config
 

@@ -147,14 +147,36 @@ class MomentMsg:
     def from_dict(self, *args, **kwargs) -> MomentMsg: ...
 
     @property
+    def update_pic(self) -> list[Media]:
+        return [*self.imgs, *self.music]
+
+    @property
     def imgs(self) -> list[Media]:
         res = []
+        if self.style == 3:
+            return res
         medias: MediaList = self.medias
         for media in medias:
+            # 普通图片
             if media.type == "2":
                 res.append(media)
-            elif media.type == 5 or self.style == 3:
-                media.url = media.thumb
+        return res
+
+    @property
+    def music(self) -> list[Media]:
+        res = []
+        # 微信音乐
+        for media in self.medias:
+            if media.type == "5":
+                res.append(media)
+        return res
+
+    @property
+    def hyter_link(self) -> list[Media]:
+        res = []
+        # 超链接
+        for media in self.medias:
+            if self.style == 3:
                 res.append(media)
         return res
 

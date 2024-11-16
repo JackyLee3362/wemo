@@ -4,14 +4,15 @@ from wemo.database.db import AbsUserDB
 from wemo.database.micro_msg import Contact, MicroMsg, MicroMsgCache
 from wemo.database.misc import Misc, MiscCache
 from wemo.database.sns import Feed, Sns, SnsCache
-from wemo.model.user import User
+from wemo.model.ctx import Context
 
 
 class DBService:
 
-    def __init__(self, user: User, logger: logging.Logger = None):
-        self.user = user
-        self.logger = logger or user.logger
+    def __init__(self, ctx: Context, logger: logging.Logger = None):
+        self.db_dir = ctx.user_data_dir.db_dir
+        self.cache_dir = ctx.cache_dir.db_dir
+        self.logger = logger or ctx.logger or logging.getLogger(__name__)
 
     def init(self):
         self.logger.info("[ DB SERVICE ] init db...")
@@ -47,8 +48,7 @@ class DBService:
         return self.misc.get_avatar_buffer(username)
 
     def _init_db(self):
-        user = self.user
-        db_dir = user.data_dir.db_dir  # 用户数据库数据
+        db_dir = self.db_dir
         self.sns = Sns(db_dir.joinpath("Sns.db"), self.logger)
         self.sns.init()
         self.micro_msg = MicroMsg(db_dir.joinpath("MicroMsg.db"), self.logger)
@@ -57,7 +57,7 @@ class DBService:
         self.misc.init()
 
     def _init_cache(self):
-        db_dir = self.user.cache_dir.db_dir
+        db_dir = self.cache_dir
         self.sns_cache = SnsCache(db_dir.joinpath("Sns.db"), self.logger)
         self.sns_cache.init()
         self.misc_cache = MiscCache(db_dir.joinpath("Misc.db"), self.logger)
@@ -68,8 +68,11 @@ class DBService:
         self.micro_msg_cache.init()
 
     def _update_db_by_cache(self, db: AbsUserDB, cache: AbsUserDB):
-        self.logger.debug(f"[ DB SERVICE ] db({db.__class__.__name__}) update db by cache")
+        self.logger.debug(
+            f"[ DB SERVICE ] db({db.__class__.__name__}) update db by cache"
+        )
         for t_cls in db.table_cls_list:
             self.logger.debug(f"[ DB SERVICE ] table({t_cls.__name__}) update")
+            db.query_all(t_cls)  # only for count
             data_list = cache.query_all(t_cls)
             db.merge_all(data_list)

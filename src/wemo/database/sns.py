@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import random
 from typing import Optional
 
@@ -14,6 +15,7 @@ from wemo.utils.utils import mock_sns_content, mock_timestamp, mock_user, single
 # 朋友圈
 
 
+@dataclass
 class Feed(UserTable):
     __tablename__ = "FeedsV20"
     feed_id = Column("FeedId", Integer, primary_key=True)
@@ -39,19 +41,20 @@ class Feed(UserTable):
     def mock(seed):
         random.seed(seed)
         return Feed(
-            FeedId=-mock_timestamp() * 10,
-            CreateTime=mock_timestamp(),
-            FaultId=0,
-            Type=1,
-            UserName=mock_user(seed),
-            Status=0,
-            ExtFlag=1,
-            PrivFlag=0,
-            StringId=str(mock_timestamp() * 100),
-            Content=mock_sns_content(),
+            feed_id=-mock_timestamp() * 10,
+            create_time=mock_timestamp(),
+            fault_id=0,
+            type=1,
+            username=mock_user(seed),
+            status=0,
+            ext_flag=1,
+            priv_flag=0,
+            string_id=str(mock_timestamp() * 100),
+            content=mock_sns_content(),
         )
 
 
+@dataclass
 class Comment(UserTable):
     __tablename__ = "CommentV20"
 
@@ -83,23 +86,24 @@ class Comment(UserTable):
     def mock(seed):
         random.seed(seed)
         return Comment(
-            FeedId=-mock_timestamp() * 10,
-            CommentId=-mock_timestamp() * 10 + 1,
-            Createtime=mock_timestamp(),
-            Flag=0,
-            CommentType=1,
-            CommentFlag=0,
-            Content="mock comment" + str(seed),
-            FromUserName=mock_user(seed + 1),
-            ReplyId=0,
-            ReplyUserName=0,
-            DeleteFlag=0,
-            CommentId64=0,
-            ReplyId64=0,
-            IsAd=0,
+            feed_id=-mock_timestamp() * 10,
+            comment_id=-mock_timestamp() * 10 + 1,
+            create_time=mock_timestamp(),
+            flag=0,
+            comment_type=1,
+            comment_flag=0,
+            content="mock comment" + str(seed),
+            from_username=mock_user(seed + 1),
+            reply_id=0,
+            reply_username=0,
+            del_flag=0,
+            comment_id_64=0,
+            reply_id_64=0,
+            is_ad=0,
         )
 
 
+@dataclass
 class SnsConfig(UserTable):
     __tablename__ = "SnsConfigV20"
 
@@ -113,7 +117,7 @@ class SnsConfig(UserTable):
 
     @staticmethod
     def mock(seed):
-        return SnsConfig(Key=str(seed), IValue="Ivalue" + str(seed))
+        return SnsConfig(key=str(seed), i_val="Ivalue" + str(seed))
 
 
 @singleton

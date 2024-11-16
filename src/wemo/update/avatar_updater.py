@@ -18,7 +18,13 @@ class AvatarUpdater(Updater):
 
     @override
     def update_by_username(self, username: str):
+        if username.endswith("stranger"):
+            # self.logger.warning(
+            #     f"[ AVATAR UPDATER ] username({username}) ends with stranger"
+            # )
+            return self.dst_dir.joinpath("default.png")
         avatar_path = self.dst_dir.joinpath(f"{username}.png")
+
         if avatar_path.exists():
             return avatar_path
         blob_data = self.db.get_avatar_buf_by_username(username)
@@ -26,7 +32,7 @@ class AvatarUpdater(Updater):
             image = Image.open(io.BytesIO(blob_data.buf))
             image.save(avatar_path, "PNG")
             return avatar_path
-        self.logger.warning(
-            f"[ AVATAR UPDATER ] can't get {username} avatar, use default."
-        )
+        # self.logger.warning(
+        #     f"[ AVATAR UPDATER ] can't get {username} avatar, use default."
+        # )
         return self.dst_dir.joinpath("default.png")
