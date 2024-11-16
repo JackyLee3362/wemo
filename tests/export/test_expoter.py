@@ -1,10 +1,10 @@
 from wemo.base.constant import PROJECT_DIR
-from wemo.export.feed_exporter import MarkdownExporter
-from wemo.model.dto import MomentMsg
-from wemo.model.user import User
+from wemo.export.md_exporter import MarkdownExporter
+from wemo.model.moment import MomentMsg
+from wemo.model.ctx import Context
 
 wxid = "test_export"
-user = User.mock_user(wxid)
+user = Context.mock_ctx(wxid)
 
 
 def test_exporter():

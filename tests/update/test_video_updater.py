@@ -3,7 +3,7 @@ import shutil
 
 from wemo.base.logger import default_console_logger
 from wemo.update.video_updater import VideoUpdater
-from wemo.model.dto import MomentMsg
+from wemo.model.moment import MomentMsg
 from wemo.base.constant import PROJECT_DIR, DATA_DIR
 
 wxid = "test_update"
@@ -23,8 +23,8 @@ def test_handle_moment():
         xml = f.read()
     moment = MomentMsg.parse_xml(xml)
     exp = VideoUpdater(
-        user_data_video_dir=user_data_video_dir,
-        user_cache_video_dir=user_cache_video_dir,
+        dst_dir=user_data_video_dir,
+        src_dir=user_cache_video_dir,
         logger=LOG,
     )
     exp.update_by_moment(moment)

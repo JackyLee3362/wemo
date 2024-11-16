@@ -3,7 +3,7 @@ import shutil
 
 from wemo.base.logger import default_console_logger
 from wemo.update.img_updater import ImageUpdater
-from wemo.model.dto import MomentMsg
+from wemo.model.moment import MomentMsg
 from wemo.base.constant import PROJECT_DIR, DATA_DIR
 
 wxid = "test_update"
@@ -20,17 +20,32 @@ def setup_module():
 def test_handle_moment(mocker):
     img_size = 1951
     thm_size = 1951
-    mock_value_img = b"\xff\xd8" + b"1" * (img_size - 2)
-    mock_value_thm = b"\xff\xd8" + b"0" * (thm_size - 2)
+    mock_value_img = b"1" * img_size
+    mock_value_thm = b"0" * thm_size
     mocker.patch(
-        "wemo.update.img_updater.get_image_from_wx_server",
+        "wemo.utils.helper.get_img_from_server",
         side_effect=[mock_value_img, mock_value_thm] * 10,
     )
     file_path = PROJECT_DIR.joinpath("tests", "static", f"{wxid}.xml")
     with open(file_path, "r", encoding="utf-8") as f:
         xml = f.read()
     moment = MomentMsg.parse_xml(xml)
-    exp = ImageUpdater(
-        user_data_img_dir=user_img_dir, user_cache_img_dir=cache_img_dir, logger=LOG
+    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir, logger=LOG)
+    exp.update_by_moment(moment)
+
+
+def test_handle_moment_private(mocker):
+    img_size = 1951
+    thm_size = 1951
+    mock_value_img = b"1" * img_size
+    mock_value_thm = b"0" * thm_size
+    mocker.patch(
+        "wemo.utils.helper.get_img_from_server",
+        side_effect=[mock_value_img, mock_value_thm] * 10,
     )
+    file_path = PROJECT_DIR.joinpath("tests", "static", f"{wxid}_private.xml")
+    with open(file_path, "r", encoding="utf-8") as f:
+        xml = f.read()
+    moment = MomentMsg.parse_xml(xml)
+    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir, logger=LOG)
     exp.update_by_moment(moment)

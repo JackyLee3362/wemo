@@ -1,4 +1,4 @@
-from wemo.database.db import DbCacheTuple, UserTable
+from wemo.database.db import UserTable
 from wemo.base.logger import default_console_logger
 from wemo.database.misc import (
     Misc as DB,
@@ -26,16 +26,16 @@ class TestMock:
         b1_other = BizContactHeadImg.mock(1)
         b2 = BizContactHeadImg.mock(2)
 
-        assert b1.usrName == b1_other.usrName
-        assert b1.usrName != b2.usrName
+        assert b1.username == b1_other.username
+        assert b1.username != b2.username
 
     def test_contact_head_img_1(self):
         c1 = ContactHeadImg1.mock(1)
         c1_other = ContactHeadImg1.mock(1)
         c2 = ContactHeadImg1.mock(2)
 
-        assert c1.usrName == c1_other.usrName
-        assert c1.usrName != c2.usrName
+        assert c1.username == c1_other.username
+        assert c1.username != c2.username
 
 
 class TestDB:
@@ -47,7 +47,7 @@ class TestDB:
 
         # 准备数据库
         self.db = db
-        self.db.init_db()
+        self.db.init()
 
     def test_singleton(self):
         db2 = DB(self.db_dir, LOG)
@@ -74,10 +74,10 @@ class TestDB:
     def test_get_avatar(self):
         user = ContactHeadImg1.mock(1)
         buf = b"00112233"
-        user.smallHeadBuf = buf
+        user.buf = buf
         self.db.merge_all([user])
-        res = self.db.get_avatar_buffer(user.usrName)
-        assert res.smallHeadBuf == buf
+        res = self.db.get_avatar_buffer(user.username)
+        assert res.buf == buf
 
     def teardown_class(self):
         self.db.close_session()
@@ -91,7 +91,7 @@ class TestCache:
 
         # 准备数据库
         self.db = cache
-        self.db.init_db()
+        self.db.init()
 
     def test_count_all(self):
         for table in self.db.table_cls_list:
@@ -106,16 +106,3 @@ class TestCache:
         self.test_count_all()
         self.db.merge_all(res)
         self.test_count_all()
-
-
-class TestDBCache:
-
-    def test_update_db_by_cache(self):
-        dcs = DbCacheTuple(db, cache)
-        dcs.init_db_cache()
-        dcs.update_db_by_cache()
-        for table in dcs.db.table_cls_list:
-            c1 = dcs.db.count_all(table)
-            c2 = dcs.cache.count_all(table)
-            print("c1 is ", c1, "c2 is ", c2)
-            assert c1 == c2

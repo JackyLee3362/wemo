@@ -2,14 +2,14 @@ from pathlib import Path
 import pytest
 import json
 
-from wemo.base.scaffold import AbsApp
+from wemo.base.scaffold import Scaffold
 from wemo.app import Wemo
 
 TEST_KEY = "foo"
 SECRET_KEY = "config"
 
 
-def common_object_test(app: AbsApp):
+def common_object_test(app: Scaffold):
     assert app.secret_key == "config"
     assert app.config["TEST_KEY"] == "foo"
     assert "TestConfig" not in app.config
