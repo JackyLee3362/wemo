@@ -1,7 +1,7 @@
 import logging
 import shutil
 from pathlib import Path
-from typing import Tuple, Optional, override
+from typing import Optional, override
 
 
 from wemo.model.moment import MomentMsg, Thumb, Url

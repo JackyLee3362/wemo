@@ -125,7 +125,7 @@ class TimelineObject:
     location: Location
     ContentObject: ContentObject
     createTime: int
-    contentDesc: Optional[str] = ""
+    contentDesc: str = ""
 
     @staticmethod
     def mock():
@@ -248,7 +248,7 @@ class MomentMsg:
         except Exception as e:
             print("[ XML PARSE ERROR ]", e)
             return MomentMsg.mock()
-        return MomentMsg.from_dict(msg_dict)
+        return MomentMsg.from_dict(msg_dict)  # type: ignore
 
     @staticmethod
     def mock():

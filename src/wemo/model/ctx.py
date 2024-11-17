@@ -82,6 +82,10 @@ class Context:
         return self.proj_dir.joinpath("data")
 
     @cached_property
+    def output_dir(self) -> Path:
+        return self.proj_dir.joinpath("output")
+
+    @cached_property
     def user_dir(self) -> Path:
         return self.data_dir.joinpath(self.wx_id)
 

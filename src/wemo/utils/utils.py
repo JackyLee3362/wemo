@@ -104,7 +104,7 @@ def mock_sns_content():
     return ""
 
 
-def find_video_by_md5_or_duration(path: Path, md5: str, duration: float) -> Path:
+def find_video_by_md5_or_duration(path: Path, md5: str, duration: float) -> Path | None:
     """
     使用 MD5 和 视频 匹配视频
     """
@@ -126,24 +126,43 @@ def find_video_by_md5_or_duration(path: Path, md5: str, duration: float) -> Path
             return file_path
 
 
-def find_img_thumb_by_url(path: Path, url: str) -> tuple[Path, Path]:
+def find_img_thumb_by_url(path: Path, url: str) -> tuple[Path | None, Path | None]:
     dst_path = path.joinpath(url)
     if not dst_path.exists():
         return None, None
     img_path = thm_path = None
     # 如果不存在，跳过
     # 否则遍历文件夹
-    for idx, item in enumerate(dst_path.iterdir()):
+    for item in dst_path.iterdir():
         if item.suffix == ".jpg":
             if not item.stem.endswith("_t"):
                 img_path = item
             if item.stem.endswith("_t"):
                 thm_path = item
-        # if idx >= 2:
-        #     raise FileExistsError("文件过多")
     return img_path, thm_path
 
 
 def get_debug_flag() -> bool:
     val = os.environ.get("WEMO_DEBUG")
     return bool(val and val.lower() not in {"0", "false", "no"})
+
+
+def xor_decode(magic: int, buf: bytearray):
+    return bytearray([b ^ magic for b in list(buf)])
+
+
+def guess_image_encoding_magic(buf: bytearray):
+    """微信图片加密方法对字节逐一异或
+    即是
+        源文件 ^ magic(未知数) = 加密后文件
+    jpg 的头字节是 0xFF， 0xD8
+    0xFF 与加密文件的头字节做异或运算求解 magic
+    尝试使用 magic 码解密，如果第二字节 == 0xD8，则解密成功
+    """
+    jpg_1 = 0xFF
+    jpg_2 = 0xD8
+    xor_1 = buf[0] ^ jpg_1
+    xor_2 = buf[1] ^ jpg_2
+    if xor_1 == xor_2:
+        return xor_1
+    return 0

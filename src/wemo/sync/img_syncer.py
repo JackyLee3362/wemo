@@ -1,19 +1,29 @@
 from datetime import datetime
 from logging import Logger
 from pathlib import Path
-from typing import override
+from typing import Optional, override
 
 from wemo.sync.sync import Syncer
 from wemo.utils.utils import get_months_between_dates
+from wemo.utils.utils import xor_decode
+from wemo.utils.utils import guess_image_encoding_magic
 
 
 class ImgSyncer(Syncer):
 
-    def __init__(self, src_dir: Path, dst_dir: Path, logger: Logger = None):
+    def __init__(self, src_dir: Path, dst_dir: Path, logger: Optional[Logger] = None):
+        if src_dir is None or dst_dir is None:
+            raise ValueError("Source and destination directories cannot be None")
         super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
 
     @override
-    def sync(self, begin: datetime = None, end: datetime = None, *args, **kwargs):
+    def sync(
+        self,
+        begin: Optional[datetime] = None,
+        end: Optional[datetime] = None,
+        *args,
+        **kwargs,
+    ):
         if begin is None or end is None:
             ym_list = self.get_months_by_existing_dir()
         else:
@@ -45,7 +55,7 @@ class ImgSyncer(Syncer):
         # 读取文件
         with open(src_file_path, "rb") as f:
             encrypt_img_buf = bytearray(f.read())
-        magic = self.guess_image_encoding_magic(encrypt_img_buf)
+        magic = guess_image_encoding_magic(encrypt_img_buf)
         if not magic:
             return
         thm_src = src_file_path.parent.joinpath(src_file_path.stem + "_t")
@@ -58,7 +68,7 @@ class ImgSyncer(Syncer):
         # 如果目标目录已存在，则跳过
         if not img_dst.exists():
             # 处理 IMG
-            decrypt_img_buf = self.xor_decode(magic, encrypt_img_buf)
+            decrypt_img_buf = xor_decode(magic, encrypt_img_buf)
             with open(img_dst, "wb") as f:
                 self.logger.debug(
                     f"[ IMG SYNCER ] Handle with Dir({dst_ym_dir.name})/Img({img_name})"
@@ -75,27 +85,6 @@ class ImgSyncer(Syncer):
             with open(thm_src, "rb") as f:
                 encrypt_thm_buf = bytearray(f.read())
             # 写解密缩略图
-            decrypt_thm_buf = self.xor_decode(magic, encrypt_thm_buf)
+            decrypt_thm_buf = xor_decode(magic, encrypt_thm_buf)
             with open(thm_dst, "wb") as f:
                 f.write(decrypt_thm_buf)
-
-    @staticmethod
-    def xor_decode(magic: int, buf: bytes):
-        if magic is None:
-            raise ValueError("magic cannot be None")
-        return bytearray([b ^ magic for b in list(buf)])
-
-    @classmethod
-    def guess_image_encoding_magic(cls, buf: bytes):
-        """微信图片加密方法对字节逐一异或
-        即是
-            源文件 ^ magic(未知数) = 加密后文件
-        jpg 的头字节是 0xFF， 0xD8
-        0xFF 与加密文件的头字节做异或运算求解 magic
-        尝试使用 magic 码解密，如果第二字节 == 0xD8，则解密成功
-        """
-        header_code, check_code = 0xFF, 0xD8
-        magic = header_code ^ list(buf)[0] if buf else 0x00
-        _, code = cls.xor_decode(magic, buf[:2])
-        if check_code == code:
-            return magic
