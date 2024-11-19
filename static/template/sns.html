@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Wechat Moment Msg</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+  </head>
+  <body>
+    <div
+      id="fullSizeOverlay"
+      style="display: none"
+      onclick="closeFullSize(event)"
+    >
+      <img id="fullSizeImage" src="" alt="Full Size Image" />
+    </div>
+    <div id="warningOverlay" style="display: none">
+      <label>
+        <div class="alert info" onclick="closeWarningOverlay(event)">
+          <span class="alertClose"> X </span>
+          <span class="alertText">
+            视频号请到微信搜索观看
+            <br class="clear" />
+          </span>
+        </div>
+      </label>
+    </div>
+    <div class="header">
+      <div class="col-xs-12 text-center">朋友圈</div>
+    </div>
+      {{ banner_html }}
+    <div class="text-box">
+      {{ moment_msg }}
+      <p class="end">已显示全部内容</p>
+    </div>
+  </body>
+  <script
+    src="js/jquery-2.1.1.min.js"
+    type="text/javascript"
+    charset="utf-8"
+  ></script>
+  <script
+    src="js/bootstrap.min.js"
+    type="text/javascript"
+    charset="utf-8"
+  ></script>
+  <script src="js/index.js" type="text/javascript" charset="utf-8"></script>
+</html>

@@ -1,0 +1,81 @@
+<div class="row item">
+  <div class="col-xs-2">
+    <div class="msg-logo-box"><img src="{{ avatar_url }}" /></div>
+  </div>
+  <div class="col-xs-10 xs8">
+    <div>
+      <p class="p1">{{ name }}</p>
+      <div>
+        <p class="p2">{{ desc }}</p>
+        {% if images | length > 0 %}
+        <div
+          class="towp imgs-container {% if images | length > 1 %}multiple-images{% else %}single-image{% endif %}"
+        >
+          {% for img in images %}
+          <img
+            class="img-container img-{{ images | length }}"
+            src="{{ img.thumb }}"
+            alt="img"
+            full_img="{{ img.url }}"
+            onclick="openFullSize(event)"
+          />
+          {% endfor %}
+        </div>
+        {% endif %} {% if videos | length > 0 %}
+        <video controls height="500">
+          {% for video in videos %}
+          <source src="{{ video.url }}" type="video/mp4" />
+          {% endfor %}
+        </video>
+        {% endif %} 
+        {% if links | length > 0 %}
+        <div class="towp">
+          {% for link in links %}
+          <a href="{{ link.link }}" target="_blank">
+            <div class="links-container">
+              {% if link.thumb %}
+              <img src="{{ link.thumb }}" alt="link-img">
+              {% endif %}
+              <div class="text">{{ link.title }}</div>
+            </div>
+          {% endfor %} 
+          </a>
+          </div>
+        {% endif %}
+        {% if musics | length > 0 %}
+        <div class="towp">
+          {% for music in musics %}
+          <a href="{{ music.link }}" target="_blank">
+            <div class="links-container">
+              <img src="{{ music.thumb }}" alt="music-img">
+              <div class="text">{{ music.title }} - {{ music.description }}</div>
+            <audio class="music-audio" controls>
+              <source src="{{ music.url }}" type="audio/mpeg"/>
+            </audio>
+            </div>
+          </a>
+          {% endfor %} 
+        </div>
+        {% endif %}
+        {% if finders | length > 0%}
+        <div class="towp">
+          <div class="finder-container">
+            {% for finder in finders %}
+            <img src="{{ finder.thumb }}" onclick="openWarningOverlay(event)" alt="finder-img">
+            <div class="info-box">
+              <p class="location">视频号 · {{ finder.title }} · {{ finder.description }}</p>
+            </div>
+            
+          {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        <div class="info-box">
+          <p class="location">{{ location }}</p>
+          <p class="time">{{ create_time}}</p>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
