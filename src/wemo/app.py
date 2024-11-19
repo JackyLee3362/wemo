@@ -15,7 +15,7 @@ class Wemo(Scaffold):
         self.config.from_object(constant)
         self.ctx = self._init_ctx()
 
-    def init_app(self):
+    def init(self):
         self.logger.info("[ APP ] init app...")
         self._init_ctx()
         self._init_backend()
@@ -41,4 +41,4 @@ class Wemo(Scaffold):
 
     def run(self):
         self.logger.info("[ APP ] runing app...")
-        self.init_app()
+        self.init()

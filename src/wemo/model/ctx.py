@@ -31,7 +31,7 @@ class UserDirStructure(Path):
     def avatar_dir(self):
         return self.joinpath("avatar")
 
-    def init_dir(self):
+    def init_mkdir(self):
         self.db_dir.mkdir(parents=True, exist_ok=True)
         self.img_dir.mkdir(parents=True, exist_ok=True)
         self.video_dir.mkdir(parents=True, exist_ok=True)
@@ -67,11 +67,11 @@ class Context:
         self.logger.info(f"[ CTX ] init user({self.wx_id})...")
         if self.user_data_dir is None:
             raise ValueError("data dir is None!")
-        self.user_data_dir.init_dir()
+        self.user_data_dir.init_mkdir()
 
         if self.cache_dir is None:
             raise ValueError("cache dir is None!")
-        self.cache_dir.init_dir()
+        self.cache_dir.init_mkdir()
 
     @cached_property
     def wx_sns_cache_dir(self) -> Path:
@@ -84,6 +84,10 @@ class Context:
     @cached_property
     def output_dir(self) -> Path:
         return self.proj_dir.joinpath("output")
+
+    @cached_property
+    def static_dir(self) -> Path:
+        return self.proj_dir.joinpath("static")
 
     @cached_property
     def user_dir(self) -> Path:

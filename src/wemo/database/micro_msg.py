@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import random
 
-from sqlalchemy import Column, String, Integer, LargeBinary
+from sqlalchemy import Column, String, Integer, LargeBinary, or_
 from sqlalchemy import and_, case
 
 from wemo.database.db import AbsUserDB
@@ -159,6 +159,20 @@ class MicroMsg(AbsUserDB):
         contact.big_head_img_url = contact_img.big_url
         contact.small_head_img_url = contact_img.small_url
         return contact
+
+    def get_contact_by_fuzzy_name(self, name: str) -> list[Contact]:
+        """根据alias获取用户信息"""
+        contacts = (
+            self.session.query(Contact)
+            .filter(
+                or_(
+                    Contact.remark.like(f"%{name}%"),
+                    Contact.nick_name.like(f"%{name}%"),
+                )
+            )
+            .all()
+        )
+        return contacts
 
     def get_labels_by_username(self, username: str) -> list[ContactLabel]:
         # :todo: 优化项

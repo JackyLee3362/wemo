@@ -2,7 +2,7 @@ import logging
 
 from wemo.model.ctx import Context
 from wemo.database.db_service import DBService
-from wemo.export.export_service import ExportService
+from wemo.render.render_service import RenderService
 from wemo.sync.sync_service import SyncService
 from wemo.update.updater_service import UserDataUpdateService
 
@@ -26,5 +26,5 @@ class Backend:
         self.syncer.init()
         self.updater = UserDataUpdateService(self.ctx, self.db)
         self.updater.init()
-        self.exporter = ExportService(self.ctx, self.db)
-        self.exporter.init()
+        self.render = RenderService(self.ctx, self.db)
+        self.render.init()

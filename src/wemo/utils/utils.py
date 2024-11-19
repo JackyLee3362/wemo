@@ -126,18 +126,21 @@ def find_video_by_md5_or_duration(path: Path, md5: str, duration: float) -> Path
             return file_path
 
 
-def find_img_thumb_by_url(path: Path, url: str) -> tuple[Path | None, Path | None]:
-    dst_path = path.joinpath(url)
+def find_img_thumb_by_url(path: Path, urn: str) -> tuple[Path | None, Path | None]:
+    dst_path = path.joinpath(urn)
     if not dst_path.exists():
         return None, None
     img_path = thm_path = None
     # 如果不存在，跳过
     # 否则遍历文件夹
+    total_res = list(dst_path.iterdir())
+    if len(total_res) == 1:
+        return total_res[0], total_res[0]
     for item in dst_path.iterdir():
         if item.suffix == ".jpg":
             if not item.stem.endswith("_t"):
                 img_path = item
-            if item.stem.endswith("_t"):
+            elif item.stem.endswith("_t"):
                 thm_path = item
     return img_path, thm_path
 

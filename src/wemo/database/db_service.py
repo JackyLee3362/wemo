@@ -25,7 +25,7 @@ class DBService:
         self._update_db_by_cache(self.misc, self.misc_cache)
         self._update_db_by_cache(self.micro_msg, self.micro_msg_cache)
 
-    def get_feeds_by_dur_ids(
+    def get_feeds_by_dur_wxids(
         self, begin: datetime, end: datetime, wx_ids: list[str] = None
     ):
         b_int = int(begin.timestamp())
@@ -46,6 +46,18 @@ class DBService:
 
     def get_avatar_buf_by_username(self, username: str):
         return self.misc.get_avatar_buffer(username)
+
+    def get_feed_by_feed_id(self, feed_id):
+        return self.sns.get_feed_by_feed_id(feed_id)
+
+    def get_fuzzy_name(self, fuzzy_name):
+        return self.micro_msg.get_contact_by_fuzzy_name(fuzzy_name)
+
+    def get_cover_url(self):
+        return self.sns.get_cover_url()
+
+    def get_comment_by_feed_id(self, feed_id: int):
+        return self.sns.get_comment_by_feed_id(feed_id)
 
     def _init_db(self):
         db_dir = self.db_dir

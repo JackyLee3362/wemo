@@ -175,6 +175,6 @@ class Sns(AbsUserDB):
         )
         return res
 
-    def get_cover_url(self) -> Optional[SnsConfig]:
+    def get_cover_url(self) -> str:
         res = self.session.query(SnsConfig).filter(SnsConfig.key == "6").one_or_none()
-        return res
+        return res.str_val

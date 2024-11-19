@@ -11,6 +11,8 @@ import filetype
 from wemo.sync.sync import Syncer
 from wemo.utils.utils import get_months_between_dates
 
+from rich.progress import track
+
 
 class VideoSync(Syncer):
 
@@ -45,13 +47,17 @@ class VideoSync(Syncer):
             src_dir = self.src_dir.joinpath(y_m)
             dst_dir = self.dst_dir.joinpath(y_m)
             dst_dir.mkdir(parents=True, exist_ok=True)
-            for file in src_dir.rglob("*"):
+            for file in track(
+                src_dir.iterdir(),
+                description="Decrypting videos...",
+                total=len(list(src_dir.iterdir())),
+            ):
                 file_type = filetype.guess(file)
                 if file_type and file_type.extension == "mp4":
                     self._handle_video(file, dst_dir)
 
     def _handle_video(self, file: Path, dst_dir: Path):
-        self.logger.debug(f"[ VIDEO SYNCER ] File({file.name}) decrypting...")
+        # self.logger.debug(f"[ VIDEO SYNCER ] File({file.name}) decrypting...")
         md5 = self._calculate_md5(file)
         dur = self._get_video_duration(file)
         video_dst_path = dst_dir.joinpath(f"{md5}_{dur}.mp4")

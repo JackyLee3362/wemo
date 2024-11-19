@@ -3,6 +3,8 @@ import shutil
 from pathlib import Path
 from typing import Optional, override
 
+from urllib.parse import urlparse
+
 
 from wemo.model.moment import MomentMsg, Thumb, Url
 from wemo.update.updater import Updater
@@ -21,30 +23,32 @@ class ImageUpdater(Updater):
         ~/year-month/img-url/content-length.jpg
         """
         # 获取 media 列表中
-        try:
-            for img in moment.update_pic:
+        for key, res_list in moment.update_pic.items():
+            self.logger.info(f"[ IMG UPDATER ] updating {key}")
+            try:
                 # 检查是否存在
-                url_info = img.url
-                thm_info = img.thumb
-                y_m = moment.year_month
-                urn = url_info.text.split("/")[-2]
-                dst_img_ym_dir = self.dst_dir.joinpath(y_m)
-                src_img_ym_dir = self.src_dir.joinpath(y_m)
-                dst_img_ym_urn_dir = dst_img_ym_dir.joinpath(urn)
-                res, _ = find_img_thumb_by_url(dst_img_ym_dir, urn)
-                # 如果存在，则不处理
-                if res:
-                    self.logger.debug(
-                        f"[ IMG UPDATER ] Dir({y_m})/urn/File({res.name}) exists, skip."
+                for img in res_list:
+                    url_info = img.url if key == "img" else img.thumb
+                    thm_info = img.thumb
+                    y_m = moment.year_month
+                    urn = url_info.urn
+                    dst_img_ym_dir = self.dst_dir.joinpath(y_m)
+                    src_img_ym_dir = self.src_dir.joinpath(y_m)
+                    dst_img_ym_urn_dir = dst_img_ym_dir.joinpath(urn)
+                    res, _ = find_img_thumb_by_url(dst_img_ym_dir, urn)
+                    # 如果存在，则不处理
+                    if res:
+                        self.logger.debug(
+                            f"[ IMG UPDATER ] Dir({y_m})/File({res.name}) exists, skip."
+                        )
+                        continue
+                    dst_img_ym_dir.mkdir(parents=True, exist_ok=True)
+                    dst_img_ym_urn_dir.mkdir(parents=True, exist_ok=True)
+                    self.handle_img_thumb(
+                        src_img_ym_dir, dst_img_ym_urn_dir, url_info, thm_info
                     )
-                    continue
-                dst_img_ym_dir.mkdir(parents=True, exist_ok=True)
-                dst_img_ym_urn_dir.mkdir(parents=True, exist_ok=True)
-                self.handle_img_thumb(
-                    src_img_ym_dir, dst_img_ym_urn_dir, url_info, thm_info
-                )
-        except Exception as e:
-            self.logger.exception(e)
+            except Exception as e:
+                self.logger.exception(e)
 
     def handle_img_thumb(self, src_dir: Path, dst_dir: Path, url: Url, thm: Thumb):
         # 检查是否存在
@@ -105,7 +109,7 @@ class ImageUpdater(Updater):
 
     def get_finder_images(self, msg: MomentMsg) -> Optional[str]:
         """获取视频号的封面图"""
-        media = msg.finder
+        media = msg.finders
         for media_item in media:
             thumb_path = self.save_server_img(media_item.thumbUrn, {}, "thumb")
             return thumb_path

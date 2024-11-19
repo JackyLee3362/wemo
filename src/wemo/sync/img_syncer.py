@@ -7,6 +7,7 @@ from wemo.sync.sync import Syncer
 from wemo.utils.utils import get_months_between_dates
 from wemo.utils.utils import xor_decode
 from wemo.utils.utils import guess_image_encoding_magic
+from rich.progress import track
 
 
 class ImgSyncer(Syncer):
@@ -34,6 +35,7 @@ class ImgSyncer(Syncer):
             self.logger.debug(f"[ IMG SYNCER ] Dir({ym}) start decrypt.")
             src_ym_dir = self.src_dir.joinpath(ym)
             dst_ym_dir = self.dst_dir.joinpath(ym)
+            src_ym_dir.mkdir(parents=True, exist_ok=True)
             dst_ym_dir.mkdir(parents=True, exist_ok=True)
             self._decrypt_img_list_by_ym(src_ym_dir, dst_ym_dir)
 
@@ -42,16 +44,19 @@ class ImgSyncer(Syncer):
         将图片文件从缓存中复制出来，重命名为 [主图字节数_缩略图字节数.jpg]
         """
         # 初始化创建路径
-        for p in src_ym_dir.rglob("*"):
+        for p in track(
+            src_ym_dir.iterdir(),
+            description="Decrypting images...",
+            total=len(list(src_ym_dir.iterdir())),
+        ):
             if p.is_file() and not p.stem.endswith("_t"):
-                self.logger.debug(f"[ IMG SYNCER ] File({p.stem}) start decrypt.")
                 self._decrypt_img(dst_ym_dir, p)
 
     def _decrypt_img(self, dst_ym_dir: Path, src_file_path: Path) -> None:
         """
         处理单个文件，解密图片，并重命名（假设都有缩略图）
         """
-
+        # self.logger.debug(f"[ IMG SYNCER ] File({src_file_path.stem}) start decrypt.")
         # 读取文件
         with open(src_file_path, "rb") as f:
             encrypt_img_buf = bytearray(f.read())

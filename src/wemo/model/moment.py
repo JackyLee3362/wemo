@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from functools import cached_property
 from typing import Optional
+from urllib.parse import urlparse
 
 import xmltodict
 from dataclasses_json import dataclass_json, config
@@ -33,7 +35,7 @@ class Url:
 
     @property
     def urn(self):
-        return self.text.split("/")[-2]
+        return urlparse(self.text).path.split("/")[-2]
 
     @property
     def params(self):
@@ -60,7 +62,7 @@ class Thumb:
 
     @property
     def urn(self):
-        return self.text.split("/")[-2]
+        return urlparse(self.text).path.split("/")[-2]
 
     @property
     def params(self):
@@ -83,10 +85,11 @@ class Media:
     thumb: Optional[Thumb] = None
     thumbUrl: Optional[str] = None
     videoDuration: Optional[str] = None
+    link: Optional[str] = None
 
     @property
     def thumbUrn(self):
-        return self.thumbUrl.split("/")[-2]
+        return urlparse(self.thumbUrl).path.split("/")[-2]
 
 
 @dataclass_json
@@ -146,61 +149,91 @@ class MomentMsg:
 
     def from_dict(self, *args, **kwargs) -> MomentMsg: ...
 
-    @property
-    def update_pic(self) -> list[Media]:
-        return [*self.imgs, *self.music]
+    @cached_property
+    def msg_repr(self) -> str:
+        return f"contentStyle({self.style})"
 
-    @property
+    @cached_property
+    def update_pic(self) -> dict[str, list[Media]]:
+        res = {}
+        if len(self.musics) > 0:
+            res["music"] = self.musics
+        if len(self.imgs) > 0:
+            res["img"] = self.imgs
+        if len(self.videos) > 0:
+            res["video"] = self.videos
+        if len(self.finders) > 0:
+            res["finder"] = self.finders
+        if len(self.links) > 0:
+            res["link"] = self.links
+        return res
+
+    @cached_property
     def imgs(self) -> list[Media]:
         res = []
-        if self.style == 3:
-            return res
-        medias: MediaList = self.medias
-        for media in medias:
-            # 普通图片
-            if media.type == "2":
+        # 普通图片
+        if self.style == 1:
+            for media in self.medias:
                 res.append(media)
         return res
 
-    @property
-    def music(self) -> list[Media]:
+    @cached_property
+    def musics(self) -> list[Media]:
         res = []
         # 微信音乐
-        for media in self.medias:
-            if media.type == "5":
+        if self.style == 42:
+            for media in self.medias:
+                media.link = self.timelineObject.ContentObject.contentUrl
+                media.title = self.timelineObject.ContentObject.title
+                media.description = self.timelineObject.ContentObject.description
                 res.append(media)
         return res
 
-    @property
-    def hyter_link(self) -> list[Media]:
+    @cached_property
+    def links(self) -> list[Media]:
         res = []
         # 超链接
-        for media in self.medias:
-            if self.style == 3:
+        if self.style in (3, 5):
+            for media in self.medias:
+                media.link = self.timelineObject.ContentObject.contentUrl
+                media.title = self.timelineObject.ContentObject.title
+                media.description = self.timelineObject.ContentObject.description
                 res.append(media)
         return res
 
-    @property
+    @cached_property
     def videos(self) -> list[Media]:
         res = []
-        for media in self.medias:
-            if media.type == "6":
+        if self.style == 15:
+            for media in self.medias:
                 res.append(media)
         return res
 
-    @property
+    @cached_property
     def medias(self) -> list[Media]:
         try:
             return self.timelineObject.ContentObject.mediaList.media
         except Exception:
             return []
 
+    @cached_property
+    def finders(self) -> list[Media]:
+        res = []
+        if self.style == 28:
+            try:
+                media = self.timelineObject.ContentObject.finderFeed.mediaList.media
+                for item in media:
+                    item.thumb = Thumb(
+                        type="", text=item.thumbUrl, token="", enc_idx=""
+                    )
+                    res.append(item)
+            except Exception as e:
+                print(e)
+        return res
+
     @property
-    def finder(self) -> list[Media]:
-        finder_feed = self.timelineObject.ContentObject.finderFeed
-        if not finder_feed or not finder_feed.mediaList:
-            return []
-        return finder_feed.mediaList or []
+    def location(self) -> str:
+        return self.timelineObject.location.poiName
 
     @property
     def date(self) -> str:
@@ -210,12 +243,6 @@ class MomentMsg:
     def time(self) -> str:
         return timestamp_convert(self.timelineObject.createTime).strftime(
             "%Y-%m-%d %H:%M:%S"
-        )
-
-    @property
-    def datetime_cn(self) -> str:
-        return timestamp_convert(self.timelineObject.createTime).strftime(
-            "%Y年%m月%d日%H时%M分%S秒"
         )
 
     @property
@@ -232,13 +259,13 @@ class MomentMsg:
 
     @property
     def desc_brief(self) -> str:
-        COUNT = 20
+        COUNT = 32
         desc = self.desc or ""
         desc = desc.replace("\n", " ")
         return (desc[: COUNT - 3] + "...") if len(desc) > COUNT else desc
 
     @property
-    def style(self):
+    def style(self) -> int:
         return self.timelineObject.ContentObject.contentStyle
 
     @classmethod
