@@ -3,16 +3,16 @@ from wemo.sync.sync_service import SyncService
 from wemo.model.ctx import Context
 
 wxid = "test_sync"
-user = Context.mock_ctx(wxid)
+ctx = Context.mock_ctx(wxid)
 
 
 def setup_module():
-    shutil.rmtree(user.user_data_dir)
-    user.init()
+    shutil.rmtree(ctx.user_data_dir)
+    ctx.init()
 
 
 def test_cache_updater():
-    syncer = SyncService(user)
+    syncer = SyncService(ctx)
     syncer.init()
 
     syncer.sync_db()

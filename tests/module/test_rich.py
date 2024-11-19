@@ -1,8 +1,10 @@
+from pathlib import Path
 import time
 
 import logging
 from rich.console import Console
-from rich.progress import Progress
+from rich.progress import Progress, track
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -16,9 +18,15 @@ def work(i):
 
 def main():
     logger.info("Before", "123")
-    with Progress(console=console) as progress:
-        for i in progress.track(range(100)):
-            work(i)
+    # with Progress(console=console) as progress:
+    #     for i in progress.track(range(100)):
+    #         work(i)
+    p = Path(r"E:\Project\WechatMomentsBackup\data\wxid_h8cex1v6segm21\data\image")
+
+    for item in track(
+        p.iterdir(), description="Processing...", total=len(list(p.iterdir()))
+    ):
+        work(item)
     logger.info("After")
 
 
