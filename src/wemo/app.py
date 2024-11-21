@@ -1,44 +1,23 @@
-from pathlib import Path
+from PySide6.QtWidgets import QApplication
 
-import wemo.base.constant as constant
-from wemo.backend import Backend
-from wemo.base.scaffold import Scaffold
-from wemo.utils.helper import get_wx_info
-from wemo.model.ctx import Context
+from wemo.backend_thread import BackendThread
+from wemo.gui.front_impl import FrontImpl
+from wemo.gui.gui_v1 import Gui
 
 
-class Wemo(Scaffold):
-    default_config = {}
-
-    def __init__(self, import_name, root_path: Path = None):
-        super().__init__(import_name, root_path)
-        self.config.from_object(constant)
-        self.ctx = self._init_ctx()
-
-    def init(self):
-        self.logger.info("[ APP ] init app...")
-        self._init_ctx()
-        self._init_backend()
-        self._init_gui()
-
-    def _init_ctx(self):
-        self.logger.info("[ APP ] init user...")
-        self.ctx = Context(
-            root_dir=self.config.get("PROJECT_PATH"),
-            info=get_wx_info(),
-            config=self.config,
-            logger=self.logger,
-        )
-        self.ctx.init()
-
-    def _init_backend(self):
-        self.logger.info("[ APP ] init client...")
-        self.backend = Backend(self.ctx)
-        self.backend.init()
-
-    def _init_gui(self):
-        self.logger.info("[ APP ] init gui...")
+class App:
+    def __init__(self):
+        # 初始化界面
+        self.app = QApplication()
+        self.gui = Gui()
+        # 前置依赖
+        self.front = FrontImpl()
+        self.bt = BackendThread(self.front)
+        # 初始化 backend，才会有 ctx
+        self.gui.inject(self.bt, self.front)
+        self.gui.init()
 
     def run(self):
-        self.logger.info("[ APP ] runing app...")
-        self.init()
+        self.bt.start()
+        self.gui.show()
+        self.app.exec()
