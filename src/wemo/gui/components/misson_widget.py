@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtWidgets import (
@@ -29,6 +30,7 @@ class MissonWidget(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.temp_process = "进度 ({}%)"
+        self.out_dir = ""
         self.init_ui()
 
     def init_ui(self):
@@ -58,7 +60,14 @@ class MissonWidget(QWidget):
         self.link_start.setMinimumSize(QSize(150, 100))
         self.stop_btn = QPushButton("停止", self)
 
+        self.out_dir_btn = QPushButton("打开输出文件夹")
+        self.out_dir_btn.setDisabled(True)
+        self.out_dir_btn.clicked.connect(
+            lambda: os.system(f'explorer.exe "{self.out_dir}"')
+        )
+
         layout.addLayout(f1)
+        layout.addWidget(self.out_dir_btn)
         layout.addWidget(self.link_start)
         layout.addWidget(self.stop_btn)
 
@@ -72,3 +81,7 @@ class MissonWidget(QWidget):
 
     def update_render_info(self, value: float):
         self.render_info.setValue(value)
+
+    def update_out_dir(self, value: str):
+        self.out_dir = value
+        self.out_dir_btn.setDisabled(False)

@@ -11,6 +11,9 @@ class GuiSignal(QObject):
 
     contacts_update_signal: SignalInstance = Signal(dict)
     latest_feed_update_signal: SignalInstance = Signal(str)
+
+    out_dir_signal: SignalInstance = Signal(str)
+
     info_update_signal: SignalInstance = Signal(str, str)
     logging_signal: SignalInstance = Signal(str, logging.LogRecord)
 

@@ -43,9 +43,7 @@ class MainWindow(QMainWindow):
         self.flush_contacts()
         self.mission_widget.link_start.clicked.connect(self.submit_tasks)
         self.signal.contacts_update_signal.connect(self.contact_widget.update_contacts)
-        self.contact_widget.flush_all.clicked.connect(
-            lambda: self.bt.add_task(self.bt.backend.api_flush_contact)
-        )
+        self.contact_widget.flush_all.clicked.connect(self.flush_contacts)
         self.signal.logging_signal.connect(self.append_text)
         self.signal.latest_feed_update_signal.connect(
             lambda feed: self.contact_widget.latest_feed_info.setText(feed)
@@ -54,6 +52,7 @@ class MainWindow(QMainWindow):
         self.signal.update_progress.connect(self.mission_widget.update_update_info)
         self.signal.render_progress.connect(self.mission_widget.update_render_info)
         self.mission_widget.stop_btn.clicked.connect(self.bt.backend_stop)
+        self.signal.out_dir_signal.connect(self.mission_widget.update_out_dir)
 
     def init_ui(self):
         # 界面布局

@@ -108,6 +108,7 @@ class BackendImpl(Scaffold):
             return
         self.render.render_sns(begin, end, wxids)
         self.logger.info("[ BACKEND ] render finish.")
+        self.ctx.signal.out_dir_signal.emit(str(self.ctx.output_date_dir.absolute()))
 
     def api_test(self, *args, **kwargs):
         self.logger.info(f"[ BACKEND ] api test, args={args}, kwargs={kwargs}")
