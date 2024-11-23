@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from logging import Logger, getLogger
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
@@ -33,6 +34,7 @@ class AbsUserDB:
         2. 建立会话
         3. 创建表
         """
+        # self.clear_shm_wal()
         self.connect_db()
         self.build_session()
         self.create_tables()
@@ -45,9 +47,21 @@ class AbsUserDB:
             bind=self.engine, tables=[t.__table__ for t in self.table_cls_list]
         )
 
+    # def clear_shm_wal(self):
+    #     url = str(self.db_url)
+    #     shm_url = url + "-shm"
+    #     wal_url = url + "-wal"
+    # if os.path.exists(shm_url):
+    #     self.logger.debug(f"[ DB ] clear shm({self.db_name}-shm).")
+    #     os.remove(shm_url)
+    # if os.path.exists(wal_url):
+    #     self.logger.debug(f"[ DB ] clear wal({self.db_name}-wal).")
+    #     os.remove(wal_url)
+
     def connect_db(self):
         self.logger.debug(f"[ DB ] db({self.db_name}) is connected.")
-        self.engine = create_engine(f"sqlite:///{self.db_url}", echo=False)
+        url = f"sqlite:///{self.db_url}"
+        self.engine = create_engine(url, echo=False)
 
     def build_session(self):
         self.logger.debug(f"[ DB ] db({self.db_name}) session is build.")

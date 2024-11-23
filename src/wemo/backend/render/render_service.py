@@ -13,9 +13,9 @@ class RenderService:
     def __init__(self, ctx: Context, db: DBService):
         self.ctx = ctx
         self.db = db
-        self.logger: logging.Logger = ctx.logger
         self.output_dir: Path = ctx.output_dir
         self.html_render = HtmlRender(ctx)
+        self.logger: logging.Logger = ctx.logger
 
     def init(self):
         """初始化"""
@@ -37,10 +37,11 @@ class RenderService:
         feeds = self.db.get_feeds_by_dur_wxids(begin, end, wx_ids)
         moment_msg = self.render_moment(feeds)
 
-        file_name = datetime.now().strftime("%Y-%m-%d %H-%M-%S.html")
         temp = self.html_render.template.temp_sns
         html = temp.render(moment_msg=moment_msg)
-        with open(self.ctx.output_dir.joinpath(file_name), "w", encoding="utf-8") as f:
+        with open(
+            self.ctx.output_date_dir.joinpath("index.html"), "w", encoding="utf-8"
+        ) as f:
             f.write(html)
 
     def render_banner(self):
@@ -55,8 +56,13 @@ class RenderService:
         html = ""
         banner_html = self.render_banner()
         html += banner_html
-        for feed in feeds:
+        total_feeds = len(feeds)
+        for idx, feed in enumerate(feeds):
+            if not self.ctx.running:
+                self.logger.debug("[ RENDER SERVICE ] stop rendering...")
+                break
             try:
+                self.ctx.signal.render_progress.emit((idx + 1) / total_feeds)
                 contact = self.db.get_contact_by_username(feed.username)
                 moment = MomentMsg.parse_xml(feed.content)
                 html_part = self.html_render.render(contact, moment)

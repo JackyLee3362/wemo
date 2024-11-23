@@ -1,15 +1,17 @@
 from __future__ import annotations
 
+from datetime import datetime
 import logging
 from functools import cached_property
 from pathlib import Path
+import shutil
 
 from wemo.backend.base import constant
 from wemo.backend.base.constant import MOCK_DIR
 from wemo.backend.base.logger import default_console_logger
 from wemo.backend.base.config import Config, ConfigAttribute
 from wemo.backend.utils.helper import get_wx_info
-from wemo.comm_interface import InterfaceFront
+from wemo.gui_signal import GuiSignal
 
 
 class UserDirStructure(Path):
@@ -67,9 +69,10 @@ class Context:
         self.config = config
         self.config.from_object(constant)
         self.logger = logger or logging.getLogger(__name__)
-        self.signal: InterfaceFront = None
+        self.signal: GuiSignal = None
+        self.running = True
 
-    def inject(self, signal: InterfaceFront):
+    def inject(self, signal: GuiSignal):
         self.signal = signal
 
     def init(self):
@@ -85,8 +88,21 @@ class Context:
         self.cache_dir.init_mkdir()
 
     @cached_property
+    def output_date_dir(self) -> UserDirStructure:
+        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        p = self.output_dir.joinpath(date)
+        shutil.copytree(self.static_dir, p)
+        res = UserDirStructure(p)
+        res.init_mkdir()
+        return res
+
+    @cached_property
     def wx_sns_cache_dir(self) -> Path:
         return self.wx_dir.joinpath("FileStorage", "Sns", "Cache")
+
+    @cached_property
+    def template_dir(self) -> Path:
+        return self.proj_dir.joinpath("template")
 
     @cached_property
     def data_dir(self) -> Path:
@@ -120,7 +136,7 @@ class Context:
         config = Config(proj_path)
         config.from_object(constant)
 
-        signal = InterfaceFront()
+        signal = GuiSignal()
 
         wx_user_dir = MOCK_DIR.joinpath(wxid)
 

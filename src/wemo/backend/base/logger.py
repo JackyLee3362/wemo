@@ -29,7 +29,6 @@ def create_app_logger(name: str, level=None, log_dir: Path = None) -> logging.Lo
         file_handler = logging.FileHandler(log_file_path, encoding="utf-8")
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
-
     return logger
 
 

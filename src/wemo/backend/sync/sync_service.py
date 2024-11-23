@@ -9,6 +9,7 @@ from wemo.backend.sync.img_syncer import ImgSyncer
 class SyncService:
     def __init__(self, ctx: Context, logger: logging.Logger = None):
         # 依赖注入
+        self.ctx = ctx
         self.cache_dir = ctx.cache_dir
         self.wx_sns_cache_dir = ctx.wx_sns_cache_dir
         self.key = ctx.wx_key
@@ -54,13 +55,22 @@ class SyncService:
         self.sync_video(begin, end)
 
     def sync_db(self):
+        if not self.ctx.running:
+            self.logger.debug("[ SYNC SERVICE ] stop sync db...")
+            return
         self.logger.info("[ SYNC SERVICE ] db sync start...")
         self.db_decrypter.sync()
 
     def sync_img(self, begin: datetime = None, end: datetime = None):
+        if not self.ctx.running:
+            self.logger.debug("[ SYNC SERVICE ] stop sync img...")
+            return
         self.logger.info("[ SYNC SERVICE ] img sync starting...")
         self.img_decrypter.sync(begin, end)
 
     def sync_video(self, begin: datetime = None, end: datetime = None):
+        if not self.ctx.running:
+            self.logger.debug("[ SYNC SERVICE ] stop sync video...")
+            return
         self.logger.info("[ SYNC SERVICE ] video sync starting...")
         self.video_decrypter.sync(begin, end)

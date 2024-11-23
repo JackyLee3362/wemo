@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 from wemo.backend.database.db import AbsUserDB
 from wemo.backend.database.micro_msg import Contact, MicroMsg, MicroMsgCache
@@ -10,6 +10,7 @@ from wemo.backend.ctx import Context
 class DBService:
 
     def __init__(self, ctx: Context, logger: logging.Logger = None):
+        self.ctx = ctx
         self.db_dir = ctx.user_data_dir.db_dir
         self.cache_dir = ctx.cache_dir.db_dir
         self.logger = logger or ctx.logger or logging.getLogger(__name__)
@@ -35,6 +36,14 @@ class DBService:
 
     def get_contact_by_username(self, username: str) -> Contact:
         return self.micro_msg.get_contact_by_username(username)
+
+    def get_latest_feed(self) -> Feed:
+        begin = (datetime.now() - timedelta(days=365)).timestamp()
+        end = datetime.now().timestamp()
+        feeds = self.sns.get_feeds_by_dur_and_wxids(begin, end, None)
+        if len(feeds) > 0:
+            return feeds[0]
+        return None
 
     def get_feeds_and_by_duration_and_wxids(
         self, begin, end, wx_ids=None
@@ -84,6 +93,9 @@ class DBService:
             f"[ DB SERVICE ] db({db.__class__.__name__}) update db by cache"
         )
         for t_cls in db.table_cls_list:
+            if not self.ctx.running:
+                self.logger.debug("[ DB SERVICE ] stop updating")
+                break
             self.logger.debug(f"[ DB SERVICE ] table({t_cls.__name__}) update")
             db.query_all(t_cls)  # only for count
             data_list = cache.query_all(t_cls)

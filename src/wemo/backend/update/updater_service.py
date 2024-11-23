@@ -12,6 +12,7 @@ class UserDataUpdateService:
 
     def __init__(self, ctx: Context, db: DBService, logger: logging.Logger = None):
         self.db = db
+        self.ctx = ctx
         self.img_dir = ctx.user_data_dir.img_dir
         self.cache_img_dir = ctx.cache_dir.img_dir
         self.video_dir = ctx.user_data_dir.video_dir
@@ -35,6 +36,9 @@ class UserDataUpdateService:
         )
 
     def update_db(self):
+        if not self.ctx.running:
+            self.logger.debug("[ UPDATE SERVICE ] stop update db...")
+            return
         try:
             self.logger.info("[ UPDATE SERVICE ] updating...")
             self.db.update_db()
@@ -58,6 +62,9 @@ class UserDataUpdateService:
         )
         total = len(res)
         for idx, feed in enumerate(res):
+            if not self.ctx.running:
+                self.logger.debug("[ UPDATE SERVICE ] stop update img and video...")
+                break
             try:
                 self.logger.info(
                     f"[ UPDATE SERVICE ] Process({idx+1}/{total}) start handing feed_id({feed.feed_id})..."
@@ -79,6 +86,9 @@ class UserDataUpdateService:
         self.logger.info("[ UPDATE SERVICE ] avatar is updating...")
         contacts = self.db.get_contact_list()
         for contact in contacts:
+            if not self.ctx.running:
+                self.logger.debug("[ UPDATE SERVICE ] stop update avatar...")
+                break
             try:
                 self.avatar_updater.update_by_username(contact.username)
             except Exception as e:
