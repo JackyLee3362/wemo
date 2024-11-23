@@ -1,8 +1,8 @@
 import shutil
 
-from wemo.database.db_service import DBService
-from wemo.update.updater_service import UserDataUpdateService
-from wemo.model.ctx import Context
+from wemo.backend.database.db_service import DBService
+from wemo.backend.update.updater_service import UserDataUpdateService
+from wemo.backend.ctx import Context
 
 wxid = "test_update"
 ctx = Context.mock_ctx(wxid)

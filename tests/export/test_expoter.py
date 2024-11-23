@@ -1,7 +1,7 @@
-from wemo.base.constant import PROJECT_DIR
-from wemo.render.render_service import RenderService
-from wemo.model.moment import MomentMsg
-from wemo.model.ctx import Context
+from wemo.backend.base.constant import PROJECT_DIR
+from wemo.backend.render.render_service import RenderService
+from wemo.backend.model.moment import MomentMsg
+from wemo.backend.ctx import Context
 
 wxid = "test_export"
 user = Context.mock_ctx(wxid)

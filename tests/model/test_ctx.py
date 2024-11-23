@@ -1,5 +1,5 @@
 from pathlib import Path
-from wemo.model.ctx import Context
+from wemo.backend.ctx import Context
 
 mock_wx_id = Path(__file__).stem
 

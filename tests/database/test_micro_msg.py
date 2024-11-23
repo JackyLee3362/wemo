@@ -1,8 +1,8 @@
-from wemo.base.logger import default_console_logger
+from wemo.backend.base.logger import default_console_logger
 
-from wemo.base import constant
-from wemo.database.db import UserTable
-from wemo.database.micro_msg import (
+from wemo.backend.base import constant
+from wemo.backend.database.db import UserTable
+from wemo.backend.database.micro_msg import (
     MicroMsg as DB,
     MicroMsgCache as DBCache,
     Contact,

@@ -1,5 +1,5 @@
 from pathlib import Path
-from wemo.utils import helper
+from wemo.backend.utils import helper
 
 
 def test_find_root_path():

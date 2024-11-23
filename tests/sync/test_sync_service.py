@@ -1,6 +1,6 @@
 import shutil
-from wemo.sync.sync_service import SyncService
-from wemo.model.ctx import Context
+from wemo.backend.sync.sync_service import SyncService
+from wemo.backend.ctx import Context
 
 wxid = "test_sync"
 ctx = Context.mock_ctx(wxid)

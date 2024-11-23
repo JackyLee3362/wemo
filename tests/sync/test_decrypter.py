@@ -1,11 +1,11 @@
-from wemo.base import constant
-from wemo.database.micro_msg import MicroMsgCache, Contact
-from wemo.database.misc import ContactHeadImg1, MiscCache
-from wemo.database.sns import Feed, SnsCache
-from wemo.sync.video_syncer import VideoSync
-from wemo.sync.db_syncer import DBSyncer
-from wemo.sync.img_syncer import ImgSyncer
-from wemo.model.ctx import Context
+from wemo.backend.base import constant
+from wemo.backend.database.micro_msg import MicroMsgCache, Contact
+from wemo.backend.database.misc import ContactHeadImg1, MiscCache
+from wemo.backend.database.sns import Feed, SnsCache
+from wemo.backend.sync.video_syncer import VideoSync
+from wemo.backend.sync.db_syncer import DBSyncer
+from wemo.backend.sync.img_syncer import ImgSyncer
+from wemo.backend.ctx import Context
 
 wxid = "test_sync"
 user = Context.mock_ctx(wxid)
