@@ -1,9 +1,20 @@
+# ide
+.vscode
+.idea
+
+# python
 **/__pycache__
-**/*.xml
-.vscode/*
+
+# some private data
 data/*
 logs/*
-.idea/*
-logs/*
 mock/*
-**/private
+experiment/*
+
+**/test_private_*.xml
+**/test_private_*.py
+**/*private*
+**/private/*
+**/output/*
+
+scripts/*

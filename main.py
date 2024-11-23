@@ -1,8 +1,12 @@
 import sys
+import os
 
-sys.path.insert(0, 'src')
-from app import Application
+from wemo.app import App
+
+sys.path.append("./src")
+os.environ.setdefault("WEMO_DEBUG", "true")
+
 
 if __name__ == "__main__":
-    app = Application()
+    app = App(__name__)
     app.run()
