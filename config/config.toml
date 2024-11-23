@@ -1,9 +1,0 @@
-[app]
-name = "微信朋友圈备份软件"
-version = "1.0.0"
-env = "prod"
-
-[logging]
-level = 20
-name = "root"
-

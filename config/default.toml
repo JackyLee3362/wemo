@@ -1,6 +1,9 @@
+# config priority: cli > env_var > config.toml > default.toml
 [app]
-env='test'
+name = "WeChat Moment Backup"
+version = "1.0.0-SNAPSHOT"
+env = 'prod'
 
 [logging]
-level = 20
+level = 10
 name = "root"
