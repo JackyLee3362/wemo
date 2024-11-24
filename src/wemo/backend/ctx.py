@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 
 from wemo.backend.base import constant
-from wemo.backend.base.constant import MOCK_DIR
+from wemo.backend.base.constant import MOCK_DIR, PROJECT_DIR
 from wemo.backend.base.logger import default_console_logger
 from wemo.backend.base.config import Config, ConfigAttribute
 from wemo.backend.utils.helper import get_wx_info
@@ -71,6 +71,7 @@ class Context:
         self.logger = logger or logging.getLogger(__name__)
         self.signal: GuiSignal = None
         self.running = True
+        self.logger.info(f"[ CTX ] init ctx, project dir is {PROJECT_DIR}")
 
     def inject(self, signal: GuiSignal):
         self.signal = signal

@@ -17,8 +17,11 @@ class BackendThread(QThread):
         self.backend.ctx.inject(self.front_api)
         self.backend.init()
         while True:
-            func, args, kwargs = self.task_queue.get()
-            func(*args, **kwargs)
+            try:
+                func, args, kwargs = self.task_queue.get()
+                func(*args, **kwargs)
+            except Exception as e:
+                self.backend.logger.exception(e)
 
     def add_task(self, func, *args, **kwargs):
         self.backend_running()
