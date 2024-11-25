@@ -7,7 +7,7 @@ from typing import Optional
 from sqlalchemy import Column, String, Integer, LargeBinary
 from sqlalchemy import and_
 
-from wemo.backend.database.db import AbsUserDB
+from wemo.backend.database.db import AbsUserCache, AbsUserDB
 from wemo.backend.database.db import UserTable
 from wemo.backend.utils.utils import (
     mock_sns_content,
@@ -41,6 +41,12 @@ class Feed(UserTable):
     r6 = Column("Reserved6", String)
     extra_buf = Column("ExtraBuf", LargeBinary)
     r7 = Column("Reserved7", LargeBinary)
+
+    def __eq__(self, o: Feed):
+        return self.feed_id == o.feed_id
+
+    def __hash__(self):
+        return self.feed_id
 
     @staticmethod
     def mock(seed):
@@ -87,6 +93,19 @@ class Comment(UserTable):
     ref_action_buf = Column("RefActionBuf", LargeBinary)
     r7 = Column("Reserved7", LargeBinary)
 
+    def __eq__(self, o: Comment):
+        return (
+            self.feed_id == o.feed_id
+            and self.comment_id == o.comment_id
+            and self.comment_type == o.comment_type
+            and self.from_username == o.from_username
+        )
+
+    def __hash__(self):
+        return hash(
+            (self.feed_id, self.comment_id, self.comment_type, self.from_username)
+        )
+
     @staticmethod
     def mock(seed):
         random.seed(seed)
@@ -120,13 +139,19 @@ class SnsConfig(UserTable):
     r2 = Column("Reserved2", String)
     r3 = Column("Reserved3", LargeBinary)
 
+    def __eq__(self, o: SnsConfig):
+        return self.key == o.key
+
+    def __hash__(self):
+        return self.key
+
     @staticmethod
     def mock(seed):
         return SnsConfig(key=str(seed), i_val="Ivalue" + str(seed))
 
 
 @singleton
-class SnsCache(AbsUserDB):
+class SnsCache(AbsUserCache):
     def __init__(self, user_cache_db_url, logger=None):
         super().__init__(user_cache_db_url, logger=logger)
         self.register_tables(

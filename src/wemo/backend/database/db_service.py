@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import logging
 from wemo.backend.database.db import AbsUserDB
 from wemo.backend.database.micro_msg import Contact, MicroMsg, MicroMsgCache
 from wemo.backend.database.misc import Misc, MiscCache
@@ -9,16 +8,17 @@ from wemo.backend.ctx import Context
 
 class DBService:
 
-    def __init__(self, ctx: Context, logger: logging.Logger = None):
+    def __init__(self, ctx: Context):
         self.ctx = ctx
         self.db_dir = ctx.user_data_dir.db_dir
-        self.cache_dir = ctx.cache_dir.db_dir
-        self.logger = logger or ctx.logger or logging.getLogger(__name__)
+        self.cache_dir = ctx.user_cache_dir.db_dir
+        self.logger = ctx.logger
+        self.init()
 
     def init(self):
         self.logger.info("[ DB SERVICE ] init db...")
+        self._create_db_cache()
         self._init_db()
-        self._init_cache()
 
     def update_db(self):
         self.logger.info("[ DB SERVICE ] updating...")
@@ -26,12 +26,24 @@ class DBService:
         self._update_db_by_cache(self.misc, self.misc_cache)
         self._update_db_by_cache(self.micro_msg, self.micro_msg_cache)
 
-    def get_feeds_by_dur_wxids(
-        self, begin: datetime, end: datetime, wx_ids: list[str] = None
-    ):
-        b_int = int(begin.timestamp())
-        e_int = int(end.timestamp())
-        feeds = self.sns.get_feeds_by_dur_and_wxids(b_int, e_int, wx_ids)
+    def _close_db(self):
+        self.sns.close_session()
+        self.sns.close_connection()
+        self.micro_msg.close_session()
+        self.micro_msg.close_connection()
+        self.misc.close_session()
+        self.misc.close_connection()
+
+    def flush_db(self):
+        self._close_db()
+        self._init_db()
+
+    def get_feeds_by_dur_wxids(self, begin: int, end: int, wx_ids: list[str] = None):
+        try:
+            feeds = self.sns.get_feeds_by_dur_and_wxids(begin, end, wx_ids)
+        except Exception as e:
+            self.logger.exception(e)
+            return []
         return feeds
 
     def get_contact_by_username(self, username: str) -> Contact:
@@ -69,24 +81,21 @@ class DBService:
         return self.sns.get_comment_by_feed_id(feed_id)
 
     def _init_db(self):
-        db_dir = self.db_dir
-        self.sns = Sns(db_dir.joinpath("Sns.db"), self.logger)
         self.sns.init()
-        self.micro_msg = MicroMsg(db_dir.joinpath("MicroMsg.db"), self.logger)
         self.micro_msg.init()
-        self.misc = Misc(db_dir.joinpath("Misc.db"), self.logger)
         self.misc.init()
 
-    def _init_cache(self):
-        db_dir = self.cache_dir
-        self.sns_cache = SnsCache(db_dir.joinpath("Sns.db"), self.logger)
-        self.sns_cache.init()
-        self.misc_cache = MiscCache(db_dir.joinpath("Misc.db"), self.logger)
-        self.misc_cache.init()
+    def _create_db_cache(self):
+        db_dir = self.db_dir
+        self.sns = Sns(db_dir.joinpath("Sns.db"), self.logger)
+        self.micro_msg = MicroMsg(db_dir.joinpath("MicroMsg.db"), self.logger)
+        self.misc = Misc(db_dir.joinpath("Misc.db"), self.logger)
+        cache_dir = self.cache_dir
+        self.sns_cache = SnsCache(cache_dir.joinpath("Sns.db"), self.logger)
+        self.misc_cache = MiscCache(cache_dir.joinpath("Misc.db"), self.logger)
         self.micro_msg_cache = MicroMsgCache(
-            db_dir.joinpath("MicroMsg.db"), self.logger
+            cache_dir.joinpath("MicroMsg.db"), self.logger
         )
-        self.micro_msg_cache.init()
 
     def _update_db_by_cache(self, db: AbsUserDB, cache: AbsUserDB):
         self.logger.debug(
@@ -97,6 +106,6 @@ class DBService:
                 self.logger.debug("[ DB SERVICE ] stop updating")
                 break
             self.logger.debug(f"[ DB SERVICE ] table({t_cls.__name__}) update")
-            db.query_all(t_cls)  # only for count
-            data_list = cache.query_all(t_cls)
-            db.merge_all(data_list)
+            db_data = db.query_all(t_cls)
+            cache_data = cache.query_all(t_cls)
+            db.merge_all(t_cls, db_data, cache_data)

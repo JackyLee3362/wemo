@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from logging import Logger, getLogger
-import os
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
 from sqlalchemy.schema import MetaData
 
@@ -13,16 +12,37 @@ class UserTable(DeclarativeBase):
     def mock(seed: int) -> UserTable:
         raise NotImplementedError()
 
+    @staticmethod
+    def split_data(d1: list, d2: list):
+        """
+        将数据分为 update 和 insert
+        d1 和 d2 里的数据都实现了 eq 和 hash
+        根据 d1 和 d2 生成字典 dict1, dict2
+        1. 需要更新的数据，hash 相同，eq 不同
+        2. 需要插入的数据，dict2 中有，dict1 中没有
+        """
+
+        dict1 = {hash(item): item for item in d1}
+        dict2 = {hash(item): item for item in d2}
+        to_insert = []
+        to_update = []
+        for key, value in dict2.items():
+            if key not in dict1:
+                to_insert.append(value)
+            elif key in dict1 and dict1[key] != value:
+                to_update.append(value)
+
+        return to_insert, to_update
+
 
 class AbsUserDB:
 
     def __init__(self, db_url: str, db_name: str = None, logger: Logger = None):
-        self.logger = logger or getLogger(__name__)
-        db_name = db_name or self.__class__.__name__
-        self.db_name = db_name
-        self.logger.debug(f"[ DB ] db({db_name}) init.")
+        self.db_name = db_name or self.__class__.__name__
         self.db_url = db_url
-        self.table_cls_list: list[UserTable] = []
+        self.logger = logger or getLogger(self.db_name)
+
+        self.table_cls_list: list[type[UserTable]] = []
         self.engine = None
         self.db_session = None
         self.session: Session = None
@@ -34,7 +54,7 @@ class AbsUserDB:
         2. 建立会话
         3. 创建表
         """
-        # self.clear_shm_wal()
+        self.logger.debug(f"[ DB ] db({self.db_name}) init.")
         self.connect_db()
         self.build_session()
         self.create_tables()
@@ -46,17 +66,6 @@ class AbsUserDB:
         self.metadata.create_all(
             bind=self.engine, tables=[t.__table__ for t in self.table_cls_list]
         )
-
-    # def clear_shm_wal(self):
-    #     url = str(self.db_url)
-    #     shm_url = url + "-shm"
-    #     wal_url = url + "-wal"
-    # if os.path.exists(shm_url):
-    #     self.logger.debug(f"[ DB ] clear shm({self.db_name}-shm).")
-    #     os.remove(shm_url)
-    # if os.path.exists(wal_url):
-    #     self.logger.debug(f"[ DB ] clear wal({self.db_name}-wal).")
-    #     os.remove(wal_url)
 
     def connect_db(self):
         self.logger.debug(f"[ DB ] db({self.db_name}) is connected.")
@@ -71,14 +80,14 @@ class AbsUserDB:
     def register_tables(self, table_cls_list: list) -> None:
         self.table_cls_list.extend(table_cls_list)
 
-    def query_all(self, table_cls: UserTable):
+    def query_all(self, table_cls: type[UserTable]):
         data = self.session.query(table_cls).all()
         self.logger.debug(
             f"[ DB ] db({self.db_name}).table({table_cls.__name__}) query all and count({len(data)})."
         )
         return data
 
-    def count_all(self, table_cls: UserTable) -> int:
+    def count_all(self, table_cls: type[UserTable]) -> int:
         cnt = self.session.query(table_cls).count()
         self.logger.debug(
             f"[ DB ] db({self.db_name}).table({table_cls.__name__}) count({cnt})."
@@ -95,15 +104,32 @@ class AbsUserDB:
             self.session.add(d)
         self.session.commit()
 
-    def merge_all(self, data_list: list[UserTable]) -> None:
-        if len(data_list) <= 0:
+    def merge_all(
+        self,
+        tbl: type[UserTable],
+        db_data: list[UserTable],
+        cache_data: list[UserTable],
+    ) -> None:
+        if len(cache_data) <= 0:
             return
-        self.logger.debug(
-            f"[ DB ] db({self.db_name}).table({data_list[0].__class__.__name__}) merging..."
-        )
-        for d in data_list:
-            self.session.merge(d)
+        tname = tbl.__name__
+        self.count_all(tbl)
+        self.logger.debug(f"[ DB ] db({self.db_name}).Table({tname}) merging...")
+        to_insert, to_update = tbl.split_data(db_data, cache_data)
+
+        self.logger.debug(f"[ DB ] Table({tname}) inserting len({len(to_insert)})...")
+        if len(to_insert) > 0:
+            for item in to_insert:
+                self.session.merge(item)
+
+        self.logger.debug(f"[ DB ] Table({tname}) updating len({len(to_update)})...")
+        if len(to_update) > 0:
+            for item in to_update:
+                self.session.merge(item)
+
         self.session.commit()
+        # with self.engine.connect() as connection:
+        #     connection.execute(text("PRAGMA wal_checkpoint(FULL)"))
 
     def close_session(self) -> None:
         self.logger.debug(f"[ DB ] db({self.db_name}) session closed.")
@@ -112,3 +138,22 @@ class AbsUserDB:
     def close_connection(self) -> None:
         self.logger.debug(f"[ DB ] db({self.db_name}) connection closed.")
         self.engine.dispose()
+
+
+class AbsUserCache(AbsUserDB):
+    def __init__(self, db_url, db_name=None, logger=None):
+        super().__init__(db_url, db_name, logger)
+
+    def count_all(self, table_cls):
+        self.init()
+        res = super().count_all(table_cls)
+        self.close_session()
+        self.close_connection()
+        return res
+
+    def query_all(self, table_cls):
+        self.init()
+        res = super().query_all(table_cls)
+        self.close_session()
+        self.close_connection()
+        return res

@@ -6,7 +6,7 @@ import random
 from sqlalchemy import Column, String, Integer, LargeBinary, not_, or_
 from sqlalchemy import and_, case
 
-from wemo.backend.database.db import AbsUserDB
+from wemo.backend.database.db import AbsUserCache, AbsUserDB
 from wemo.backend.database.db import UserTable
 from wemo.backend.utils.utils import mock_url, mock_user, singleton
 
@@ -79,6 +79,16 @@ class Contact(UserTable):
     def repr_name(self):
         return self.remark or self.nick_name or self.username
 
+    def __eq__(self, o: Contact):
+        return (
+            self.username == o.username
+            and self.remark == o.remark
+            and self.nick_name == o.nick_name
+        )
+
+    def __hash__(self):
+        return hash(self.username)
+
     def __repr__(self):
         return f"{self.username}-NickName:{self.nick_name}-Remark:{self.remark}"
 
@@ -110,6 +120,16 @@ class ContactHeadImgUrl(UserTable):
     r0 = Column("reverse0", Integer)
     r1 = Column("reverse1", String)
 
+    def __eq__(self, o: ContactHeadImgUrl):
+        return (
+            self.username == o.username
+            and self.small_url == o.small_url
+            and self.big_url == o.big_url
+        )
+
+    def __hash__(self):
+        return hash(self.username)
+
     @staticmethod
     def mock(seed):
         random.seed(seed)
@@ -136,6 +156,12 @@ class ContactLabel(UserTable):
     res_data = Column("RespData", LargeBinary)
     r5 = Column("Reserved5", LargeBinary)
 
+    def __eq__(self, o: ContactLabel):
+        return self.label_id == o.label_id and self.label_name == o.label_name
+
+    def __hash__(self):
+        return hash(self.label_id)
+
     @staticmethod
     def mock(seed):
         names = {0: "默认", 1: "家人", 2: "朋友", 3: "同事", 4: "同学", 5: "其他"}
@@ -145,7 +171,7 @@ class ContactLabel(UserTable):
 
 
 @singleton
-class MicroMsgCache(AbsUserDB):
+class MicroMsgCache(AbsUserCache):
     def __init__(self, user_cache_db_url, logger=None):
         super().__init__(user_cache_db_url, logger=logger)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
