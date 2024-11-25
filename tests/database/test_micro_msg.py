@@ -1,6 +1,7 @@
-from wemo.backend.base.logger import default_console_logger
+from calendar import c
+import shutil
 
-from wemo.backend.base import constant
+from wemo.backend.ctx import Context
 from wemo.backend.database.db import UserTable
 from wemo.backend.database.micro_msg import (
     MicroMsg as DB,
@@ -10,14 +11,15 @@ from wemo.backend.database.micro_msg import (
     ContactLabel,
 )
 
-DB_N = 200
-CACHE_N = 300
+DB_N = 2
+CACHE_N = 3
 wxid = "test_database"
 db_name = "MicroMsg.db"
-user_db_dir = constant.DATA_DIR.joinpath(wxid, "data")
-user_cache_db_dir = constant.DATA_DIR.joinpath(wxid, "cache")
-logger = default_console_logger(wxid)
-db = DB(user_db_dir.joinpath(db_name), logger)
+ctx = Context.mock_ctx(wxid)
+user_data_db_dir = ctx.user_data_dir
+user_cache_db_dir = ctx.user_cache_dir
+logger = ctx.logger
+db = DB(user_data_db_dir.joinpath(db_name), logger)
 cache = DBCache(user_cache_db_dir.joinpath(db_name), logger)
 
 
@@ -52,12 +54,20 @@ class TestDB:
 
     def setup_class(self):
         # 指定目录
-        self.db_dir = user_db_dir
-        self.db_dir.mkdir(parents=True, exist_ok=True)
+        self.db_dir = user_data_db_dir
+        shutil.rmtree(self.db_dir)
+        self.db_dir.mkdir()
 
         # 准备数据库
         self.db = db
         self.db.init()
+
+        def insert_all(cls: type[UserTable], n=DB_N):
+            self.db.insert_all([cls.mock(i) for i in range(n)])
+
+        insert_all(Contact)
+        insert_all(ContactHeadImgUrl)
+        insert_all(ContactLabel, 5)
 
     def test_singleton(self):
         db2 = DB(self.db_dir, logger)
@@ -76,10 +86,11 @@ class TestDB:
         self.merge_by_table(ContactHeadImgUrl)
         self.merge_by_table(ContactLabel, 5)
 
-    def merge_by_table(self, cls: UserTable = None, n=DB_N):
-        res = [cls.mock(i) for i in range(n)]
+    def merge_by_table(self, cls: type[UserTable] = None, n=CACHE_N):
+        cache_data = [cls.mock(i) for i in range(n)]
+        db_data = self.db.query_all(cls)
         self.test_count_all()
-        self.db.merge_all(res)
+        self.db.merge_all(cls, db_data, cache_data)
         self.test_count_all()
 
     def test_get_all_contact(self):
@@ -100,7 +111,8 @@ class TestCache:
     def setup_class(self):
         # 指定目录
         self.cache_dir = user_cache_db_dir
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        shutil.rmtree(self.cache_dir)
+        self.cache_dir.mkdir()
 
         # 准备数据库
         self.db = cache

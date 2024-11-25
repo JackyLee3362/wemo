@@ -1,5 +1,5 @@
+from wemo.backend.base.logger import create_app_logger
 from wemo.backend.database.db import UserTable
-from wemo.backend.base.logger import default_console_logger
 from wemo.backend.database.sns import (
     Sns as DB,
     SnsCache as DBCache,
@@ -19,9 +19,9 @@ name = "test_database"
 db_name = "MicroMsg.db"
 user_db_dir = constant.DATA_DIR.joinpath(name, "data")
 user_cache_db_dir = constant.DATA_DIR.joinpath(name, "cache")
-LOG = default_console_logger(name)
-db = DB(user_db_dir.joinpath(db_name), LOG)
-cache = DBCache(user_cache_db_dir.joinpath(db_name), LOG)
+logger = create_app_logger(name)
+db = DB(user_db_dir.joinpath(db_name), logger)
+cache = DBCache(user_cache_db_dir.joinpath(db_name), logger)
 
 
 class TestMock:
@@ -63,7 +63,7 @@ class TestDB:
         self.db.init()
 
     def test_singleton(self):
-        db2 = DB(self.db_dir, LOG)
+        db2 = DB(self.db_dir, logger)
         assert self.db == db2
 
     def test_count_all(self):
@@ -79,10 +79,11 @@ class TestDB:
         self.merge_by_table(Comment)
         self.merge_by_table(SnsConfig, 5)
 
-    def merge_by_table(self, cls: UserTable = None, n=DB_N):
+    def merge_by_table(self, cls: type[UserTable] = None, n=DB_N):
         res = [cls.mock(i) for i in range(n)]
+        db_data = self.db.query_all(cls)
         self.test_count_all()
-        self.db.merge_all(res)
+        self.db.merge_all(cls, db_data, res)
         self.test_count_all()
 
     def test_get_message_in_time(self):
