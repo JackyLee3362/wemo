@@ -18,32 +18,21 @@ class BackendImpl(Scaffold):
         super().__init__(import_name, root_path)
         self.config.from_object(constant)
         self.ctx = Context(
-            root_dir=self.config.get("PROJECT_PATH"),
-            config=self.config,
+            root=self.config.get("PROJECT_PATH"),
+            conf=self.config,
             logger=self.logger,
         )
 
     def init(self):
         self.logger.info("[ BACKEND ] init backend...")
-        self._init_ctx()
-        self._init_db()
-        self._init_service()
-
-    def _init_ctx(self):
-        self.logger.info("[ BACKEND ] init context...")
-        self.ctx.init()
-
-    def _init_db(self):
         self.db = DBService(self.ctx)
-        self.db.init()
-
-    def _init_service(self):
         self.syncer = SyncService(self.ctx)
-        self.syncer.init()
         self.updater = UserDataUpdateService(self.ctx, self.db)
-        self.updater.init()
         self.render = RenderService(self.ctx, self.db)
-        self.render.init()
+
+    def api_flush_db(self):
+        self.logger.info("[ BACKEND ] flush db...")
+        self.db.flush_db()
 
     def api_flush_contact(self):
         contacts = self.db.get_contact_list()
@@ -68,39 +57,38 @@ class BackendImpl(Scaffold):
     def api_sync(self, begin: datetime, end: datetime):
         if not self.ctx.running:
             return
-        self.ctx.signal.sync_progress.emit(0.0)
+        self.ctx.signal.sync_progress.emit("开始同步数据库...")
         self.syncer.sync_db()
 
         if not self.ctx.running:
             return
-        self.ctx.signal.sync_progress.emit(0.3)
+        self.ctx.signal.sync_progress.emit("开始同步图片...")
         self.syncer.sync_img(begin, end)
 
         if not self.ctx.running:
             return
-        self.ctx.signal.sync_progress.emit(0.6)
+        self.ctx.signal.sync_progress.emit("开始同步视频...")
         self.syncer.sync_video(begin, end)
-
-        self.ctx.signal.sync_progress.emit(1.0)
+        self.ctx.signal.sync_progress.emit("同步完成")
         self.logger.info("[ BACKEND ] sync finish.")
 
     def api_update(self, begin: datetime, end: datetime, wxids: list[str]):
         if not self.ctx.running:
             return
-        self.ctx.signal.update_progress.emit(0.0)
+        self.ctx.signal.update_progress.emit("开始更新数据库...")
         self.updater.update_db()
 
         if not self.ctx.running:
             return
-        self.ctx.signal.update_progress.emit(0.3)
+        self.ctx.signal.update_progress.emit("开始更新图片和视频...")
         self.updater.update_img_video(begin, end, wxids)
 
         if not self.ctx.running:
             return
-        self.ctx.signal.update_progress.emit(0.6)
+        self.ctx.signal.update_progress.emit("开始更新头像...")
         self.updater.update_avatar()
 
-        self.ctx.signal.update_progress.emit(1.0)
+        self.ctx.signal.update_progress.emit("更新完成")
         self.logger.info("[ BACKEND ] update finish.")
 
     def api_render(self, begin: datetime, end: datetime, wxids: list[str]):
@@ -108,7 +96,8 @@ class BackendImpl(Scaffold):
             return
         self.render.render_sns(begin, end, wxids)
         self.logger.info("[ BACKEND ] render finish.")
-        self.ctx.signal.out_dir_signal.emit(str(self.ctx.output_date_dir.absolute()))
+        self.ctx.signal.render_progress.emit(f"导出完成到 {self.ctx.output_date_dir}")
+        self.ctx.signal.out_dir_signal.emit(str(self.ctx.output_date_dir))
 
     def api_test(self, *args, **kwargs):
         self.logger.info(f"[ BACKEND ] api test, args={args}, kwargs={kwargs}")

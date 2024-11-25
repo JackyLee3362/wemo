@@ -58,7 +58,7 @@ def get_root_path(import_name: str) -> str:
 
 
 def get_wx_info(info: dict = None):
-    if info is not None:
+    if info.get("wxid", False):
         return info
     infos = pywxdump_get_wx_info()
     res = infos[0]
