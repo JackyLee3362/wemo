@@ -160,8 +160,8 @@ class MomentMsg:
             res["music"] = self.musics
         if len(self.imgs) > 0:
             res["img"] = self.imgs
-        if len(self.videos) > 0:
-            res["video"] = self.videos
+        # if len(self.videos) > 0:
+        #     res["video"] = self.videos
         if len(self.finders) > 0:
             res["finder"] = self.finders
         if len(self.links) > 0:
@@ -270,12 +270,8 @@ class MomentMsg:
 
     @classmethod
     def parse_xml(cls, xml: str) -> MomentMsg:
-        try:
-            msg_dict = xmltodict.parse(xml, force_list={"media"})
-        except Exception as e:
-            print("[ XML PARSE ERROR ]", e)
-            return MomentMsg.mock()
-        return MomentMsg.from_dict(msg_dict)  # type: ignore
+        msg_dict = xmltodict.parse(xml, force_list={"media"})
+        return MomentMsg.from_dict(msg_dict)
 
     @staticmethod
     def mock():

@@ -45,9 +45,8 @@ class DBSyncer(Syncer):
         # 调用 pywxdump 解密
         for k, task in tasks.items():
             if self.wx_key is None:
-                # :todo: 语义有点问题
                 self.logger.debug(f"[ DECRYPT ] db({k}) is None, only copy.")
-                shutil.copy(*task)
+                shutil.copy(task.src, task.dst)
                 continue
             self.logger.debug(f"[ DECRYPT ] db({k}) exists, decrypt and copy.")
             flag, result = decrypt(self.wx_key, task.src, task.dst)

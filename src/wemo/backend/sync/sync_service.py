@@ -10,13 +10,14 @@ class SyncService:
     def __init__(self, ctx: Context, logger: logging.Logger = None):
         # 依赖注入
         self.ctx = ctx
-        self.cache_dir = ctx.cache_dir
+        self.cache_dir = ctx.user_cache_dir
         self.wx_sns_cache_dir = ctx.wx_sns_cache_dir
         self.key = ctx.wx_key
         self.wx_dir = ctx.wx_dir
         self.db_name_list = ctx.db_name_list
-        self.bin_dir = ctx.config.get("BIN_DIR")
+        self.bin_dir = ctx.bin_dir
         self.logger = logger or ctx.logger or logging.getLogger(__name__)
+        self.init()
 
     def init(self):
         self.logger.info("[ SYNC SERVICE ] init service...")
@@ -25,7 +26,7 @@ class SyncService:
         self._init_video_decrypter()
 
     def _init_db_decrypter(self):
-        self.db_decrypter = DBSyncer(
+        self.db_syncer = DBSyncer(
             wx_key=self.key,
             src_dir=self.wx_dir,
             dst_dir=self.cache_dir.db_dir,
@@ -34,14 +35,14 @@ class SyncService:
         )
 
     def _init_img_decrypter(self):
-        self.img_decrypter = ImgSyncer(
+        self.img_syncer = ImgSyncer(
             src_dir=self.wx_sns_cache_dir,
             dst_dir=self.cache_dir.img_dir,
             logger=self.logger,
         )
 
     def _init_video_decrypter(self):
-        self.video_decrypter = VideoSync(
+        self.video_syncer = VideoSync(
             src_dir=self.wx_sns_cache_dir,
             dst_dir=self.cache_dir.video_dir,
             bin_path=self.bin_dir,
@@ -59,18 +60,18 @@ class SyncService:
             self.logger.debug("[ SYNC SERVICE ] stop sync db...")
             return
         self.logger.info("[ SYNC SERVICE ] db sync start...")
-        self.db_decrypter.sync()
+        self.db_syncer.sync()
 
     def sync_img(self, begin: datetime = None, end: datetime = None):
         if not self.ctx.running:
             self.logger.debug("[ SYNC SERVICE ] stop sync img...")
             return
         self.logger.info("[ SYNC SERVICE ] img sync starting...")
-        self.img_decrypter.sync(begin, end)
+        self.img_syncer.sync(begin, end)
 
     def sync_video(self, begin: datetime = None, end: datetime = None):
         if not self.ctx.running:
             self.logger.debug("[ SYNC SERVICE ] stop sync video...")
             return
         self.logger.info("[ SYNC SERVICE ] video sync starting...")
-        self.video_decrypter.sync(begin, end)
+        self.video_syncer.sync(begin, end)
