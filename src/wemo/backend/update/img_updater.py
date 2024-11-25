@@ -3,9 +3,8 @@ import shutil
 from pathlib import Path
 from typing import Optional, override
 
-from urllib.parse import urlparse
 
-
+from wemo.backend.database.micro_msg import Contact
 from wemo.backend.model.moment import MomentMsg, Thumb, Url
 from wemo.backend.update.updater import Updater
 from wemo.backend.utils.utils import find_img_thumb_by_url, singleton
@@ -18,16 +17,16 @@ class ImageUpdater(Updater):
         super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
 
     @override
-    def update_by_moment(self, moment: MomentMsg) -> None:
+    def update_by_moment(self, moment: MomentMsg, suffix: str = "") -> None:
         """根据 moment 更新朋友圈信息
         ~/year-month/img-url/content-length.jpg
         """
         # 获取 media 列表中
         for key, res_list in moment.update_pic.items():
             self.logger.info(f"[ IMG UPDATER ] updating {key}")
-            try:
-                # 检查是否存在
-                for img in res_list:
+            # 检查是否存在
+            for img in res_list:
+                try:
                     url_info = img.url if key == "img" else img.thumb
                     thm_info = img.thumb
                     y_m = moment.year_month
@@ -47,8 +46,16 @@ class ImageUpdater(Updater):
                     self.handle_img_thumb(
                         src_img_ym_dir, dst_img_ym_urn_dir, url_info, thm_info
                     )
-            except Exception as e:
-                self.logger.exception(e)
+                except FileNotFoundError as e:
+                    # link 不记录
+                    if key == "link":
+                        continue
+                    msg = e.args[0] if len(e.args) > 0 else ""
+                    self.logger.warning(
+                        f"[ IMG UPDATER ] {moment.time} {suffix}-{msg}\n{moment.desc_brief}"
+                    )
+                except Exception as e:
+                    self.logger.exception(e)
 
     def handle_img_thumb(self, src_dir: Path, dst_dir: Path, url: Url, thm: Thumb):
         # 检查是否存在
@@ -70,7 +77,7 @@ class ImageUpdater(Updater):
             # 处理图片
             dst_img_path = dst_dir.joinpath(img_file_name)
             self.logger.debug(
-                f"[ IMG UPDATER ] Save image from server to Dir({src_dir})/urn/File({img_file_name})."
+                f"[ IMG UPDATER ] Save image from server to Dir({src_dir})/File({img_file_name})."
             )
             with open(dst_img_path, "wb") as f:
                 f.write(img_content)
@@ -79,7 +86,7 @@ class ImageUpdater(Updater):
             # 处理图片
             dst_thm_path = dst_dir.joinpath(thm_file_name)
             self.logger.debug(
-                f"[ IMG UPDATER ] Save thumb from server to Dir({src_dir.name})/urn/File({thm_file_name})."
+                f"[ IMG UPDATER ] Save thumb from server to Dir({src_dir.name})/File({thm_file_name})."
             )
             with open(dst_thm_path, "wb") as f:
                 f.write(thm_content)
@@ -98,10 +105,9 @@ class ImageUpdater(Updater):
 
         # 如果没找到，日志报错
         if not src_path.exists():
-            self.logger.warning(
-                f"[ IMG UPDATER ] Dir({src_dir.name})/File({file_name}) not find in cache."
+            raise FileNotFoundError(
+                f"Dir({src_dir.name})/File({file_name}) not find in cache."
             )
-            return
         self.logger.debug(
             f"[ IMG UPDATER ] Dir({src_dir.name})/urn/File({file_name}) saved."
         )

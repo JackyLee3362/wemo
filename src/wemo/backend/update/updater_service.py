@@ -14,11 +14,12 @@ class UserDataUpdateService:
         self.db = db
         self.ctx = ctx
         self.img_dir = ctx.user_data_dir.img_dir
-        self.cache_img_dir = ctx.cache_dir.img_dir
+        self.cache_img_dir = ctx.user_cache_dir.img_dir
         self.video_dir = ctx.user_data_dir.video_dir
-        self.cache_video_dir = ctx.cache_dir.video_dir
+        self.cache_video_dir = ctx.user_cache_dir.video_dir
         self.avatar_dir = ctx.user_data_dir.avatar_dir
         self.logger = logger or ctx.logger or logging.getLogger(__name__)
+        self.init()
 
     def init(self):
         self.logger.info("[ UPDATE SERVICE ] init update service...")
@@ -70,15 +71,20 @@ class UserDataUpdateService:
                     f"[ UPDATE SERVICE ] Process({idx+1}/{total}) start handing feed_id({feed.feed_id})..."
                 )
                 xml = feed.content
-                moment = MomentMsg.parse_xml(xml)
+                try:
+                    moment = MomentMsg.parse_xml(xml)
+                except Exception:
+                    self.logger.debug(f"parse xml error: {feed.feed_id}")
+                    continue
                 contact = self.db.get_contact_by_username(moment.username)
-                contact_name = contact.remark if contact.remark else contact.nick_name
                 self.logger.debug(
-                    f"[ UPDATE SERVICE ] CreateTime({moment.time}) UserName({contact_name}) wxid({contact.username}) \nDesc({moment.desc_brief})"
+                    f"[ UPDATE SERVICE ] {moment.time}-{contact.repr_name}-{feed.feed_id}\nDesc({moment.desc_brief})"
                 )
 
-                self.img_updater.update_by_moment(moment)
-                self.video_updater.update_by_moment(moment)
+                suffix = f"{contact.repr_name}-{feed.feed_id}"
+
+                self.img_updater.update_by_moment(moment, suffix)
+                self.video_updater.update_by_moment(moment, suffix)
             except Exception as e:
                 self.logger.exception(e)
 

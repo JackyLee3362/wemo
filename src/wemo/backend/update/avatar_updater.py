@@ -19,9 +19,6 @@ class AvatarUpdater(Updater):
     @override
     def update_by_username(self, username: str):
         if username.endswith("stranger"):
-            # self.logger.warning(
-            #     f"[ AVATAR UPDATER ] username({username}) ends with stranger"
-            # )
             return self.dst_dir.joinpath("default.png")
         avatar_path = self.dst_dir.joinpath(f"{username}.png")
 
