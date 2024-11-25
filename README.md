@@ -1,5 +1,11 @@
 # WEMO 微信朋友圈备份工具
 
+## 项目链接 [JackyLee3362/wemo: 微信朋友圈备份工具](https://github.com/JackyLee3362/wemo)
+
+## 下载链接 [Releases · JackyLee3362/wemo](https://github.com/JackyLee3362/wemo/releases)
+
+![主窗口](assets/app-main-window.png)
+
 ## 使用指南
 
 对于日常使用
