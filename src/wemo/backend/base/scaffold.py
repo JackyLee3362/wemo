@@ -3,8 +3,8 @@ from pathlib import Path
 import typing as t
 from logging import Logger
 
-from wemo.backend.base.logger import create_app_logger
 from wemo.backend.base.config import Config, ConfigAttribute
+from wemo.backend.base.logger import create_app_logger
 from wemo.backend.utils.utils import get_debug_flag
 from wemo.backend.utils.helper import get_root_path
 

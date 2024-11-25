@@ -1,4 +1,3 @@
-from __future__ import annotations
 import logging
 from pathlib import Path
 from rich.logging import RichHandler
@@ -14,13 +13,11 @@ log_name = datetime.now().strftime("%Y-%m-%d.log")
 console_handler = RichHandler(rich_tracebacks=True)
 
 
-# :todo: 需要提示 app 类型注解（但是会造成循环应用，pytest 会报错）
-def create_app_logger(name: str, level=None, log_dir: Path = None) -> logging.Logger:
+def create_app_logger(
+    name: str, level=logging.DEBUG, log_dir: Path = None
+) -> logging.Logger:
     logger = logging.getLogger(name)
-    if level and not logger.level:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
+    logger.setLevel(level)
     logger.addHandler(console_handler)
     # 添加文件日志器
     if log_dir:
@@ -29,11 +26,4 @@ def create_app_logger(name: str, level=None, log_dir: Path = None) -> logging.Lo
         file_handler = logging.FileHandler(log_file_path, encoding="utf-8")
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
-    return logger
-
-
-def default_console_logger(name) -> logging.Logger:
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(console_handler)
     return logger
