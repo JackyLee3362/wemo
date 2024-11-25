@@ -5,16 +5,19 @@
 # python
 **/__pycache__
 
-# some private data
-data/*
-logs/*
-mock/*
-experiment/*
+# some private dir data
+data
+logs
+mock
+experiment
+build
+dist
+scripts
+output
+private
 
+# some file
 **/test_private_*.xml
 **/test_private_*.py
 **/*private*
-**/private/*
-**/output/*
 
-scripts/*
