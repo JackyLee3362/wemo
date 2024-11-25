@@ -6,12 +6,12 @@ from wemo.backend.ctx import Context
 
 wxid = "test_update"
 ctx = Context.mock_ctx(wxid)
-ctx.init()
+ctx.init_user_info()
 
 
 def setup_module():
     shutil.rmtree(ctx.user_data_dir)
-    ctx.init()
+    ctx.init_user_info()
 
 
 def test_user_data_updater():

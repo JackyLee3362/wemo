@@ -1,7 +1,7 @@
 from pathlib import Path
 import shutil
 
-from wemo.backend.base.logger import default_console_logger
+from wemo.backend.base.logger import create_app_logger
 from wemo.backend.update.video_updater import VideoUpdater
 from wemo.backend.model.moment import MomentMsg
 from wemo.backend.base.constant import PROJECT_DIR, DATA_DIR
@@ -9,7 +9,7 @@ from wemo.backend.base.constant import PROJECT_DIR, DATA_DIR
 wxid = "test_update"
 user_data_video_dir = Path(DATA_DIR.joinpath(wxid), "data", "video")
 user_cache_video_dir = Path(DATA_DIR.joinpath(wxid), "cache", "video")
-LOG = default_console_logger(wxid)
+logger = create_app_logger(wxid)
 
 
 def setup_module():
@@ -25,6 +25,6 @@ def test_handle_moment():
     exp = VideoUpdater(
         dst_dir=user_data_video_dir,
         src_dir=user_cache_video_dir,
-        logger=LOG,
+        logger=logger,
     )
     exp.update_by_moment(moment)

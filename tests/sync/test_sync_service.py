@@ -8,7 +8,7 @@ ctx = Context.mock_ctx(wxid)
 
 def setup_module():
     shutil.rmtree(ctx.user_data_dir)
-    ctx.init()
+    ctx.init_user_info()
 
 
 def test_cache_updater():

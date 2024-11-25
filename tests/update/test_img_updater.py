@@ -1,7 +1,7 @@
 from pathlib import Path
 import shutil
 
-from wemo.backend.base.logger import default_console_logger
+from wemo.backend.base.logger import create_app_logger
 from wemo.backend.update.img_updater import ImageUpdater
 from wemo.backend.model.moment import MomentMsg
 from wemo.backend.base.constant import PROJECT_DIR, DATA_DIR
@@ -9,7 +9,7 @@ from wemo.backend.base.constant import PROJECT_DIR, DATA_DIR
 wxid = "test_update"
 user_img_dir = Path(DATA_DIR.joinpath(wxid), "data", "image")
 cache_img_dir = Path(DATA_DIR.joinpath(wxid), "cache", "image")
-LOG = default_console_logger(wxid)
+logger = create_app_logger(wxid)
 
 
 def setup_module():
@@ -30,7 +30,7 @@ def test_handle_moment(mocker):
     with open(file_path, "r", encoding="utf-8") as f:
         xml = f.read()
     moment = MomentMsg.parse_xml(xml)
-    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir, logger=LOG)
+    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir, logger=logger)
     exp.update_by_moment(moment)
 
 
@@ -47,5 +47,5 @@ def test_handle_moment_private(mocker):
     with open(file_path, "r", encoding="utf-8") as f:
         xml = f.read()
     moment = MomentMsg.parse_xml(xml)
-    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir, logger=LOG)
+    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir, logger=logger)
     exp.update_by_moment(moment)

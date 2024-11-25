@@ -13,7 +13,7 @@ user = Context.mock_ctx(wxid)
 
 def setup_module():
     # shutil.rmtree(user.user_dir, ignore_errors=True)
-    user.init()
+    user.init_user_info()
 
 
 def teardown_module():
@@ -21,14 +21,14 @@ def teardown_module():
 
 
 def test_db_decrypter():
-    db_dir = user.cache_dir.db_dir
+    db_dir = user.user_cache_dir.db_dir
     c1 = MiscCache(user_cache_db_url=db_dir.joinpath("Misc.db"), logger=user.logger)
     c1.init()
     c1.count_all(c1.table_cls_list[0])
     d = DBSyncer(
         wx_key=None,
         src_dir=user.wx_dir,
-        dst_dir=user.cache_dir.db_dir,
+        dst_dir=user.user_cache_dir.db_dir,
         db_name_list=user.db_name_list,
         logger=user.logger,
     )
@@ -36,7 +36,7 @@ def test_db_decrypter():
 
 
 def test_cache():
-    db_dir = user.cache_dir.db_dir
+    db_dir = user.user_cache_dir.db_dir
     c1 = MicroMsgCache(
         user_cache_db_url=db_dir.joinpath("MicroMsg.db"), logger=user.logger
     )
@@ -52,7 +52,7 @@ def test_cache():
 
 def test_image_decrypter():
     d = ImgSyncer(
-        src_dir=user.wx_dir, dst_dir=user.cache_dir.img_dir, logger=user.logger
+        src_dir=user.wx_dir, dst_dir=user.user_cache_dir.img_dir, logger=user.logger
     )
     d.sync()
 
@@ -60,7 +60,7 @@ def test_image_decrypter():
 def test_video_decrypter():
     d = VideoSync(
         src_dir=user.wx_dir,
-        dst_dir=user.cache_dir.video_dir,
+        dst_dir=user.user_cache_dir.video_dir,
         bin_path=constant.BIN_DIR,
         logger=user.logger,
     )
