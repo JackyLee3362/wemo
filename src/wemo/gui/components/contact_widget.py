@@ -82,6 +82,8 @@ class ContactsWidget(QWidget):
             item = self.list.item(idx)
             if keyword not in item.text():
                 item.setHidden(True)
+            else:
+                item.setHidden(False)
 
     @Slot()
     def reset_search(self):
