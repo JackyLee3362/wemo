@@ -109,7 +109,7 @@ class ImageUpdater(Updater):
                 f"Dir({src_dir.name})/File({file_name}) not find in cache."
             )
         self.logger.debug(
-            f"[ IMG UPDATER ] Dir({src_dir.name})/urn/File({file_name}) saved."
+            f"[ IMG UPDATER ] Dir({src_dir.name})/File({file_name}) saved."
         )
         shutil.copy(src_path, dst_path)
 

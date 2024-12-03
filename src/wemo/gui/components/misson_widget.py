@@ -1,4 +1,3 @@
-import os
 import webbrowser
 from PySide6.QtWidgets import (
     QWidget,
@@ -6,7 +5,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QCheckBox,
     QFormLayout,
-    QProgressBar,
     QLineEdit,
 )
 from PySide6.QtCore import Qt, QSize

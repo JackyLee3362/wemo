@@ -1,5 +1,3 @@
-from datetime import datetime
-from PySide6 import QtWidgets, QtCore
 from PySide6.QtWidgets import (
     QLabel,
     QWidget,
@@ -7,16 +5,12 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QLineEdit,
     QPushButton,
-    QMainWindow,
-    QDateEdit,
-    QDateTimeEdit,
-    QTextEdit,
     QListWidget,
     QAbstractItemView,
     QHBoxLayout,
     QFormLayout,
 )
-from PySide6.QtCore import QDate, QObject, Slot, Qt, QSize
+from PySide6.QtCore import Slot, Qt, QSize
 
 
 class ContactsWidget(QWidget):
@@ -90,6 +84,7 @@ class ContactsWidget(QWidget):
         for idx in range(self.list.count()):
             item = self.list.item(idx)
             item.setHidden(False)
+            item.setSelected(False)
 
     @Slot()
     def select_all_contacts(self):

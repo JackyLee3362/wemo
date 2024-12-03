@@ -1,15 +1,6 @@
-import sys
 from queue import Queue
-import time
-from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QPushButton,
-    QTextEdit,
-    QApplication,
-)
-from PySide6.QtCore import QDate, QObject, Slot, Qt, Signal, QThread, SignalInstance
-from PySide6.QtGui import QTextCursor
+
+from PySide6.QtCore import QObject, Slot, Signal, SignalInstance
 
 
 class MyReceiver(QObject):
