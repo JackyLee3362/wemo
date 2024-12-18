@@ -20,7 +20,7 @@ from wemo.gui.components.misson_widget import MissonWidget
 DARK_THEME_COLORS = {
     logging.DEBUG: "#0dbc6a",
     logging.INFO: "#4e8ed3",
-    logging.WARNING: "yellow",
+    logging.WARNING: "red",
     logging.ERROR: "#f14c4c",
     logging.CRITICAL: "violet",
 }
