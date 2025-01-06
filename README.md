@@ -4,6 +4,8 @@
 
 ## 下载链接 [Releases · JackyLee3362/wemo](https://github.com/JackyLee3362/wemo/releases)
 
+!!! ⚠️ 本项目需要**先打开微信**，然后运行该软件，同时该项目只能在 windows 系统下使用。
+
 ![主窗口](assets/app-main-window.png)
 
 ## 使用指南
