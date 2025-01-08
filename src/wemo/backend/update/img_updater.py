@@ -1,29 +1,30 @@
 import logging
 import shutil
 from pathlib import Path
-from typing import Optional, override
+from typing import Optional
 
 
-from wemo.backend.database.micro_msg import Contact
 from wemo.backend.model.moment import MomentMsg, Thumb, Url
 from wemo.backend.update.updater import Updater
 from wemo.backend.utils.utils import find_img_thumb_by_url, singleton
 from wemo.backend.utils.helper import get_img_from_server
 
 
+logger = logging.getLogger(__name__)
+
+
 @singleton
 class ImageUpdater(Updater):
-    def __init__(self, dst_dir: Path, src_dir: Path, logger: logging.Logger = None):
-        super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
+    def __init__(self, dst_dir: Path, src_dir: Path):
+        super().__init__(src_dir=src_dir, dst_dir=dst_dir)
 
-    @override
     def update_by_moment(self, moment: MomentMsg, suffix: str = "") -> None:
         """根据 moment 更新朋友圈信息
         ~/year-month/img-url/content-length.jpg
         """
         # 获取 media 列表中
         for key, res_list in moment.update_pic.items():
-            self.logger.info(f"[ IMG UPDATER ] updating {key}")
+            logger.info(f"[ IMG UPDATER ] updating {key}")
             # 检查是否存在
             for img in res_list:
                 try:
@@ -37,7 +38,7 @@ class ImageUpdater(Updater):
                     res, _ = find_img_thumb_by_url(dst_img_ym_dir, urn)
                     # 如果存在，则不处理
                     if res:
-                        self.logger.debug(
+                        logger.debug(
                             f"[ IMG UPDATER ] Dir({y_m})/File({res.name}) exists, skip."
                         )
                         continue
@@ -51,11 +52,11 @@ class ImageUpdater(Updater):
                     if key == "link":
                         continue
                     msg = e.args[0] if len(e.args) > 0 else ""
-                    self.logger.warning(
+                    logger.warning(
                         f"[ IMG UPDATER ] {moment.time} {suffix}-{msg}\n{moment.desc_brief}"
                     )
                 except Exception as e:
-                    self.logger.exception(e)
+                    logger.exception(e)
 
     def handle_img_thumb(self, src_dir: Path, dst_dir: Path, url: Url, thm: Thumb):
         # 检查是否存在
@@ -66,7 +67,7 @@ class ImageUpdater(Updater):
         if img_content is None:
             img_content = thm_content
         if thm_content is None:
-            self.logger.warning("[ IMG UPDATER ] can't get img or thumb from server.")
+            logger.warning("[ IMG UPDATER ] can't get img or thumb from server.")
             return
 
         img_file_name = f"{len(img_content)}_{len(thm_content)}.jpg"
@@ -76,7 +77,7 @@ class ImageUpdater(Updater):
         if img_content[:2] == jpg_prefix:
             # 处理图片
             dst_img_path = dst_dir.joinpath(img_file_name)
-            self.logger.debug(
+            logger.debug(
                 f"[ IMG UPDATER ] Save image from server to Dir({src_dir})/File({img_file_name})."
             )
             with open(dst_img_path, "wb") as f:
@@ -85,7 +86,7 @@ class ImageUpdater(Updater):
         if thm_content[:2] == jpg_prefix:
             # 处理图片
             dst_thm_path = dst_dir.joinpath(thm_file_name)
-            self.logger.debug(
+            logger.debug(
                 f"[ IMG UPDATER ] Save thumb from server to Dir({src_dir.name})/File({thm_file_name})."
             )
             with open(dst_thm_path, "wb") as f:
@@ -108,9 +109,7 @@ class ImageUpdater(Updater):
             raise FileNotFoundError(
                 f"Dir({src_dir.name})/File({file_name}) not find in cache."
             )
-        self.logger.debug(
-            f"[ IMG UPDATER ] Dir({src_dir.name})/File({file_name}) saved."
-        )
+        logger.debug(f"[ IMG UPDATER ] Dir({src_dir.name})/File({file_name}) saved.")
         shutil.copy(src_path, dst_path)
 
     def get_finder_images(self, msg: MomentMsg) -> Optional[str]:
@@ -121,14 +120,14 @@ class ImageUpdater(Updater):
             return thumb_path
 
     def save_server_img(self, urn: str, params: dict, img_type: str):
-        self.logger.debug("[ IMG UPDATER ]")
+        logger.debug("[ IMG UPDATER ]")
         img_type_lower = img_type.lower()
         if img_type_lower not in ("image", "thumb"):
-            self.logger.warning("[ IMG UPDATER ] type is not img.")
+            logger.warning("[ IMG UPDATER ] type is not img.")
             return
         content = get_img_from_server(urn, params)
         if content:
             tmp_p = Path(self.dst_dir).joinpath(urn)
-            self.logger.debug(f"[ IMG UPDATER ] save a img, {urn}.")
+            logger.debug(f"[ IMG UPDATER ] save a img, {urn}.")
             with open(tmp_p, "wb") as f:
                 f.write(content)

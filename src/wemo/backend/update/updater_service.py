@@ -7,10 +7,12 @@ from wemo.backend.update.img_updater import ImageUpdater
 from wemo.backend.update.video_updater import VideoUpdater
 from wemo.backend.ctx import Context
 
+logger = logging.getLogger(__name__)
+
 
 class UserDataUpdateService:
 
-    def __init__(self, ctx: Context, db: DBService, logger: logging.Logger = None):
+    def __init__(self, ctx: Context, db: DBService):
         self.db = db
         self.ctx = ctx
         self.img_dir = ctx.user_data_dir.img_dir
@@ -18,39 +20,36 @@ class UserDataUpdateService:
         self.video_dir = ctx.user_data_dir.video_dir
         self.cache_video_dir = ctx.user_cache_dir.video_dir
         self.avatar_dir = ctx.user_data_dir.avatar_dir
-        self.logger = logger or ctx.logger or logging.getLogger(__name__)
         self.init()
 
     def init(self):
-        self.logger.info("[ UPDATE SERVICE ] init update service...")
+        logger.info("[ UPDATE SERVICE ] init update service...")
         self._init_exporter()
 
     def _init_exporter(self):
         self.img_updater = ImageUpdater(
-            dst_dir=self.img_dir, src_dir=self.cache_img_dir, logger=self.logger
+            dst_dir=self.img_dir, src_dir=self.cache_img_dir
         )
         self.video_updater = VideoUpdater(
-            dst_dir=self.video_dir, src_dir=self.cache_video_dir, logger=self.logger
+            dst_dir=self.video_dir, src_dir=self.cache_video_dir
         )
-        self.avatar_updater = AvatarUpdater(
-            db=self.db, dst_dir=self.avatar_dir, logger=self.logger
-        )
+        self.avatar_updater = AvatarUpdater(db=self.db, dst_dir=self.avatar_dir)
 
     def update_db(self):
         if not self.ctx.running:
-            self.logger.debug("[ UPDATE SERVICE ] stop update db...")
+            logger.debug("[ UPDATE SERVICE ] stop update db...")
             return
         try:
-            self.logger.info("[ UPDATE SERVICE ] updating...")
+            logger.info("[ UPDATE SERVICE ] updating...")
             self.db.update_db()
         except Exception as e:
-            self.logger.exception(e)
+            logger.exception(e)
 
     # :todo: 这里的服务不能依赖 exporter 才行
     def update_img_video(
         self, begin: datetime = None, end: datetime = None, wx_ids: list[str] = None
     ):
-        self.logger.info("[ UPDATE SERVICE ] Img and video start are updating...")
+        logger.info("[ UPDATE SERVICE ] Img and video start are updating...")
 
         begin = begin or datetime.now() - timedelta(days=1)
         end = end or datetime.now()
@@ -64,20 +63,20 @@ class UserDataUpdateService:
         total = len(res)
         for idx, feed in enumerate(res):
             if not self.ctx.running:
-                self.logger.debug("[ UPDATE SERVICE ] stop update img and video...")
+                logger.debug("[ UPDATE SERVICE ] stop update img and video...")
                 break
             try:
-                self.logger.info(
+                logger.info(
                     f"[ UPDATE SERVICE ] Process({idx+1}/{total}) start handing feed_id({feed.feed_id})..."
                 )
                 xml = feed.content
                 try:
                     moment = MomentMsg.parse_xml(xml)
                 except Exception:
-                    self.logger.debug(f"parse xml error: {feed.feed_id}")
+                    logger.debug(f"parse xml error: {feed.feed_id}")
                     continue
                 contact = self.db.get_contact_by_username(moment.username)
-                self.logger.debug(
+                logger.debug(
                     f"[ UPDATE SERVICE ] {moment.time}-{contact.repr_name}-{feed.feed_id}\nDesc({moment.desc_brief})"
                 )
 
@@ -86,16 +85,16 @@ class UserDataUpdateService:
                 self.img_updater.update_by_moment(moment, suffix)
                 self.video_updater.update_by_moment(moment, suffix)
             except Exception as e:
-                self.logger.exception(e)
+                logger.exception(e)
 
     def update_avatar(self):
-        self.logger.info("[ UPDATE SERVICE ] avatar is updating...")
+        logger.info("[ UPDATE SERVICE ] avatar is updating...")
         contacts = self.db.get_contact_list()
         for contact in contacts:
             if not self.ctx.running:
-                self.logger.debug("[ UPDATE SERVICE ] stop update avatar...")
+                logger.debug("[ UPDATE SERVICE ] stop update avatar...")
                 break
             try:
                 self.avatar_updater.update_by_username(contact.username)
             except Exception as e:
-                self.logger.exception(e)
+                logger.exception(e)

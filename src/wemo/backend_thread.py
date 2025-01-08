@@ -1,8 +1,11 @@
+import logging
 from queue import Queue
 from PySide6.QtCore import QThread
 
 from wemo.backend.backend import BackendImpl
 from wemo.gui_signal import GuiSignal
+
+logger = logging.getLogger(__name__)
 
 
 class BackendThread(QThread):
@@ -21,7 +24,7 @@ class BackendThread(QThread):
                 func, args, kwargs = self.task_queue.get()
                 func(*args, **kwargs)
             except Exception as e:
-                self.backend.logger.exception(e)
+                logger.exception(e)
 
     def add_task(self, func, *args, **kwargs):
         self.backend_running()

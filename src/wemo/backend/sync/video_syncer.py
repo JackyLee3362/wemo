@@ -1,10 +1,9 @@
 import hashlib
+import logging
 import shutil
 import subprocess
 from datetime import date, datetime
-from logging import Logger
 from pathlib import Path
-from typing import override
 
 import filetype
 
@@ -13,16 +12,15 @@ from wemo.backend.utils.utils import get_months_between_dates
 
 from rich.progress import track
 
+logger = logging.getLogger(__name__)
+
 
 class VideoSync(Syncer):
 
-    def __init__(
-        self, src_dir: Path, dst_dir: Path, bin_path: Path, logger: Logger = None
-    ):
-        super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
+    def __init__(self, src_dir: Path, dst_dir: Path, bin_path: Path):
+        super().__init__(src_dir=src_dir, dst_dir=dst_dir)
         self.bin_path = bin_path
 
-    @override
     def sync(self, begin: datetime = None, end: datetime = None):
         self._sync_video_list(begin, end)
 
@@ -57,12 +55,12 @@ class VideoSync(Syncer):
                     self._handle_video(file, dst_dir)
 
     def _handle_video(self, file: Path, dst_dir: Path):
-        # self.logger.debug(f"[ VIDEO SYNCER ] File({file.name}) decrypting...")
+        # logger.debug(f"[ VIDEO SYNCER ] File({file.name}) decrypting...")
         md5 = self._calculate_md5(file)
         dur = self._get_video_duration(file)
         video_dst_path = dst_dir.joinpath(f"{md5}_{dur}.mp4")
         if not video_dst_path.exists():
-            self.logger.debug(
+            logger.debug(
                 f"[ VIDEO SYNCER ] copy file from Dir({dst_dir.name})/Path({file.name})"
             )
             shutil.copy(file, video_dst_path)
@@ -78,7 +76,7 @@ class VideoSync(Syncer):
         """获取视频时长"""
         ffprobe_path = self.ffprobe_path
         if not ffprobe_path.exists():
-            self.logger.warning(
+            logger.warning(
                 f"[ VIDEO SYNCER ] ffprobe Path({ffprobe_path}) is not exist."
             )
             return 0
@@ -86,12 +84,10 @@ class VideoSync(Syncer):
         p = subprocess.Popen(
             ffprobe_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
         )
-        # self.logger.debug(f"ffprobe cmd: {ffprobe_cmd}")
+        # logger.debug(f"ffprobe cmd: {ffprobe_cmd}")
         out, err = p.communicate()
         if len(str(err, "gbk")) > 0:
-            self.logger.warning(
-                f"[ VIDEO SYNCER ] out({out}) and err({str(err, 'gbk')})"
-            )
+            logger.warning(f"[ VIDEO SYNCER ] out({out}) and err({str(err, 'gbk')})")
             return 0
         if len(str(out, "gbk")) == 0:
             return 0

@@ -5,9 +5,11 @@ from wemo.backend.sync.video_syncer import VideoSync
 from wemo.backend.sync.db_syncer import DBSyncer
 from wemo.backend.sync.img_syncer import ImgSyncer
 
+logger = logging.getLogger(__name__)
+
 
 class SyncService:
-    def __init__(self, ctx: Context, logger: logging.Logger = None):
+    def __init__(self, ctx: Context):
         # 依赖注入
         self.ctx = ctx
         self.cache_dir = ctx.user_cache_dir
@@ -16,11 +18,10 @@ class SyncService:
         self.wx_dir = ctx.wx_dir
         self.db_name_list = ctx.db_name_list
         self.bin_dir = ctx.bin_dir
-        self.logger = logger or ctx.logger or logging.getLogger(__name__)
         self.init()
 
     def init(self):
-        self.logger.info("[ SYNC SERVICE ] init service...")
+        logger.info("[ SYNC SERVICE ] init service...")
         self._init_db_decrypter()
         self._init_img_decrypter()
         self._init_video_decrypter()
@@ -31,14 +32,11 @@ class SyncService:
             src_dir=self.wx_dir,
             dst_dir=self.cache_dir.db_dir,
             db_name_list=self.db_name_list,
-            logger=self.logger,
         )
 
     def _init_img_decrypter(self):
         self.img_syncer = ImgSyncer(
-            src_dir=self.wx_sns_cache_dir,
-            dst_dir=self.cache_dir.img_dir,
-            logger=self.logger,
+            src_dir=self.wx_sns_cache_dir, dst_dir=self.cache_dir.img_dir
         )
 
     def _init_video_decrypter(self):
@@ -46,32 +44,31 @@ class SyncService:
             src_dir=self.wx_sns_cache_dir,
             dst_dir=self.cache_dir.video_dir,
             bin_path=self.bin_dir,
-            logger=self.logger,
         )
 
     def sync(self, begin: datetime, end: datetime):
-        self.logger.info("[ SYNC SERVICE ] sync starting...")
+        logger.info("[ SYNC SERVICE ] sync starting...")
         self.sync_db()
         self.sync_img(begin, end)
         self.sync_video(begin, end)
 
     def sync_db(self):
         if not self.ctx.running:
-            self.logger.debug("[ SYNC SERVICE ] stop sync db...")
+            logger.debug("[ SYNC SERVICE ] stop sync db...")
             return
-        self.logger.info("[ SYNC SERVICE ] db sync start...")
+        logger.info("[ SYNC SERVICE ] db sync start...")
         self.db_syncer.sync()
 
     def sync_img(self, begin: datetime = None, end: datetime = None):
         if not self.ctx.running:
-            self.logger.debug("[ SYNC SERVICE ] stop sync img...")
+            logger.debug("[ SYNC SERVICE ] stop sync img...")
             return
-        self.logger.info("[ SYNC SERVICE ] img sync starting...")
+        logger.info("[ SYNC SERVICE ] img sync starting...")
         self.img_syncer.sync(begin, end)
 
     def sync_video(self, begin: datetime = None, end: datetime = None):
         if not self.ctx.running:
-            self.logger.debug("[ SYNC SERVICE ] stop sync video...")
+            logger.debug("[ SYNC SERVICE ] stop sync video...")
             return
-        self.logger.info("[ SYNC SERVICE ] video sync starting...")
+        logger.info("[ SYNC SERVICE ] video sync starting...")
         self.video_syncer.sync(begin, end)

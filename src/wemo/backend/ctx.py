@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime
+import logging
 from pathlib import Path
 import shutil
 
-from logging import Logger
 from wemo.backend.base import constant
 from wemo.backend.base.constant import MOCK_DIR
-from wemo.backend.base.logger import create_app_logger
 from wemo.backend.base.config import Config, ConfigAttribute
 from wemo.backend.utils.helper import get_wx_info
 from wemo.gui_signal import GuiSignal
+
+logger = logging.getLogger(__name__)
 
 
 class Context:
@@ -22,13 +23,10 @@ class Context:
     proj_dir: Path = ConfigAttribute[Path]("PROJECT_DIR")
     db_name_list = ["Sns", "MicroMsg", "Misc"]
 
-    def __init__(
-        self, root: Path, conf: Config, logger: Logger = None, extra: dict = {}
-    ):
+    def __init__(self, root: Path, conf: Config, extra: dict = {}):
         super().__init__()
         self.root_dir = root
         self.config = conf
-        self.logger = logger
         self.signal: GuiSignal = None
         self.running = True
         self.extra_info = extra
@@ -41,21 +39,21 @@ class Context:
 
     def init_app_info(self):
         self.config.from_object(constant)
-        self.logger.info(f"[ CTX ] init ctx, project dir is {self.proj_dir}")
+        logger.info(f"[ CTX ] init ctx, project dir is {self.proj_dir}")
         self.template_dir = self.proj_dir.joinpath("template")
         self.data_dir = self.proj_dir.joinpath("data")
         self.output_dir = self.proj_dir.joinpath("output")
         self.static_dir = self.proj_dir.joinpath("static")
         self.bin_dir = self.proj_dir.joinpath("bin")
         self.output_date_dir = None
-        self.generate_output_date_dir()
+        # self.generate_output_date_dir()
 
     def init_user_info(self):
         # 用户目录
         # 1. 首先获取用户信息
         info = get_wx_info(self.extra_info)
         self.config.update(info)
-        self.logger.info(f"[ CTX ] init user({self.wx_id})...")
+        logger.info(f"[ CTX ] init user({self.wx_id})...")
         # 2. 初始化用户目录
         self.wx_sns_cache_dir = self.wx_dir.joinpath("FileStorage", "Sns", "Cache")
         self.user_dir = self.data_dir.joinpath(self.wx_id)
@@ -80,36 +78,34 @@ class Context:
         config.from_object(constant)
         wx_user_dir = MOCK_DIR.joinpath(wxid)
         info = {"wxid": wxid, "key": None, "wx_dir": wx_user_dir}
-        logger = create_app_logger(__name__)
 
         return Context(
             root=proj_path,
             conf=config,
-            logger=logger,
             extra=info,
         )
 
 
-class UserDir(Path):
+class UserDir:
 
-    def __init__(self, user_root_dir: Path, *args):
-        super().__init__(user_root_dir, *args)
+    def __init__(self, user_root_dir: Path):
+        self.user_root_dir = user_root_dir
 
     @property
     def db_dir(self) -> Path:
-        return self.joinpath("db")
+        return self.user_root_dir.joinpath("db")
 
     @property
     def img_dir(self) -> Path:
-        return self.joinpath("image")
+        return self.user_root_dir.joinpath("image")
 
     @property
     def video_dir(self) -> Path:
-        return self.joinpath("video")
+        return self.user_root_dir.joinpath("video")
 
     @property
     def avatar_dir(self) -> Path:
-        return self.joinpath("avatar")
+        return self.user_root_dir.joinpath("avatar")
 
     def init_mkdir(self):
         self.db_dir.mkdir(parents=True, exist_ok=True)

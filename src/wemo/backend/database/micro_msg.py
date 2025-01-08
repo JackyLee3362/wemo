@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 import random
 
 from sqlalchemy import Column, String, Integer, LargeBinary, not_, or_
@@ -11,6 +12,7 @@ from wemo.backend.database.db import UserTable
 from wemo.backend.utils.utils import mock_url, mock_user, singleton
 
 
+logger = logging.getLogger(__name__)
 # 联系人信息
 
 WX_SYS_USERNAME = [
@@ -172,15 +174,15 @@ class ContactLabel(UserTable):
 
 @singleton
 class MicroMsgCache(AbsUserCache):
-    def __init__(self, user_cache_db_url, logger=None):
-        super().__init__(user_cache_db_url, logger=logger)
+    def __init__(self, user_cache_db_url):
+        super().__init__(user_cache_db_url)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
 
 
 @singleton
 class MicroMsg(AbsUserDB):
-    def __init__(self, user_db_url, logger=None):
-        super().__init__(user_db_url, logger=logger)
+    def __init__(self, user_db_url):
+        super().__init__(user_db_url)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
 
     def get_contact_list(self) -> list[Contact]:

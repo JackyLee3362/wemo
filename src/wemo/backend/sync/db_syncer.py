@@ -1,11 +1,12 @@
+import logging
 import shutil
 from collections import namedtuple
-from logging import Logger
 from pathlib import Path
-from typing import override
 
 from wemo.backend.sync.sync import Syncer
 from wemo.backend.utils.helper import decrypt
+
+logger = logging.getLogger(__name__)
 
 
 class DBSyncer(Syncer):
@@ -19,19 +20,17 @@ class DBSyncer(Syncer):
         src_dir: Path,
         dst_dir: Path,
         db_name_list: list[str],
-        logger: Logger = None,
     ):
-        super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
+        super().__init__(src_dir=src_dir, dst_dir=dst_dir)
         self.wx_key = wx_key
         self.db_name_list = db_name_list
 
-    @override
     def sync(self, *args, **kwargs):
         self._decrypt_db()
 
     def _decrypt_db(self) -> None:
         if not self.src_dir.exists():
-            self.logger.warning("[ DECRYPT ] src dir not exists.")
+            logger.warning("[ DECRYPT ] src dir not exists.")
             return
         Task = namedtuple("Task", ["src", "dst"])
         tasks: dict[str, Task] = {}
@@ -45,10 +44,10 @@ class DBSyncer(Syncer):
         # 调用 pywxdump 解密
         for k, task in tasks.items():
             if self.wx_key is None:
-                self.logger.debug(f"[ DECRYPT ] db({k}) is None, only copy.")
+                logger.debug(f"[ DECRYPT ] db({k}) is None, only copy.")
                 shutil.copy(task.src, task.dst)
                 continue
-            self.logger.debug(f"[ DECRYPT ] db({k}) exists, decrypt and copy.")
+            logger.debug(f"[ DECRYPT ] db({k}) exists, decrypt and copy.")
             flag, result = decrypt(self.wx_key, task.src, task.dst)
             if not flag:
-                self.logger.warning(result)
+                logger.warning(result)

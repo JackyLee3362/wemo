@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta
+import logging
 from wemo.backend.database.db import AbsUserDB
 from wemo.backend.database.micro_msg import Contact, MicroMsg, MicroMsgCache
 from wemo.backend.database.misc import Misc, MiscCache
 from wemo.backend.database.sns import Feed, Sns, SnsCache
 from wemo.backend.ctx import Context
+
+logger = logging.getLogger(__name__)
 
 
 class DBService:
@@ -12,16 +15,15 @@ class DBService:
         self.ctx = ctx
         self.db_dir = ctx.user_data_dir.db_dir
         self.cache_dir = ctx.user_cache_dir.db_dir
-        self.logger = ctx.logger
         self.init()
 
     def init(self):
-        self.logger.info("[ DB SERVICE ] init db...")
+        logger.info("[ DB SERVICE ] init db...")
         self._create_db_cache()
         self._init_db()
 
     def update_db(self):
-        self.logger.info("[ DB SERVICE ] updating...")
+        logger.info("[ DB SERVICE ] updating...")
         self._update_db_by_cache(self.sns, self.sns_cache)
         self._update_db_by_cache(self.misc, self.misc_cache)
         self._update_db_by_cache(self.micro_msg, self.micro_msg_cache)
@@ -42,7 +44,7 @@ class DBService:
         try:
             feeds = self.sns.get_feeds_by_dur_and_wxids(begin, end, wx_ids)
         except Exception as e:
-            self.logger.exception(e)
+            logger.exception(e)
             return []
         return feeds
 
@@ -87,25 +89,21 @@ class DBService:
 
     def _create_db_cache(self):
         db_dir = self.db_dir
-        self.sns = Sns(db_dir.joinpath("Sns.db"), self.logger)
-        self.micro_msg = MicroMsg(db_dir.joinpath("MicroMsg.db"), self.logger)
-        self.misc = Misc(db_dir.joinpath("Misc.db"), self.logger)
+        self.sns = Sns(db_dir.joinpath("Sns.db"))
+        self.micro_msg = MicroMsg(db_dir.joinpath("MicroMsg.db"))
+        self.misc = Misc(db_dir.joinpath("Misc.db"))
         cache_dir = self.cache_dir
-        self.sns_cache = SnsCache(cache_dir.joinpath("Sns.db"), self.logger)
-        self.misc_cache = MiscCache(cache_dir.joinpath("Misc.db"), self.logger)
-        self.micro_msg_cache = MicroMsgCache(
-            cache_dir.joinpath("MicroMsg.db"), self.logger
-        )
+        self.sns_cache = SnsCache(cache_dir.joinpath("Sns.db"))
+        self.misc_cache = MiscCache(cache_dir.joinpath("Misc.db"))
+        self.micro_msg_cache = MicroMsgCache(cache_dir.joinpath("MicroMsg.db"))
 
     def _update_db_by_cache(self, db: AbsUserDB, cache: AbsUserDB):
-        self.logger.debug(
-            f"[ DB SERVICE ] db({db.__class__.__name__}) update db by cache"
-        )
+        logger.debug(f"[ DB SERVICE ] db({db.__class__.__name__}) update db by cache")
         for t_cls in db.table_cls_list:
             if not self.ctx.running:
-                self.logger.debug("[ DB SERVICE ] stop updating")
+                logger.debug("[ DB SERVICE ] stop updating")
                 break
-            self.logger.debug(f"[ DB SERVICE ] table({t_cls.__name__}) update")
+            logger.debug(f"[ DB SERVICE ] table({t_cls.__name__}) update")
             db_data = db.query_all(t_cls)
             cache_data = cache.query_all(t_cls)
             db.merge_all(t_cls, db_data, cache_data)

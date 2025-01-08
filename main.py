@@ -8,5 +8,5 @@ os.environ.setdefault("WEMO_DEBUG", "true")
 
 
 if __name__ == "__main__":
-    app = App(__name__)
+    app = App("wemo")
     app.run()

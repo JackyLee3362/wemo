@@ -1,3 +1,4 @@
+import logging
 from wemo.backend.ctx import Context
 from wemo.backend.model.moment import MomentMsg
 from wemo.backend.utils.utils import (
@@ -10,11 +11,13 @@ import shutil
 from pathlib import Path
 
 
+logger = logging.getLogger(__name__)
+
+
 class ResourceManager:
     def __init__(self, ctx: Context):
         self.ctx = ctx
         self.user_dir = ctx.user_data_dir
-        self.logger = ctx.logger
         self.default_avatar = "default_avatar.jpg"
         self.default_img = "default_image.jpg"
 
@@ -69,7 +72,7 @@ class ResourceManager:
             avatar_copy = Path(shutil.copy2(avatar_path, out.avatar_dir))
             avatar_relative = avatar_copy.relative_to(out)
             return avatar_relative
-        self.logger.warning("Avatar not found, using default.")
+        logger.warning("Avatar not found, using default.")
         return out.avatar_dir.joinpath(self.default_avatar)
 
     def get_links(self, moment: MomentMsg):

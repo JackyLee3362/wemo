@@ -1,7 +1,7 @@
 from datetime import datetime
-from logging import Logger
+import logging
 from pathlib import Path
-from typing import Optional, override
+from typing import Optional
 
 from wemo.backend.sync.sync import Syncer
 from wemo.backend.utils.utils import get_months_between_dates
@@ -9,15 +9,16 @@ from wemo.backend.utils.utils import xor_decode
 from wemo.backend.utils.utils import guess_image_encoding_magic
 from rich.progress import track
 
+logger = logging.getLogger(__name__)
+
 
 class ImgSyncer(Syncer):
 
-    def __init__(self, src_dir: Path, dst_dir: Path, logger: Optional[Logger] = None):
+    def __init__(self, src_dir: Path, dst_dir: Path):
         if src_dir is None or dst_dir is None:
             raise ValueError("Source and destination directories cannot be None")
-        super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
+        super().__init__(src_dir=src_dir, dst_dir=dst_dir)
 
-    @override
     def sync(
         self,
         begin: Optional[datetime] = None,
@@ -32,7 +33,7 @@ class ImgSyncer(Syncer):
 
         for ym in ym_list:
             # ym 是 [2024-10, 2024-11, ...] 诸如此类
-            self.logger.debug(f"[ IMG SYNCER ] Dir({ym}) start decrypt.")
+            logger.debug(f"[ IMG SYNCER ] Dir({ym}) start decrypt.")
             src_ym_dir = self.src_dir.joinpath(ym)
             dst_ym_dir = self.dst_dir.joinpath(ym)
             src_ym_dir.mkdir(parents=True, exist_ok=True)
@@ -56,7 +57,7 @@ class ImgSyncer(Syncer):
         """
         处理单个文件，解密图片，并重命名（假设都有缩略图）
         """
-        # self.logger.debug(f"[ IMG SYNCER ] File({src_file_path.stem}) start decrypt.")
+        # logger.debug(f"[ IMG SYNCER ] File({src_file_path.stem}) start decrypt.")
         # 读取文件
         with open(src_file_path, "rb") as f:
             encrypt_img_buf = bytearray(f.read())
@@ -75,7 +76,7 @@ class ImgSyncer(Syncer):
             # 处理 IMG
             decrypt_img_buf = xor_decode(magic, encrypt_img_buf)
             with open(img_dst, "wb") as f:
-                self.logger.debug(
+                logger.debug(
                     f"[ IMG SYNCER ] Handle with Dir({dst_ym_dir.name})/Img({img_name})"
                 )
                 f.write(decrypt_img_buf)
@@ -83,7 +84,7 @@ class ImgSyncer(Syncer):
         thm_name = f"{img_size}_{thm_size}_t.jpg"
         thm_dst = dst_ym_dir.joinpath(thm_name)
         if thm_src.exists() and not thm_dst.exists():
-            self.logger.debug(
+            logger.debug(
                 f"[ IMG SYNCER ] Handle with Dir({dst_ym_dir.name})/Thumb({thm_name})"
             )
             # 读取加密缩略图

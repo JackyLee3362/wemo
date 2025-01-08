@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 import random
 
 from sqlalchemy import LargeBinary, Column, String, Integer
@@ -11,6 +12,7 @@ from wemo.backend.utils.utils import mock_bytes, mock_timestamp, mock_user, sing
 
 
 # 二进制头像
+logger = logging.getLogger(__name__)
 
 
 class BizContactHeadImg(UserTable):
@@ -67,15 +69,15 @@ class ContactHeadImg1(UserTable):
 
 @singleton
 class MiscCache(AbsUserCache):
-    def __init__(self, user_cache_db_url, logger=None):
-        super().__init__(user_cache_db_url, logger=logger)
+    def __init__(self, user_cache_db_url):
+        super().__init__(user_cache_db_url)
         self.register_tables([BizContactHeadImg, ContactHeadImg1])
 
 
 @singleton
 class Misc(AbsUserDB):
-    def __init__(self, user_db_url, logger=None):
-        super().__init__(user_db_url, logger=logger)
+    def __init__(self, user_db_url):
+        super().__init__(user_db_url)
         self.register_tables([BizContactHeadImg, ContactHeadImg1])
 
     def get_avatar_buffer(self, username: str) -> ContactHeadImg1:

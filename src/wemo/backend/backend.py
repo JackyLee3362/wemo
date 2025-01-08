@@ -1,6 +1,7 @@
 from pathlib import Path
 import time
 from datetime import datetime
+import logging
 
 import wemo.backend.base.constant as constant
 from wemo.backend.base.scaffold import Scaffold
@@ -10,6 +11,8 @@ from wemo.backend.sync.sync_service import SyncService
 from wemo.backend.update.updater_service import UserDataUpdateService
 from wemo.backend.ctx import Context
 
+logger = logging.getLogger(__name__)
+
 
 class BackendImpl(Scaffold):
     default_config = {}
@@ -17,21 +20,17 @@ class BackendImpl(Scaffold):
     def __init__(self, import_name, root_path: Path = None):
         super().__init__(import_name, root_path)
         self.config.from_object(constant)
-        self.ctx = Context(
-            root=self.config.get("PROJECT_PATH"),
-            conf=self.config,
-            logger=self.logger,
-        )
+        self.ctx = Context(root=self.config.get("PROJECT_PATH"), conf=self.config)
 
     def init(self):
-        self.logger.info("[ BACKEND ] init backend...")
+        logger.info("[ BACKEND ] init backend...")
         self.db = DBService(self.ctx)
         self.syncer = SyncService(self.ctx)
         self.updater = UserDataUpdateService(self.ctx, self.db)
         self.render = RenderService(self.ctx, self.db)
 
     def api_flush_db(self):
-        self.logger.info("[ BACKEND ] flush db...")
+        logger.info("[ BACKEND ] flush db...")
         self.db.flush_db()
 
     def api_flush_contact(self):
@@ -70,7 +69,7 @@ class BackendImpl(Scaffold):
         self.ctx.signal.sync_progress.emit("开始同步视频...")
         self.syncer.sync_video(begin, end)
         self.ctx.signal.sync_progress.emit("同步完成")
-        self.logger.info("[ BACKEND ] sync finish.")
+        logger.info("[ BACKEND ] sync finish.")
 
     def api_update(self, begin: datetime, end: datetime, wxids: list[str]):
         if not self.ctx.running:
@@ -89,20 +88,20 @@ class BackendImpl(Scaffold):
         self.updater.update_avatar()
 
         self.ctx.signal.update_progress.emit("更新完成")
-        self.logger.info("[ BACKEND ] update finish.")
+        logger.info("[ BACKEND ] update finish.")
 
     def api_render(self, begin: datetime, end: datetime, wxids: list[str]):
         if not self.ctx.running:
             return
         self.render.render_sns(begin, end, wxids)
-        self.logger.info("[ BACKEND ] render finish.")
+        logger.info("[ BACKEND ] render finish.")
         self.ctx.signal.render_progress.emit(f"导出完成到 {self.ctx.output_date_dir}")
         self.ctx.signal.out_dir_signal.emit(str(self.ctx.output_date_dir))
 
     def api_test(self, *args, **kwargs):
-        self.logger.info(f"[ BACKEND ] api test, args={args}, kwargs={kwargs}")
+        logger.info(f"[ BACKEND ] api test, args={args}, kwargs={kwargs}")
         for i in range(100):
             time.sleep(0.05)  # 模拟任务
             self.ctx.signal.test_processing.emit(i)
-        self.logger.info("[ BACKEND ] api test done")
+        logger.info("[ BACKEND ] api test done")
         return *args, *kwargs

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 import random
 from typing import Optional
 
@@ -18,6 +19,7 @@ from wemo.backend.utils.utils import (
 
 
 # 朋友圈
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -152,8 +154,8 @@ class SnsConfig(UserTable):
 
 @singleton
 class SnsCache(AbsUserCache):
-    def __init__(self, user_cache_db_url, logger=None):
-        super().__init__(user_cache_db_url, logger=logger)
+    def __init__(self, user_cache_db_url):
+        super().__init__(user_cache_db_url)
         self.register_tables(
             [
                 Feed,
@@ -165,8 +167,8 @@ class SnsCache(AbsUserCache):
 
 @singleton
 class Sns(AbsUserDB):
-    def __init__(self, user_db_url, logger=None):
-        super().__init__(user_db_url, logger=logger)
+    def __init__(self, user_db_url):
+        super().__init__(user_db_url)
         self.register_tables(
             [
                 Feed,
@@ -192,7 +194,7 @@ class Sns(AbsUserDB):
     def get_feed_by_feed_id(self, feed_id: int) -> Feed:
         res = self.session.query(Feed).filter(Feed.feed_id == feed_id).first()
         if res is None:
-            self.logger.warning(f"[ SNS ] feed_id({feed_id}) NOT FIND")
+            logger.warning(f"[ SNS ] feed_id({feed_id}) NOT FIND")
             return Feed()
         return res
 

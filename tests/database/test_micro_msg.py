@@ -19,8 +19,8 @@ ctx = Context.mock_ctx(wxid)
 user_data_db_dir = ctx.user_data_dir
 user_cache_db_dir = ctx.user_cache_dir
 logger = ctx.logger
-db = DB(user_data_db_dir.joinpath(db_name), logger)
-cache = DBCache(user_cache_db_dir.joinpath(db_name), logger)
+db = DB(user_data_db_dir.joinpath(db_name)
+cache = DBCache(user_cache_db_dir.joinpath(db_name)
 
 
 class TestMock:
@@ -70,7 +70,7 @@ class TestDB:
         insert_all(ContactLabel, 5)
 
     def test_singleton(self):
-        db2 = DB(self.db_dir, logger)
+        db2 = DB(self.db_dir
         assert self.db == db2
 
     def test_count_all(self):

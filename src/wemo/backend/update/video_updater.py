@@ -1,19 +1,20 @@
 import logging
 import shutil
 from pathlib import Path
-from typing import override
 
 from wemo.backend.model.moment import MomentMsg
 from wemo.backend.update.updater import Updater
 from wemo.backend.utils.utils import singleton, find_video_by_md5_or_duration
 
 
+logger = logging.getLogger(__name__)
+
+
 @singleton
 class VideoUpdater(Updater):
-    def __init__(self, src_dir: Path, dst_dir: Path, logger: logging.Logger = None):
-        super().__init__(src_dir=src_dir, dst_dir=dst_dir, logger=logger)
+    def __init__(self, src_dir: Path, dst_dir: Path):
+        super().__init__(src_dir=src_dir, dst_dir=dst_dir)
 
-    @override
     def update_by_moment(self, moment: MomentMsg, suffix: str = "") -> list[str]:
         """获取一条朋友圈的全部视频， 返回值是一个文件路径列表"""
         media_list = moment.medias
@@ -31,7 +32,7 @@ class VideoUpdater(Updater):
                 )
             except FileNotFoundError as e:
                 msg = e.args[0] if len(e.args) > 0 else ""
-                self.logger.warning(
+                logger.warning(
                     f"[ VIDEO UPDATER ] {moment.time} {suffix}-{msg}\n{moment.desc_brief}"
                 )
 

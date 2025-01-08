@@ -1,10 +1,8 @@
 from functools import cached_property
 from pathlib import Path
 import typing as t
-from logging import Logger
 
 from wemo.backend.base.config import Config, ConfigAttribute
-from wemo.backend.base.logger import create_app_logger
 from wemo.backend.utils.utils import get_debug_flag
 from wemo.backend.utils.helper import get_root_path
 
@@ -32,9 +30,9 @@ class Scaffold:
     def name(self) -> str:
         return self.import_name
 
-    @cached_property
-    def logger(self) -> Logger:
-        return create_app_logger(self.name, self.debug, self.config.get("LOGS_DIR"))
+    # @cached_property
+    # def logger(self) -> Logger:
+    #     return create_app_logger(self.name, self.debug, self.config.get("LOGS_DIR"))
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__} {self.name!r}>"

@@ -1,4 +1,5 @@
 from functools import cached_property
+import logging
 
 from jinja2 import Template
 
@@ -7,11 +8,12 @@ from wemo.backend.model.moment import MomentMsg
 from wemo.backend.ctx import Context
 from wemo.backend.res.res_manager import ResourceManager
 
+logger = logging.getLogger(__name__)
+
 
 class RenderTemplate:
     def __init__(self, ctx: Context):
         self.temp_dir = ctx.template_dir
-        self.logger = ctx.logger
 
     def get_template(self, name: str):
         full_name = name + ".html"
@@ -38,15 +40,14 @@ class HtmlRender:
         self.user_data_dir = ctx.user_data_dir
         self.res_manager = res_manager
         self.template = RenderTemplate(ctx)
-        self.logger = self.ctx.logger
 
     def render(self, contact: Contact, moment: MomentMsg):
-        self.logger.debug(
+        logger.debug(
             f"[ RENDER SERVICE ] {moment.time} {contact.remark} push moment({moment.desc_brief})"
         )
-        # self.logger.info(f"[ RENDER SERVICE ] contentStyle({moment.style})")
+        # logger.info(f"[ RENDER SERVICE ] contentStyle({moment.style})")
         # for item in moment.medias:
-        #     self.logger.info(f"[ RENDER SERVICE ] media({item.type})")
+        #     logger.info(f"[ RENDER SERVICE ] media({item.type})")
         desc = moment.desc.replace("\n", "<br>") if moment.desc is not None else ""
         images = self.res_manager.get_imgs(moment)
         videos = self.res_manager.get_videos(moment)

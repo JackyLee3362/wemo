@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from logging import Logger, getLogger
+import logging
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
 from sqlalchemy.schema import MetaData
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserTable(DeclarativeBase):
@@ -37,10 +40,9 @@ class UserTable(DeclarativeBase):
 
 class AbsUserDB:
 
-    def __init__(self, db_url: str, db_name: str = None, logger: Logger = None):
+    def __init__(self, db_url: str, db_name: str = None):
         self.db_name = db_name or self.__class__.__name__
         self.db_url = db_url
-        self.logger = logger or getLogger(self.db_name)
 
         self.table_cls_list: list[type[UserTable]] = []
         self.engine = None
@@ -54,7 +56,7 @@ class AbsUserDB:
         2. 建立会话
         3. 创建表
         """
-        self.logger.debug(f"[ DB ] db({self.db_name}) init.")
+        logger.debug(f"[ DB ] db({self.db_name}) init.")
         self.connect_db()
         self.build_session()
         self.create_tables()
@@ -68,12 +70,12 @@ class AbsUserDB:
         )
 
     def connect_db(self):
-        self.logger.debug(f"[ DB ] db({self.db_name}) is connected.")
+        logger.debug(f"[ DB ] db({self.db_name}) is connected.")
         url = f"sqlite:///{self.db_url}"
         self.engine = create_engine(url, echo=False)
 
     def build_session(self):
-        self.logger.debug(f"[ DB ] db({self.db_name}) session is build.")
+        logger.debug(f"[ DB ] db({self.db_name}) session is build.")
         self.db_session = sessionmaker(bind=self.engine)
         self.session = self.db_session()
 
@@ -82,14 +84,14 @@ class AbsUserDB:
 
     def query_all(self, table_cls: type[UserTable]):
         data = self.session.query(table_cls).all()
-        self.logger.debug(
+        logger.debug(
             f"[ DB ] db({self.db_name}).table({table_cls.__name__}) query all and count({len(data)})."
         )
         return data
 
     def count_all(self, table_cls: type[UserTable]) -> int:
         cnt = self.session.query(table_cls).count()
-        self.logger.debug(
+        logger.debug(
             f"[ DB ] db({self.db_name}).table({table_cls.__name__}) count({cnt})."
         )
         return cnt
@@ -97,7 +99,7 @@ class AbsUserDB:
     def insert_all(self, data_list: list[UserTable]) -> None:
         if len(data_list) < 0:
             return
-        self.logger.debug(
+        logger.debug(
             f"[ DB ] db({self.db_name}).table({data_list[0].__class__.__name__}) inserting..."
         )
         for d in data_list:
@@ -114,15 +116,15 @@ class AbsUserDB:
             return
         tname = tbl.__name__
         self.count_all(tbl)
-        self.logger.debug(f"[ DB ] db({self.db_name}).Table({tname}) merging...")
+        logger.debug(f"[ DB ] db({self.db_name}).Table({tname}) merging...")
         to_insert, to_update = tbl.split_data(db_data, cache_data)
 
-        self.logger.debug(f"[ DB ] Table({tname}) inserting len({len(to_insert)})...")
+        logger.debug(f"[ DB ] Table({tname}) inserting len({len(to_insert)})...")
         if len(to_insert) > 0:
             for item in to_insert:
                 self.session.merge(item)
 
-        self.logger.debug(f"[ DB ] Table({tname}) updating len({len(to_update)})...")
+        logger.debug(f"[ DB ] Table({tname}) updating len({len(to_update)})...")
         if len(to_update) > 0:
             for item in to_update:
                 self.session.merge(item)
@@ -132,17 +134,17 @@ class AbsUserDB:
         #     connection.execute(text("PRAGMA wal_checkpoint(FULL)"))
 
     def close_session(self) -> None:
-        self.logger.debug(f"[ DB ] db({self.db_name}) session closed.")
+        logger.debug(f"[ DB ] db({self.db_name}) session closed.")
         self.session.close()
 
     def close_connection(self) -> None:
-        self.logger.debug(f"[ DB ] db({self.db_name}) connection closed.")
+        logger.debug(f"[ DB ] db({self.db_name}) connection closed.")
         self.engine.dispose()
 
 
 class AbsUserCache(AbsUserDB):
-    def __init__(self, db_url, db_name=None, logger=None):
-        super().__init__(db_url, db_name, logger)
+    def __init__(self, db_url, db_name=None):
+        super().__init__(db_url, db_name)
 
     def count_all(self, table_cls):
         self.init()
