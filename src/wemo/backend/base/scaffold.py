@@ -1,20 +1,13 @@
 from functools import cached_property
-from pathlib import Path
 import typing as t
 
-from wemo.backend.base.config import Config, ConfigAttribute
-from wemo.backend.utils.utils import get_debug_flag
+from wemo.backend.base.config import TomlConfig
 from wemo.backend.utils.helper import get_root_path
 
 
 class Scaffold:
     name: str
-    config: Config
-
-    config_class = Config
-    testing = ConfigAttribute[bool]("TESTING")
-    secret_key = ConfigAttribute[t.Union[str, bytes, None]]("SECRET_KEY")
-    proj_dir = ConfigAttribute[Path]("PROJECT_DIR")
+    config: TomlConfig
 
     default_config: dict[str, t.Any] = {}
 
@@ -24,29 +17,23 @@ class Scaffold:
             root_path = get_root_path(self.import_name)
         self.root_path = root_path
 
-        self.config = self.make_config()
+        self.config = TomlConfig()
 
     @cached_property
     def name(self) -> str:
         return self.import_name
 
-    # @cached_property
-    # def logger(self) -> Logger:
-    #     return create_app_logger(self.name, self.debug, self.config.get("LOGS_DIR"))
+    @cached_property
+    def testing(self) -> bool:
+        return self.config.testing
+
+    @cached_property
+    def secret_key(self) -> t.Union[str, bytes, None]:
+        return self.config.secret_key
+
+    @cached_property
+    def debug(self) -> bool:
+        return self.config.debug
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__} {self.name!r}>"
-
-    def make_config(self) -> Config:
-        root_path = self.root_path
-        defaults = dict(self.default_config)
-        defaults["DEBUG"] = get_debug_flag()
-        return self.config_class(root_path, defaults)
-
-    @property
-    def debug(self) -> bool:
-        return self.config["DEBUG"]
-
-    @debug.setter
-    def debug(self, value: bool) -> None:
-        self.config["DEBUG"] = value

@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from datetime import datetime
+from functools import cached_property
 import logging
 from pathlib import Path
 import shutil
 
 from wemo.backend.base import constant
+from wemo.backend.base.config import TomlConfig
 from wemo.backend.base.constant import MOCK_DIR
-from wemo.backend.base.config import Config, ConfigAttribute
 from wemo.backend.utils.helper import get_wx_info
 from wemo.gui_signal import GuiSignal
 
@@ -17,16 +18,28 @@ logger = logging.getLogger(__name__)
 class Context:
     """后端上下文对象"""
 
-    wx_id = ConfigAttribute[str]("wxid")
-    wx_key = ConfigAttribute[str]("key")
-    wx_dir: Path = ConfigAttribute[Path]("wx_dir")
-    proj_dir: Path = ConfigAttribute[Path]("PROJECT_DIR")
+    @cached_property
+    def wx_id(self) -> str:
+        return self.config.wxid
+
+    @cached_property
+    def wx_key(self) -> str:
+        return self.config.key
+
+    @cached_property
+    def wx_dir(self) -> Path:
+        return self.config.wx_dir
+
+    @cached_property
+    def proj_dir(self) -> Path:
+        return constant.PROJECT_DIR
+
     db_name_list = ["Sns", "MicroMsg", "Misc"]
 
-    def __init__(self, root: Path, conf: Config, extra: dict = {}):
+    def __init__(self, root: Path, config: TomlConfig, extra: dict = {}):
         super().__init__()
         self.root_dir = root
-        self.config = conf
+        self.config = config
         self.signal: GuiSignal = None
         self.running = True
         self.extra_info = extra
@@ -38,7 +51,7 @@ class Context:
         self.signal = signal
 
     def init_app_info(self):
-        self.config.from_object(constant)
+        self.config.load_file(constant.CONFIG_DIR.joinpath("app.toml"))
         logger.info(f"[ CTX ] init ctx, project dir is {self.proj_dir}")
         self.template_dir = self.proj_dir.joinpath("template")
         self.data_dir = self.proj_dir.joinpath("data")
@@ -74,14 +87,14 @@ class Context:
     @staticmethod
     def mock_ctx(wxid: str) -> Context:
         proj_path = constant.PROJECT_DIR
-        config = Config(proj_path)
-        config.from_object(constant)
+        config = TomlConfig()
+        config.load_file(constant.CONFIG_DIR.joinpath("app.toml"))
         wx_user_dir = MOCK_DIR.joinpath(wxid)
         info = {"wxid": wxid, "key": None, "wx_dir": wx_user_dir}
 
         return Context(
             root=proj_path,
-            conf=config,
+            config=config,
             extra=info,
         )
 

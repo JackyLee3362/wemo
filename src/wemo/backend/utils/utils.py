@@ -145,11 +145,6 @@ def find_img_thumb_by_url(path: Path, urn: str) -> tuple[Path | None, Path | Non
     return img_path, thm_path
 
 
-def get_debug_flag() -> bool:
-    val = os.environ.get("WEMO_DEBUG")
-    return bool(val and val.lower() not in {"0", "false", "no"})
-
-
 def xor_decode(magic: int, buf: bytearray):
     return bytearray([b ^ magic for b in list(buf)])
 

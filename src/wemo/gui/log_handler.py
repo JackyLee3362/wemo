@@ -1,5 +1,5 @@
 import logging
-from PySide6.QtCore import Signal, QObject, SignalInstance
+from PySide6.QtCore import SignalInstance
 
 
 class QHandler(logging.Handler):

@@ -19,8 +19,8 @@ class BackendImpl(Scaffold):
 
     def __init__(self, import_name, root_path: Path = None):
         super().__init__(import_name, root_path)
-        self.config.from_object(constant)
-        self.ctx = Context(root=self.config.get("PROJECT_PATH"), conf=self.config)
+        self.config.load_file(constant.CONFIG_DIR.joinpath("app.toml"))
+        self.ctx = Context(root=self.config.get("PROJECT_PATH"), config=self.config)
 
     def init(self):
         logger.info("[ BACKEND ] init backend...")
