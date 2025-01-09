@@ -14,6 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 class ImageUpdater(Updater):
+
+    def __str__(self):
+        return "[ IMG UPDATER ]"
+
     def __init__(self, dst_dir: Path, src_dir: Path):
         super().__init__(src_dir=src_dir, dst_dir=dst_dir)
 
@@ -38,7 +42,7 @@ class ImageUpdater(Updater):
                     # 如果存在，则不处理
                     if res:
                         logger.debug(
-                            f"[ IMG UPDATER ] Dir({y_m})/File({res.name}) exists, skip."
+                            f"{self} Dir({y_m})/File({res.name}) exists, skip."
                         )
                         continue
                     dst_img_ym_dir.mkdir(parents=True, exist_ok=True)
@@ -52,7 +56,7 @@ class ImageUpdater(Updater):
                         continue
                     msg = e.args[0] if len(e.args) > 0 else ""
                     logger.warning(
-                        f"[ IMG UPDATER ] {moment.time} {suffix}-{msg}\n{moment.desc_brief}"
+                        f"{self} {moment.time} {suffix}-{msg}\n{moment.desc_brief}"
                     )
                 except Exception as e:
                     logger.exception(e)
@@ -66,7 +70,7 @@ class ImageUpdater(Updater):
         if img_content is None:
             img_content = thm_content
         if thm_content is None:
-            logger.warning("[ IMG UPDATER ] can't get img or thumb from server.")
+            logger.warning(f"{self} can't get img or thumb from server.")
             return
 
         img_file_name = f"{len(img_content)}_{len(thm_content)}.jpg"
@@ -77,7 +81,7 @@ class ImageUpdater(Updater):
             # 处理图片
             dst_img_path = dst_dir.joinpath(img_file_name)
             logger.debug(
-                f"[ IMG UPDATER ] Save image from server to Dir({src_dir})/File({img_file_name})."
+                f"{self} Save image from server to Dir({src_dir})/File({img_file_name})."
             )
             with open(dst_img_path, "wb") as f:
                 f.write(img_content)
@@ -86,7 +90,7 @@ class ImageUpdater(Updater):
             # 处理图片
             dst_thm_path = dst_dir.joinpath(thm_file_name)
             logger.debug(
-                f"[ IMG UPDATER ] Save thumb from server to Dir({src_dir.name})/File({thm_file_name})."
+                f"{self} Save thumb from server to Dir({src_dir.name})/File({thm_file_name})."
             )
             with open(dst_thm_path, "wb") as f:
                 f.write(thm_content)
@@ -108,7 +112,7 @@ class ImageUpdater(Updater):
             raise FileNotFoundError(
                 f"Dir({src_dir.name})/File({file_name}) not find in cache."
             )
-        logger.debug(f"[ IMG UPDATER ] Dir({src_dir.name})/File({file_name}) saved.")
+        logger.debug(f"{self} Dir({src_dir.name})/File({file_name}) saved.")
         shutil.copy(src_path, dst_path)
 
     def get_finder_images(self, msg: MomentMsg) -> Optional[str]:
@@ -119,7 +123,7 @@ class ImageUpdater(Updater):
             return thumb_path
 
     def save_server_img(self, urn: str, params: dict, img_type: str):
-        logger.debug("[ IMG UPDATER ]")
+        logger.debug(f"{self}")
         img_type_lower = img_type.lower()
         if img_type_lower not in ("image", "thumb"):
             logger.warning("[ IMG UPDATER ] type is not img.")
@@ -127,6 +131,6 @@ class ImageUpdater(Updater):
         content = get_img_from_server(urn, params)
         if content:
             tmp_p = Path(self.dst_dir).joinpath(urn)
-            logger.debug(f"[ IMG UPDATER ] save a img, {urn}.")
+            logger.debug(f"{self} save a img, {urn}.")
             with open(tmp_p, "wb") as f:
                 f.write(content)

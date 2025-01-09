@@ -40,6 +40,9 @@ class UserTable(DeclarativeBase):
 
 class AbsUserDB:
 
+    def __str__(self):
+        return "[ DB ]"
+
     def __init__(self, db_url: str, db_name: str = None):
         self.db_name = db_name or self.__class__.__name__
         self.db_url = db_url
@@ -56,7 +59,7 @@ class AbsUserDB:
         2. 建立会话
         3. 创建表
         """
-        logger.debug(f"[ DB ] db({self.db_name}) init.")
+        logger.debug(f"{self} db({self.db_name}) init.")
         self.connect_db()
         self.build_session()
         self.create_tables()
@@ -70,12 +73,12 @@ class AbsUserDB:
         )
 
     def connect_db(self):
-        logger.debug(f"[ DB ] db({self.db_name}) is connected.")
+        logger.debug(f"{self} db({self.db_name}) is connected.")
         url = f"sqlite:///{self.db_url}"
         self.engine = create_engine(url, echo=False)
 
     def build_session(self):
-        logger.debug(f"[ DB ] db({self.db_name}) session is build.")
+        logger.debug(f"{self} db({self.db_name}) session is build.")
         self.db_session = sessionmaker(bind=self.engine)
         self.session = self.db_session()
 
@@ -85,14 +88,14 @@ class AbsUserDB:
     def query_all(self, table_cls: type[UserTable]):
         data = self.session.query(table_cls).all()
         logger.debug(
-            f"[ DB ] db({self.db_name}).table({table_cls.__name__}) query all and count({len(data)})."
+            f"{self} db({self.db_name}).table({table_cls.__name__}) query all and count({len(data)})."
         )
         return data
 
     def count_all(self, table_cls: type[UserTable]) -> int:
         cnt = self.session.query(table_cls).count()
         logger.debug(
-            f"[ DB ] db({self.db_name}).table({table_cls.__name__}) count({cnt})."
+            f"{self} db({self.db_name}).table({table_cls.__name__}) count({cnt})."
         )
         return cnt
 
@@ -100,7 +103,7 @@ class AbsUserDB:
         if len(data_list) < 0:
             return
         logger.debug(
-            f"[ DB ] db({self.db_name}).table({data_list[0].__class__.__name__}) inserting..."
+            f"{self} db({self.db_name}).table({data_list[0].__class__.__name__}) inserting..."
         )
         for d in data_list:
             self.session.add(d)
@@ -116,15 +119,15 @@ class AbsUserDB:
             return
         tname = tbl.__name__
         self.count_all(tbl)
-        logger.debug(f"[ DB ] db({self.db_name}).Table({tname}) merging...")
+        logger.debug(f"{self} db({self.db_name}).Table({tname}) merging...")
         to_insert, to_update = tbl.split_data(db_data, cache_data)
 
-        logger.debug(f"[ DB ] Table({tname}) inserting len({len(to_insert)})...")
+        logger.debug(f"{self} Table({tname}) inserting len({len(to_insert)})...")
         if len(to_insert) > 0:
             for item in to_insert:
                 self.session.merge(item)
 
-        logger.debug(f"[ DB ] Table({tname}) updating len({len(to_update)})...")
+        logger.debug(f"{self} Table({tname}) updating len({len(to_update)})...")
         if len(to_update) > 0:
             for item in to_update:
                 self.session.merge(item)
@@ -134,11 +137,11 @@ class AbsUserDB:
         #     connection.execute(text("PRAGMA wal_checkpoint(FULL)"))
 
     def close_session(self) -> None:
-        logger.debug(f"[ DB ] db({self.db_name}) session closed.")
+        logger.debug(f"{self} db({self.db_name}) session closed.")
         self.session.close()
 
     def close_connection(self) -> None:
-        logger.debug(f"[ DB ] db({self.db_name}) connection closed.")
+        logger.debug(f"{self} db({self.db_name}) connection closed.")
         self.engine.dispose()
 
 

@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 class VideoSync(Syncer):
 
+    def __str__(self):
+        return "[ VIDEO SYNCER ]"
+
     def __init__(self, src_dir: Path, dst_dir: Path, bin_path: Path):
         super().__init__(src_dir=src_dir, dst_dir=dst_dir)
         self.bin_path = bin_path
@@ -55,14 +58,12 @@ class VideoSync(Syncer):
                     self._handle_video(file, dst_dir)
 
     def _handle_video(self, file: Path, dst_dir: Path):
-        # logger.debug(f"[ VIDEO SYNCER ] File({file.name}) decrypting...")
+        # logger.debug(f"{self} File({file.name}) decrypting...")
         md5 = self._calculate_md5(file)
         dur = self._get_video_duration(file)
         video_dst_path = dst_dir.joinpath(f"{md5}_{dur}.mp4")
         if not video_dst_path.exists():
-            logger.debug(
-                f"[ VIDEO SYNCER ] copy file from Dir({dst_dir.name})/Path({file.name})"
-            )
+            logger.debug(f"{self} copy file from Dir({dst_dir.name})/Path({file.name})")
             shutil.copy(file, video_dst_path)
 
         pass

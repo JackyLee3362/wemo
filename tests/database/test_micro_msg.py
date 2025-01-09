@@ -1,4 +1,4 @@
-from calendar import c
+import logging
 import shutil
 
 from wemo.backend.ctx import Context
@@ -18,9 +18,9 @@ db_name = "MicroMsg.db"
 ctx = Context.mock_ctx(wxid)
 user_data_db_dir = ctx.user_data_dir
 user_cache_db_dir = ctx.user_cache_dir
-logger = ctx.logger
-db = DB(user_data_db_dir.joinpath(db_name)
-cache = DBCache(user_cache_db_dir.joinpath(db_name)
+logger = logging.getLogger(__name__)
+db = DB(user_data_db_dir.user_root_dir.joinpath(db_name))
+cache = DBCache(user_cache_db_dir.user_root_dir.joinpath(db_name))
 
 
 class TestMock:
@@ -70,7 +70,7 @@ class TestDB:
         insert_all(ContactLabel, 5)
 
     def test_singleton(self):
-        db2 = DB(self.db_dir
+        db2 = DB(self.db_dir)
         assert self.db == db2
 
     def test_count_all(self):

@@ -14,6 +14,9 @@ class DBSyncer(Syncer):
     数据库解密器
     """
 
+    def __str__(self):
+        return "[ DECRYPT ]"
+
     def __init__(
         self,
         wx_key: str,
@@ -44,10 +47,10 @@ class DBSyncer(Syncer):
         # 调用 pywxdump 解密
         for k, task in tasks.items():
             if self.wx_key is None:
-                logger.debug(f"[ DECRYPT ] db({k}) is None, only copy.")
+                logger.debug(f"{self} db({k}) is None, only copy.")
                 shutil.copy(task.src, task.dst)
                 continue
-            logger.debug(f"[ DECRYPT ] db({k}) exists, decrypt and copy.")
+            logger.debug(f"{self} db({k}) exists, decrypt and copy.")
             flag, result = decrypt(self.wx_key, task.src, task.dst)
             if not flag:
                 logger.warning(result)

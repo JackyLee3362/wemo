@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class SyncService:
+    def __str__(self):
+        return "[ SYNC SERVICE ]"
+
     def __init__(self, ctx: Context):
         # 依赖注入
         self.ctx = ctx
@@ -22,7 +25,7 @@ class SyncService:
         self.init()
 
     def init(self):
-        logger.info("[ SYNC SERVICE ] init service...")
+        logger.info(f"{self} init service...")
         self._init_db_decrypter()
         self._init_img_decrypter()
         self._init_video_decrypter()
@@ -48,28 +51,28 @@ class SyncService:
         )
 
     def sync(self, begin: datetime, end: datetime):
-        logger.info("[ SYNC SERVICE ] sync starting...")
+        logger.info(f"{self} sync starting...")
         self.sync_db()
         self.sync_img(begin, end)
         self.sync_video(begin, end)
 
     def sync_db(self):
         if not self.ctx.running:
-            logger.debug("[ SYNC SERVICE ] stop sync db...")
+            logger.debug(f"{self} stop sync db...")
             return
-        logger.info("[ SYNC SERVICE ] db sync start...")
+        logger.info(f"{self} db sync start...")
         self.db_syncer.sync()
 
     def sync_img(self, begin: datetime = None, end: datetime = None):
         if not self.ctx.running:
-            logger.debug("[ SYNC SERVICE ] stop sync img...")
+            logger.debug(f"{self} stop sync img...")
             return
-        logger.info("[ SYNC SERVICE ] img sync starting...")
+        logger.info(f"{self} img sync starting...")
         self.img_syncer.sync(begin, end)
 
     def sync_video(self, begin: datetime = None, end: datetime = None):
         if not self.ctx.running:
-            logger.debug("[ SYNC SERVICE ] stop sync video...")
+            logger.debug(f"{self} stop sync video...")
             return
-        logger.info("[ SYNC SERVICE ] video sync starting...")
+        logger.info(f"{self} video sync starting...")
         self.video_syncer.sync(begin, end)

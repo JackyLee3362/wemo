@@ -36,6 +36,9 @@ class Context:
 
     db_name_list = ["Sns", "MicroMsg", "Misc"]
 
+    def __str__(self):
+        return "[ CTX ]"
+
     def __init__(self, root: Path, config: TomlConfig, extra: dict = {}):
         super().__init__()
         self.root_dir = root
@@ -51,7 +54,7 @@ class Context:
         self.signal = signal
 
     def init_app_info(self):
-        self.config.load_file(constant.CONFIG_DIR.joinpath("app.toml"))
+        self.config.load_file(constant.CONFIG_DEFAULT_FILE)
         logger.info(f"[ CTX ] init ctx, project dir is {self.proj_dir}")
         self.output_date_dir: UserDir = None
         self.generate_output_date_dir()
@@ -84,7 +87,7 @@ class Context:
     def mock_ctx(wxid: str) -> Context:
         proj_path = constant.PROJECT_DIR
         config = TomlConfig()
-        config.load_file(constant.CONFIG_DIR.joinpath("app.toml"))
+        config.load_file(constant.CONFIG_DEFAULT_FILE)
         wx_user_dir = MOCK_DIR.joinpath(wxid)
         info = {"wxid": wxid, "key": None, "wx_dir": wx_user_dir}
 

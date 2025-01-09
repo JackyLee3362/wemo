@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 
 class ImgSyncer(Syncer):
 
+    def __str__(self):
+        return "[ IMG SYNCER ]"
+
     def __init__(self, src_dir: Path, dst_dir: Path):
         if src_dir is None or dst_dir is None:
             raise ValueError("Source and destination directories cannot be None")
@@ -33,7 +36,7 @@ class ImgSyncer(Syncer):
 
         for ym in ym_list:
             # ym 是 [2024-10, 2024-11, ...] 诸如此类
-            logger.debug(f"[ IMG SYNCER ] Dir({ym}) start decrypt.")
+            logger.debug(f"{self} Dir({ym}) start decrypt.")
             src_ym_dir = self.src_dir.joinpath(ym)
             dst_ym_dir = self.dst_dir.joinpath(ym)
             src_ym_dir.mkdir(parents=True, exist_ok=True)
@@ -57,7 +60,7 @@ class ImgSyncer(Syncer):
         """
         处理单个文件，解密图片，并重命名（假设都有缩略图）
         """
-        # logger.debug(f"[ IMG SYNCER ] File({src_file_path.stem}) start decrypt.")
+        # logger.debug(f"{self} File({src_file_path.stem}) start decrypt.")
         # 读取文件
         with open(src_file_path, "rb") as f:
             encrypt_img_buf = bytearray(f.read())
@@ -77,16 +80,14 @@ class ImgSyncer(Syncer):
             decrypt_img_buf = xor_decode(magic, encrypt_img_buf)
             with open(img_dst, "wb") as f:
                 logger.debug(
-                    f"[ IMG SYNCER ] Handle with Dir({dst_ym_dir.name})/Img({img_name})"
+                    f"{self} Handle with Dir({dst_ym_dir.name})/Img({img_name})"
                 )
                 f.write(decrypt_img_buf)
         # 处理 THUMB
         thm_name = f"{img_size}_{thm_size}_t.jpg"
         thm_dst = dst_ym_dir.joinpath(thm_name)
         if thm_src.exists() and not thm_dst.exists():
-            logger.debug(
-                f"[ IMG SYNCER ] Handle with Dir({dst_ym_dir.name})/Thumb({thm_name})"
-            )
+            logger.debug(f"{self} Handle with Dir({dst_ym_dir.name})/Thumb({thm_name})")
             # 读取加密缩略图
             with open(thm_src, "rb") as f:
                 encrypt_thm_buf = bytearray(f.read())

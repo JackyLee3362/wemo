@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class RenderTemplate:
+
+    def __str__(self):
+        return "[ RENDER TEMPLATE ]"
+
     def __init__(self):
         self.temp_dir = constant.TEMPLATE_DIR
 
@@ -36,6 +40,10 @@ class RenderTemplate:
 
 
 class HtmlRender:
+
+    def __str__(self):
+        return "[ HTML RENDER ]"
+
     def __init__(self, ctx: Context, res_manager: ResourceManager):
         self.ctx = ctx
         self.user_data_dir = ctx.user_data_dir
@@ -44,11 +52,8 @@ class HtmlRender:
 
     def render(self, contact: Contact, moment: MomentMsg):
         logger.debug(
-            f"[ RENDER SERVICE ] {moment.time} {contact.remark} push moment({moment.desc_brief})"
+            f"{self} {moment.time} {contact.remark} push moment({moment.desc_brief})"
         )
-        # logger.info(f"[ RENDER SERVICE ] contentStyle({moment.style})")
-        # for item in moment.medias:
-        #     logger.info(f"[ RENDER SERVICE ] media({item.type})")
         desc = moment.desc.replace("\n", "<br>") if moment.desc is not None else ""
         images = self.res_manager.get_imgs(moment)
         videos = self.res_manager.get_videos(moment)

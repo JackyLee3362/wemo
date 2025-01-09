@@ -14,6 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 class RenderService:
+
+    def __str__(self):
+        return "[ RENDER SERVICE ]"
+
     def __init__(self, ctx: Context, db: DBService):
         self.ctx = ctx
         self.db = db
@@ -66,13 +70,13 @@ class RenderService:
         total_feeds = len(feeds)
         for idx, feed in enumerate(feeds):
             if not self.ctx.running:
-                logger.debug("[ RENDER SERVICE ] stop rendering...")
+                logger.debug(f"{self} stop rendering...")
                 break
             try:
                 self.ctx.signal.render_progress.emit((idx + 1) / total_feeds)
                 contact = self.db.get_contact_by_username(feed.username)
                 logger.debug(
-                    f"[ RENDER SERVICE ] rendering feed({feed.feed_id}), user({contact.repr_name})..."
+                    f"{self} rendering feed({feed.feed_id}), user({contact.repr_name})..."
                 )
                 try:
                     moment = MomentMsg.parse_xml(feed.content)

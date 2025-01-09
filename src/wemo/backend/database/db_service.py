@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 class DBService:
 
+    def __str__(self):
+        return "[ DB SERVICE ]"
+
     def __init__(self, ctx: Context):
         self.ctx = ctx
         self.db_dir = ctx.user_data_dir.db_dir
@@ -98,12 +101,12 @@ class DBService:
         self.micro_msg_cache = MicroMsgCache(cache_dir.joinpath("MicroMsg.db"))
 
     def _update_db_by_cache(self, db: AbsUserDB, cache: AbsUserDB):
-        logger.debug(f"[ DB SERVICE ] db({db.__class__.__name__}) update db by cache")
+        logger.debug(f"{self} db({db.__class__.__name__}) update db by cache")
         for t_cls in db.table_cls_list:
             if not self.ctx.running:
-                logger.debug("[ DB SERVICE ] stop updating")
+                logger.debug(f"{self} stop updating")
                 break
-            logger.debug(f"[ DB SERVICE ] table({t_cls.__name__}) update")
+            logger.debug(f"{self} table({t_cls.__name__}) update")
             db_data = db.query_all(t_cls)
             cache_data = cache.query_all(t_cls)
             db.merge_all(t_cls, db_data, cache_data)

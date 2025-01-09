@@ -1,5 +1,6 @@
 # config priority: cli > env_var > config.toml > default.toml
 [app]
+name = 'wemo'
 env = 'prod'
 
 [logging]

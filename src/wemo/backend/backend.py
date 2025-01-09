@@ -3,13 +3,13 @@ import time
 from datetime import datetime
 import logging
 
-import wemo.backend.common.constant as constant
 from wemo.backend.base.scaffold import Scaffold
 from wemo.backend.database.db_service import DBService
 from wemo.backend.render.render_service import RenderService
 from wemo.backend.sync.sync_service import SyncService
 from wemo.backend.update.updater_service import UserDataUpdateService
 from wemo.backend.ctx import Context
+from wemo.backend.common import constant
 
 logger = logging.getLogger(__name__)
 
@@ -17,20 +17,23 @@ logger = logging.getLogger(__name__)
 class BackendImpl(Scaffold):
     default_config = {}
 
+    def __str__(self):
+        return "[ BACKEND ]"
+
     def __init__(self, import_name, root_path: Path = None):
         super().__init__(import_name, root_path)
-        self.config.load_file(constant.CONFIG_DIR.joinpath("app.toml"))
-        self.ctx = Context(root=self.config.get("PROJECT_PATH"), config=self.config)
+        self.config.load_file(constant.CONFIG_DEFAULT_FILE)
+        self.ctx = Context(root=constant.PROJECT_DIR, config=self.config)
 
     def init(self):
-        logger.info("[ BACKEND ] init backend...")
+        logger.info(f"{self} init backend...")
         self.db = DBService(self.ctx)
         self.syncer = SyncService(self.ctx)
         self.updater = UserDataUpdateService(self.ctx, self.db)
         self.render = RenderService(self.ctx, self.db)
 
     def api_flush_db(self):
-        logger.info("[ BACKEND ] flush db...")
+        logger.info(f"{self} flush db...")
         self.db.flush_db()
 
     def api_flush_contact(self):
