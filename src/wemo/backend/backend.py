@@ -2,7 +2,6 @@ import logging
 import time
 from datetime import datetime
 
-from wemo.backend.common import constant
 from wemo.backend.ctx import AppContext
 from wemo.backend.database.db_service import DBService
 from wemo.backend.render.render_service import RenderService
@@ -12,14 +11,14 @@ from wemo.backend.update.updater_service import UserDataUpdateService
 logger = logging.getLogger(__name__)
 
 
-class BackendImpl:
+class Backend:
     default_config = {}
 
     def __str__(self):
         return "[ BACKEND ]"
 
-    def __init__(self, import_name):
-        self.ctx = AppContext(import_name, constant.PROJECT_DIR)
+    def __init__(self, ctx: AppContext):
+        self.ctx = ctx
 
     def init(self):
         logger.info(f"{self} init backend...")

@@ -18,11 +18,12 @@ def mock_ctx(wxid: str) -> AppContext:
     wx_user_dir = MOCK_DIR.joinpath(wxid)
     info = {"wxid": wxid, "key": None, "wx_dir": wx_user_dir}
 
-    return AppContext(
-        root=proj_path,
-        config=config,
-        extra=info,
-    )
+    ctx = AppContext(root=proj_path, config=config)
+    ctx.config.update(info)
+    ctx.init_user_wx_info()
+    ctx.has_init_user = True
+    ctx.init_user_dir()
+    return ctx
 
 
 def mock_timeline_object():

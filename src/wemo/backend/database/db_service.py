@@ -17,8 +17,6 @@ class DBService:
 
     def __init__(self, ctx: AppContext):
         self.ctx = ctx
-        self.db_dir = ctx.user_data_dir.db_dir
-        self.cache_dir = ctx.user_cache_dir.db_dir
         self.init()
 
     def init(self):
@@ -92,11 +90,11 @@ class DBService:
         self.misc.init()
 
     def _create_db_cache(self):
-        db_dir = self.db_dir
+        db_dir = self.ctx.user_data_dir.db_dir
         self.sns = Sns(db_dir.joinpath("Sns.db"))
         self.micro_msg = MicroMsg(db_dir.joinpath("MicroMsg.db"))
         self.misc = Misc(db_dir.joinpath("Misc.db"))
-        cache_dir = self.cache_dir
+        cache_dir = self.ctx.user_cache_dir.db_dir
         self.sns_cache = SnsCache(cache_dir.joinpath("Sns.db"))
         self.misc_cache = MiscCache(cache_dir.joinpath("Misc.db"))
         self.micro_msg_cache = MicroMsgCache(cache_dir.joinpath("MicroMsg.db"))

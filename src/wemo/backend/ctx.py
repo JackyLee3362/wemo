@@ -17,6 +17,62 @@ logger = logging.getLogger(__name__)
 class AppContext(Scaffold):
     """应用上下文对象，主要是目录信息和用户信息"""
 
+    db_name_list = ["Sns", "MicroMsg", "Misc"]
+
+    def __init__(self, name: str, root: Path = None):
+        if root is None:
+            root = constant.PROJECT_DIR
+        super().__init__(name, root)
+        self.config.load_file(constant.CONFIG_DEFAULT_FILE)
+        self.signal: GuiSignal = None
+        self.running = True
+        self.has_init_user = False
+        # 项目目录初始化
+        self.init_app_info()
+
+    def inject(self, signal: GuiSignal):
+        self.signal = signal
+
+    def init_app_info(self):
+        logger.info(f"{self} init ctx, project dir is {self.proj_dir}")
+        self.output_date_dir: UserDir = None
+        self.generate_output_date_dir()
+
+    def init_user_wx_info(self):
+        # 如果已经初始化过，则直接返回
+        if self.has_init_user:
+            return True
+        # 用户目录
+        # 首先获取用户信息
+        info = get_wx_info()
+        # 说明没有登录
+        if info is None:
+            logger.warning(f"{self} 未登录微信，请先登录微信，如果已登录，请稍等 10 秒")
+            return False
+        self.config.update(info)
+        logger.info(f"{self} init user({self.wx_id})...")
+        self.has_init_user = True
+        return self.has_init_user
+
+    def init_user_dir(self):
+        # 初始化用户目录
+        self.wx_sns_cache_dir = self.wx_dir.joinpath("FileStorage", "Sns", "Cache")
+        self.user_dir = constant.DATA_DIR.joinpath(self.wx_id)
+        self.user_data_dir = UserDir(self.user_dir.joinpath("data"))
+        self.user_cache_dir = UserDir(self.user_dir.joinpath("cache"))
+
+    def generate_output_date_dir(self) -> UserDir:
+        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        p = constant.OUTPUT_DIR.joinpath(date)
+        if not p.exists():
+            shutil.copytree(constant.STATIC_DIR, p)
+        res = UserDir(p)
+        self.output_date_dir = res
+        return res
+
+    def __str__(self):
+        return "[ CTX ]"
+
     @cached_property
     def wx_id(self) -> str:
         return self.config.wxid
@@ -32,50 +88,6 @@ class AppContext(Scaffold):
     @cached_property
     def proj_dir(self) -> Path:
         return constant.PROJECT_DIR
-
-    db_name_list = ["Sns", "MicroMsg", "Misc"]
-
-    def __str__(self):
-        return "[ CTX ]"
-
-    def __init__(self, name: str, root: Path, extra: dict = {}):
-        super().__init__(name, root)
-        self.config.load_file(constant.CONFIG_DEFAULT_FILE)
-        self.signal: GuiSignal = None
-        self.running = True
-        self.extra_info = extra
-        # 项目目录初始化
-        self.init_app_info()
-        self.init_user_info()
-
-    def inject(self, signal: GuiSignal):
-        self.signal = signal
-
-    def init_app_info(self):
-        logger.info(f"{self} init ctx, project dir is {self.proj_dir}")
-        self.output_date_dir: UserDir = None
-        self.generate_output_date_dir()
-
-    def init_user_info(self):
-        # 用户目录
-        # 1. 首先获取用户信息
-        info = get_wx_info(self.extra_info)
-        self.config.update(info)
-        logger.info(f"{self} init user({self.wx_id})...")
-        # 2. 初始化用户目录
-        self.wx_sns_cache_dir = self.wx_dir.joinpath("FileStorage", "Sns", "Cache")
-        self.user_dir = constant.DATA_DIR.joinpath(self.wx_id)
-        self.user_data_dir = UserDir(self.user_dir.joinpath("data"))
-        self.user_cache_dir = UserDir(self.user_dir.joinpath("cache"))
-
-    def generate_output_date_dir(self) -> UserDir:
-        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        p = constant.OUTPUT_DIR.joinpath(date)
-        if not p.exists():
-            shutil.copytree(constant.STATIC_DIR, p)
-        res = UserDir(p)
-        self.output_date_dir = res
-        return res
 
 
 class UserDir:

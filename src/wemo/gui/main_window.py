@@ -113,9 +113,9 @@ class MainWindow(QMainWindow):
     @Slot()
     def submit_tasks(self):
         begin, end, wxids = self.get_params()
-        if self.mission_widget.sync_check.checkState() == Qt.Checked:
+        if self.mission_widget.sync_check.checkState() == Qt.CheckState.Checked:
             self.bt.add_task(self.bt.backend.api_sync, begin, end)
-        if self.mission_widget.update_check.checkState() == Qt.Checked:
+        if self.mission_widget.update_check.checkState() == Qt.CheckState.Checked:
             self.bt.add_task(self.bt.backend.api_update, begin, end, wxids)
-        if self.mission_widget.render_check.checkState() == Qt.Checked:
+        if self.mission_widget.render_check.checkState() == Qt.CheckState.Checked:
             self.bt.add_task(self.bt.backend.api_render, begin, end, wxids)

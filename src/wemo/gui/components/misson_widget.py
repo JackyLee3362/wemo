@@ -23,17 +23,17 @@ class MissonWidget(QWidget):
         f1 = QFormLayout()
 
         self.sync_check = QCheckBox("同步数据", self)
-        self.sync_check.setCheckState(Qt.Unchecked)
+        self.sync_check.setCheckState(Qt.CheckState.Unchecked)
         self.sync_info = QLineEdit(self)
         self.sync_info.setReadOnly(True)
 
         self.update_check = QCheckBox("更新数据", self)
-        self.update_check.setCheckState(Qt.Unchecked)
+        self.update_check.setCheckState(Qt.CheckState.Unchecked)
         self.update_info = QLineEdit(self)
         self.update_info.setReadOnly(True)
 
         self.render_check = QCheckBox("导出", self)
-        self.render_check.setCheckState(Qt.Unchecked)
+        self.render_check.setCheckState(Qt.CheckState.Unchecked)
         self.render_info = QLineEdit(self)
         self.render_info.setReadOnly(True)
 
