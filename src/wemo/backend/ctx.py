@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class Context:
-    """后端上下文对象"""
+    """应用上下文对象，主要是目录信息和用户信息"""
 
     @cached_property
     def wx_id(self) -> str:

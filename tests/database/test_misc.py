@@ -15,8 +15,8 @@ db_name = "Misc.db"
 user_db_dir = constant.DATA_DIR.joinpath(name, "data")
 user_cache_db_dir = constant.DATA_DIR.joinpath(name, "cache")
 logger = logging.getLogger(__name__)
-db = DB(user_db_dir.joinpath(db_name)
-cache = DBCache(user_cache_db_dir.joinpath(db_name)
+db = DB(user_db_dir.joinpath(db_name))
+cache = DBCache(user_cache_db_dir.joinpath(db_name))
 
 
 class TestMock:
@@ -50,7 +50,7 @@ class TestDB:
         self.db.init()
 
     def test_singleton(self):
-        db2 = DB(self.db_dir
+        db2 = DB(self.db_dir)
         assert self.db == db2
 
     def test_count_all(self):

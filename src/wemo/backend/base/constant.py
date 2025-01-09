@@ -1,11 +1,12 @@
 from pathlib import Path
-from wemo.backend.utils.helper import get_root_path
 import sys
 
-if getattr(sys, "frozen", False):
-    PROJECT_DIR = Path(sys.executable).parent
-else:
-    PROJECT_DIR = Path(get_root_path("wemo")).parent.parent
+# if getattr(sys, "frozen", False):
+#     PROJECT_DIR = Path(sys.executable).parent
+# else:
+#     PROJECT_DIR = Path(sys.modules["__main__"].__file__).parent.parent.parent
+
+PROJECT_DIR = Path(sys.modules["__main__"].__file__).parent.parent.parent
 
 SRC_DIR = PROJECT_DIR.joinpath("src")
 DATA_DIR = PROJECT_DIR.joinpath("data")
