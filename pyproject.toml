@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wemo"
-version = "0.1.0"
+version = "1.1.2"
 description = ""
 authors = ["Jackylee <jieli.work@qq.com>"]
 readme = "README.md"
