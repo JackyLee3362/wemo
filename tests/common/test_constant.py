@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from wemo.backend.common import constant
 
 

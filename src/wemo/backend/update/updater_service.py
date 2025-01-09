@@ -1,11 +1,12 @@
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
+
 from wemo.backend.common.model import MomentMsg
+from wemo.backend.ctx import Context
 from wemo.backend.database.db_service import DBService
 from wemo.backend.update.avatar_updater import AvatarUpdater
 from wemo.backend.update.img_updater import ImageUpdater
 from wemo.backend.update.video_updater import VideoUpdater
-from wemo.backend.ctx import Context
 
 logger = logging.getLogger(__name__)
 

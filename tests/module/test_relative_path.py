@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def test_1():
     f1 = Path(__file__)
     f2 = f1.parent.parent  # 其他不太行

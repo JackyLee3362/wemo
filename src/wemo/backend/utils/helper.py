@@ -1,8 +1,8 @@
 from pathlib import Path
 
+import requests
 from pywxdump import decrypt as pywxdump_decrypt
 from pywxdump import get_wx_info as pywxdump_get_wx_info
-import requests
 
 
 def get_wx_info(info: dict = None):

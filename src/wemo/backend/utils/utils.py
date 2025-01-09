@@ -1,9 +1,8 @@
 import math
 import random
 import re
-from datetime import datetime, timezone, timedelta, date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-
 
 random.seed(42)
 

@@ -15,7 +15,7 @@ class DBSyncer(Syncer):
     """
 
     def __str__(self):
-        return "[ DECRYPT ]"
+        return "[ DB SYNCER ]"
 
     def __init__(
         self,

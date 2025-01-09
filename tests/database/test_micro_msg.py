@@ -1,12 +1,9 @@
 import logging
 import shutil
 
-from wemo.backend.database.micro_msg import (
-    MicroMsg as DB,
-    MicroMsgCache as DBCache,
-    Contact,
-)
-
+from wemo.backend.database.micro_msg import Contact
+from wemo.backend.database.micro_msg import MicroMsg as DB
+from wemo.backend.database.micro_msg import MicroMsgCache as DBCache
 from wemo.backend.utils.mock import (
     mock_contact,
     mock_contact_label,

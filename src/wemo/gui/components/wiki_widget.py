@@ -1,9 +1,4 @@
-from PySide6.QtWidgets import (
-    QLabel,
-    QWidget,
-    QVBoxLayout,
-    QPlainTextEdit,
-)
+from PySide6.QtWidgets import QLabel, QPlainTextEdit, QVBoxLayout, QWidget
 
 readme = """<h1>使用指南</h1>
 

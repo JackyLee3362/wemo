@@ -9,6 +9,7 @@ def test_1():
     d2 = datetime.datetime.now()
     print(d2)
 
+
 def test_2():
     print(datetime.datetime.min)
     print(datetime.datetime.max)

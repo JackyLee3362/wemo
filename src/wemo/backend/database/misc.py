@@ -1,22 +1,17 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
-import random
+from dataclasses import dataclass
 
-from sqlalchemy import LargeBinary, Column, String, Integer
+from sqlalchemy import Column, Integer, LargeBinary, String
 
-from wemo.backend.database.db import AbsUserCache, AbsUserDB
-from wemo.backend.database.db import UserTable
-from wemo.backend.utils.mock import mock_bytes, mock_user
-from wemo.backend.utils.mock import mock_timestamp
-
+from wemo.backend.database.db import AbsUserCache, AbsUserDB, WxUserTable
 
 # 二进制头像
 logger = logging.getLogger(__name__)
 
 
-class BizContactHeadImg(UserTable):
+class BizContactHeadImg(WxUserTable):
     __tablename__ = "BizContactHeadImg"
 
     username = Column("usrName", String, primary_key=True)
@@ -30,18 +25,9 @@ class BizContactHeadImg(UserTable):
     def __hash__(self):
         return hash(self.username)
 
-    @staticmethod
-    def mock(seed):
-        random.seed(seed)
-        return BizContactHeadImg(
-            username=mock_user(seed),
-            create_time=mock_timestamp(),
-            buf=mock_bytes(),
-        )
-
 
 @dataclass
-class ContactHeadImg1(UserTable):
+class ContactHeadImg1(WxUserTable):
     __tablename__ = "ContactHeadImg1"
 
     username = Column("usrName", String, primary_key=True)
@@ -57,15 +43,6 @@ class ContactHeadImg1(UserTable):
 
     def __repr__(self):
         return f"<联系人头像: {self.username}>"
-
-    @staticmethod
-    def mock(seed):
-        random.seed(seed)
-        return ContactHeadImg1(
-            username=mock_user(seed),
-            create_time=mock_timestamp(),
-            buf=mock_bytes(),
-        )
 
 
 class MiscCache(AbsUserCache):

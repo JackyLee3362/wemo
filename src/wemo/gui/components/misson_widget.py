@@ -1,13 +1,14 @@
 import webbrowser
+
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QPushButton,
     QCheckBox,
     QFormLayout,
     QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Qt, QSize
 
 
 class MissonWidget(QWidget):

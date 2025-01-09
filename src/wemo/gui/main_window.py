@@ -1,21 +1,17 @@
-from datetime import datetime
 import logging
-from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QMainWindow,
-    QHBoxLayout,
-)
-from PySide6.QtCore import Slot, Qt
+from datetime import datetime
+
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QVBoxLayout, QWidget
 
 from wemo.backend_thread import BackendThread
+from wemo.gui.components.contact_widget import ContactsWidget
+from wemo.gui.components.date_widget import DateWidget
 from wemo.gui.components.info_widget import InfoWidget
 from wemo.gui.components.log_widget import LogWidget
+from wemo.gui.components.misson_widget import MissonWidget
 from wemo.gui.components.wiki_widget import WikiWidget
 from wemo.gui_signal import GuiSignal
-from wemo.gui.components.date_widget import DateWidget
-from wemo.gui.components.contact_widget import ContactsWidget
-from wemo.gui.components.misson_widget import MissonWidget
 
 DARK_THEME_COLORS = {
     logging.DEBUG: "#0dbc6a",

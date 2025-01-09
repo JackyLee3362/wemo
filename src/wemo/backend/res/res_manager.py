@@ -1,20 +1,22 @@
 import logging
-from wemo.backend.ctx import Context
+import shutil
+from pathlib import Path
+
 from wemo.backend.common.model import MomentMsg
+from wemo.backend.ctx import Context
 from wemo.backend.utils.utils import (
     find_img_thumb_by_url,
     find_video_by_md5_or_duration,
 )
 
-
-import shutil
-from pathlib import Path
-
-
 logger = logging.getLogger(__name__)
 
 
 class ResourceManager:
+
+    def __str__(self):
+        return "[ RESOURCE MANAGER ]"
+
     def __init__(self, ctx: Context):
         self.ctx = ctx
         self.user_dir = ctx.user_data_dir

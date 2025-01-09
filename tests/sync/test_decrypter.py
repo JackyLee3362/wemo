@@ -1,11 +1,11 @@
 from wemo.backend.common import constant
-from wemo.backend.database.micro_msg import MicroMsgCache, Contact
+from wemo.backend.database.micro_msg import Contact, MicroMsgCache
 from wemo.backend.database.misc import ContactHeadImg1, MiscCache
 from wemo.backend.database.sns import Feed, SnsCache
-from wemo.backend.utils.mock import mock_ctx
-from wemo.backend.sync.video_syncer import VideoSync
 from wemo.backend.sync.db_syncer import DBSyncer
 from wemo.backend.sync.img_syncer import ImgSyncer
+from wemo.backend.sync.video_syncer import VideoSync
+from wemo.backend.utils.mock import mock_ctx
 
 wxid = "test_sync"
 user = mock_ctx(wxid)
@@ -13,7 +13,8 @@ user = mock_ctx(wxid)
 
 def setup_module():
     # shutil.rmtree(user.user_dir, ignore_errors=True)
-    user.init_user_info()
+    # user.init_user_info()
+    pass
 
 
 def teardown_module():

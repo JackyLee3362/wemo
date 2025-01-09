@@ -1,8 +1,8 @@
 import logging
-from pathlib import Path
-from rich.logging import RichHandler
 from datetime import datetime
+from pathlib import Path
 
+from rich.logging import RichHandler
 
 default_log_fmt = "[%(asctime)s] %(levelname)-8s - %(name)s %(funcName)s  : %(message)s"
 default_date_fmt = "%Y-%m-%d %H:%M:%S"

@@ -1,10 +1,11 @@
-from datetime import datetime
 import logging
+from datetime import datetime
+
+from wemo.backend.common import constant
 from wemo.backend.ctx import Context
-from wemo.backend.sync.video_syncer import VideoSync
 from wemo.backend.sync.db_syncer import DBSyncer
 from wemo.backend.sync.img_syncer import ImgSyncer
-from wemo.backend.common import constant
+from wemo.backend.sync.video_syncer import VideoSync
 
 logger = logging.getLogger(__name__)
 

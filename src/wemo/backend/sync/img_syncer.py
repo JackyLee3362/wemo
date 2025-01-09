@@ -1,13 +1,16 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from wemo.backend.sync.sync import Syncer
-from wemo.backend.utils.utils import get_months_between_dates
-from wemo.backend.utils.utils import xor_decode
-from wemo.backend.utils.utils import guess_image_encoding_magic
 from rich.progress import track
+
+from wemo.backend.sync.sync import Syncer
+from wemo.backend.utils.utils import (
+    get_months_between_dates,
+    guess_image_encoding_magic,
+    xor_decode,
+)
 
 logger = logging.getLogger(__name__)
 

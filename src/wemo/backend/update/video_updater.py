@@ -11,6 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class VideoUpdater(Updater):
+
+    def __str__(self):
+        return "[ VIDEO UPDATER ]"
+
     def __init__(self, src_dir: Path, dst_dir: Path):
         super().__init__(src_dir=src_dir, dst_dir=dst_dir)
 

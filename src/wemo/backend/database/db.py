@@ -3,14 +3,13 @@ from __future__ import annotations
 import logging
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.schema import MetaData
-
 
 logger = logging.getLogger(__name__)
 
 
-class UserTable(DeclarativeBase):
+class WxUserTable(DeclarativeBase):
 
     @staticmethod
     def split_data(d1: list, d2: list):
@@ -44,7 +43,7 @@ class AbsUserDB:
         self.db_name = db_name or self.__class__.__name__
         self.db_url = db_url
 
-        self.table_cls_list: list[type[UserTable]] = []
+        self.table_cls_list: list[type[WxUserTable]] = []
         self.engine = None
         self.db_session = None
         self.session: Session = None
@@ -82,21 +81,21 @@ class AbsUserDB:
     def register_tables(self, table_cls_list: list) -> None:
         self.table_cls_list.extend(table_cls_list)
 
-    def query_all(self, table_cls: type[UserTable]):
+    def query_all(self, table_cls: type[WxUserTable]):
         data = self.session.query(table_cls).all()
         logger.debug(
             f"{self} db({self.db_name}).table({table_cls.__name__}) query all and count({len(data)})."
         )
         return data
 
-    def count_all(self, table_cls: type[UserTable]) -> int:
+    def count_all(self, table_cls: type[WxUserTable]) -> int:
         cnt = self.session.query(table_cls).count()
         logger.debug(
             f"{self} db({self.db_name}).table({table_cls.__name__}) count({cnt})."
         )
         return cnt
 
-    def insert_all(self, data_list: list[UserTable]) -> None:
+    def insert_all(self, data_list: list[WxUserTable]) -> None:
         if len(data_list) < 0:
             return
         logger.debug(
@@ -108,9 +107,9 @@ class AbsUserDB:
 
     def merge_all(
         self,
-        tbl: type[UserTable],
-        db_data: list[UserTable],
-        cache_data: list[UserTable],
+        tbl: type[WxUserTable],
+        db_data: list[WxUserTable],
+        cache_data: list[WxUserTable],
     ) -> None:
         if len(cache_data) <= 0:
             return

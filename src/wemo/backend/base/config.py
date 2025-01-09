@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import tomllib  # Python 3.11+
 
-
 __all__ = ("TomlConfig",)
 
 

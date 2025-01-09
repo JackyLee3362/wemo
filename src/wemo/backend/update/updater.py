@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
-from wemo.backend.common.model import MomentMsg
 
+from wemo.backend.common.model import MomentMsg
 
 logger = logging.getLogger(__name__)
 

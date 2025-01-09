@@ -1,12 +1,12 @@
-from PySide6.QtWidgets import (
-    QLabel,
-    QWidget,
-    QVBoxLayout,
-    QPushButton,
-    QFormLayout,
-    QPlainTextEdit,
-)
 from PySide6.QtGui import QTextOption
+from PySide6.QtWidgets import (
+    QFormLayout,
+    QLabel,
+    QPlainTextEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class InfoWidget(QWidget):

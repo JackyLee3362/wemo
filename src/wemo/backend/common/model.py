@@ -6,7 +6,7 @@ from typing import Optional
 from urllib.parse import urlparse
 
 import xmltodict
-from dataclasses_json import dataclass_json, config
+from dataclasses_json import config, dataclass_json
 
 from wemo.backend.utils.utils import timestamp_convert
 

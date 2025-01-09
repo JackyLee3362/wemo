@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 
-from sqlalchemy import Column, String, Integer, LargeBinary, not_, or_
-from sqlalchemy import and_, case
+from sqlalchemy import Column, Integer, LargeBinary, String, and_, case, not_, or_
 
-from wemo.backend.database.db import AbsUserCache, AbsUserDB
-from wemo.backend.database.db import UserTable
-
+from wemo.backend.database.db import AbsUserCache, AbsUserDB, WxUserTable
 
 logger = logging.getLogger(__name__)
 # 联系人信息
@@ -23,7 +20,7 @@ WX_SYS_USERNAME = [
 ]
 
 
-class Contact(UserTable):
+class Contact(WxUserTable):
     __tablename__ = "Contact"
 
     # qmessage qq离线消息, tmessage, medianote 语音记事本, floatbottle 漂流瓶
@@ -94,7 +91,7 @@ class Contact(UserTable):
 
 
 @dataclass
-class ContactHeadImgUrl(UserTable):
+class ContactHeadImgUrl(WxUserTable):
     __tablename__ = "ContactHeadImgUrl"
 
     username = Column("usrName", String, primary_key=True)
@@ -116,7 +113,7 @@ class ContactHeadImgUrl(UserTable):
 
 
 @dataclass
-class ContactLabel(UserTable):
+class ContactLabel(WxUserTable):
     __tablename__ = "ContactLabel"
 
     label_id = Column("LabelID", Integer, primary_key=True)

@@ -1,18 +1,12 @@
 import datetime
 import logging
 import time
-from wemo.backend.database.db import UserTable
-from wemo.backend.database.sns import (
-    Sns as DB,
-    SnsCache as DBCache,
-    Feed,
-    Comment,
-    SnsConfig,
-)
-from wemo.backend.common import constant
-from wemo.backend.utils.mock import mock_comment, mock_sns
-from wemo.backend.utils.utils import to_timestamp
 
+from wemo.backend.common import constant
+from wemo.backend.database.sns import Sns as DB
+from wemo.backend.database.sns import SnsCache as DBCache
+from wemo.backend.utils.mock import mock_comment, mock_feed, mock_sns, mock_sns_config
+from wemo.backend.utils.utils import to_timestamp
 
 DB_N = 200
 CACHE_N = 300
@@ -28,9 +22,9 @@ cache = DBCache(user_cache_db_dir.joinpath(db_name))
 class TestMock:
 
     def test_feed_v20(self):
-        s0 = Feed.mock(1)
-        s1 = Feed.mock(1)
-        s2 = Feed.mock(2)
+        s0 = mock_feed(1)
+        s1 = mock_feed(1)
+        s2 = mock_feed(2)
 
         assert s0.feed_id == s1.feed_id
         assert s0.feed_id != s2.feed_id
@@ -76,15 +70,15 @@ class TestDB:
             self.db.query_all(table)
 
     def test_merge_all(self):
-        self.merge_by_table(Feed)
-        self.merge_by_table(Comment)
-        self.merge_by_table(SnsConfig, 5)
+        self.merge_by_table(mock_feed)
+        self.merge_by_table(mock_comment)
+        self.merge_by_table(mock_sns_config, 5)
 
-    def merge_by_table(self, cls: type[UserTable] = None, n=DB_N):
-        res = [cls.mock(i) for i in range(n)]
-        db_data = self.db.query_all(cls)
+    def merge_by_table(self, mock_func, n=DB_N):
+        res = [mock_func(i) for i in range(n)]
+        db_data = self.db.query_all(mock_func)
         self.test_count_all()
-        self.db.merge_all(cls, db_data, res)
+        self.db.merge_all(mock_func, db_data, res)
         self.test_count_all()
 
     def test_get_message_in_time(self):
@@ -141,12 +135,12 @@ class TestCache:
             self.db.count_all(table)
 
     def test_merge_all(self):
-        self.merge_by_table(Feed)
-        self.merge_by_table(Comment)
-        self.merge_by_table(SnsConfig, 5)
+        self.merge_by_table(mock_feed)
+        self.merge_by_table(mock_comment)
+        self.merge_by_table(mock_sns_config, 5)
 
-    def merge_by_table(self, cls: UserTable = None, n=CACHE_N):
-        res = [cls.mock(i) for i in range(n)]
+    def merge_by_table(self, mock_func, n=CACHE_N):
+        res = [mock_func(i) for i in range(n)]
         self.test_count_all()
         self.db.merge_all(res)
         self.test_count_all()

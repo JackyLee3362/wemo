@@ -1,9 +1,9 @@
-from pathlib import Path
-import time
-
 import logging
+import time
+from pathlib import Path
+
 from rich.console import Console
-from rich.progress import Progress, track
+from rich.progress import track
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

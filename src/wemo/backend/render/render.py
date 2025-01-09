@@ -1,13 +1,13 @@
-from functools import cached_property
 import logging
+from functools import cached_property
 
 from jinja2 import Template
 
-from wemo.backend.database.micro_msg import Contact
+from wemo.backend.common import constant
 from wemo.backend.common.model import MomentMsg
 from wemo.backend.ctx import Context
+from wemo.backend.database.micro_msg import Contact
 from wemo.backend.res.res_manager import ResourceManager
-from wemo.backend.common import constant
 
 logger = logging.getLogger(__name__)
 

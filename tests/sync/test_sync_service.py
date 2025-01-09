@@ -1,6 +1,7 @@
 import shutil
-from wemo.backend.utils.mock import mock_ctx
+
 from wemo.backend.sync.sync_service import SyncService
+from wemo.backend.utils.mock import mock_ctx
 
 wxid = "test_sync"
 ctx = mock_ctx(wxid)
@@ -8,7 +9,6 @@ ctx = mock_ctx(wxid)
 
 def setup_module():
     shutil.rmtree(ctx.user_data_dir)
-    ctx.init_user_info()
 
 
 def test_cache_updater():

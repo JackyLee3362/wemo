@@ -1,10 +1,5 @@
-from pathlib import Path
 import sys
-
-# if getattr(sys, "frozen", False):
-#     PROJECT_DIR = Path(sys.executable).parent
-# else:
-#     PROJECT_DIR = Path(sys.modules["__main__"].__file__).parent.parent.parent
+from pathlib import Path
 
 PROJECT_DIR = Path(sys.modules["wemo"].__file__).parent.parent.parent
 

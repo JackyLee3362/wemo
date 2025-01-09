@@ -1,10 +1,14 @@
+import random
+import time
+
 from wemo.backend.base.config import TomlConfig
 from wemo.backend.common import constant
 from wemo.backend.common.constant import MOCK_DIR
 from wemo.backend.common.model import MomentMsg, TimelineObject
 from wemo.backend.ctx import Context
 from wemo.backend.database.micro_msg import Contact, ContactHeadImgUrl, ContactLabel
-from wemo.backend.database.sns import Comment, SnsConfig
+from wemo.backend.database.misc import BizContactHeadImg, ContactHeadImg1
+from wemo.backend.database.sns import Comment, Feed, SnsConfig
 
 
 def mock_ctx(wxid: str) -> Context:
@@ -113,3 +117,41 @@ def mock_contact_label(seed):
     if seed not in names.keys():
         raise ValueError("seed too large")
     return ContactLabel(label_id=seed, label_name=names[seed])
+
+
+def mock_feed(seed):
+    random.seed(seed)
+    return Feed(
+        feed_id=-mock_timestamp() * 10,
+        create_time=mock_timestamp(),
+        fault_id=0,
+        type=1,
+        username=mock_user(seed),
+        status=0,
+        ext_flag=1,
+        priv_flag=0,
+        string_id=str(mock_timestamp() * 100),
+        content=mock_sns_content(),
+    )
+
+
+def mock_contact_head_img_1(seed):
+    random.seed(seed)
+    return ContactHeadImg1(
+        username=mock_user(seed),
+        create_time=mock_timestamp(),
+        buf=mock_bytes(),
+    )
+
+
+def mock_biz_contact_head_img(seed):
+    random.seed(seed)
+    return BizContactHeadImg(
+        username=mock_user(seed),
+        create_time=mock_timestamp(),
+        buf=mock_bytes(),
+    )
+
+
+def mock_sns_config(seed):
+    return SnsConfig(key=str(seed), i_val="Ivalue" + str(seed))

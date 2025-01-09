@@ -3,12 +3,10 @@ import shutil
 from pathlib import Path
 from typing import Optional
 
-
 from wemo.backend.common.model import MomentMsg, Thumb, Url
 from wemo.backend.update.updater import Updater
-from wemo.backend.utils.utils import find_img_thumb_by_url
 from wemo.backend.utils.helper import get_img_from_server
-
+from wemo.backend.utils.utils import find_img_thumb_by_url
 
 logger = logging.getLogger(__name__)
 

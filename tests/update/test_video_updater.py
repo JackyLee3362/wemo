@@ -1,10 +1,10 @@
-from pathlib import Path
-import shutil
 import logging
+import shutil
+from pathlib import Path
 
-from wemo.backend.update.video_updater import VideoUpdater
+from wemo.backend.common.constant import DATA_DIR, PROJECT_DIR
 from wemo.backend.common.model import MomentMsg
-from wemo.backend.common.constant import PROJECT_DIR, DATA_DIR
+from wemo.backend.update.video_updater import VideoUpdater
 
 wxid = "test_update"
 user_data_video_dir = Path(DATA_DIR.joinpath(wxid), "data", "video")

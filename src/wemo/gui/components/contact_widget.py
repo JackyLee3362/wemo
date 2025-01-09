@@ -1,16 +1,16 @@
+from PySide6.QtCore import QSize, Qt, Slot
 from PySide6.QtWidgets import (
-    QLabel,
-    QWidget,
-    QListWidgetItem,
-    QVBoxLayout,
-    QLineEdit,
-    QPushButton,
-    QListWidget,
     QAbstractItemView,
-    QHBoxLayout,
     QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Slot, Qt, QSize
 
 
 class ContactsWidget(QWidget):

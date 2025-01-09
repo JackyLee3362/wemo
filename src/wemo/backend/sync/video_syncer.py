@@ -6,11 +6,10 @@ from datetime import date, datetime
 from pathlib import Path
 
 import filetype
+from rich.progress import track
 
 from wemo.backend.sync.sync import Syncer
 from wemo.backend.utils.utils import get_months_between_dates
-
-from rich.progress import track
 
 logger = logging.getLogger(__name__)
 

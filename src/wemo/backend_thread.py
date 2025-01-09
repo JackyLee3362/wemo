@@ -1,5 +1,6 @@
 import logging
 from queue import Queue
+
 from PySide6.QtCore import QThread
 
 from wemo.backend.backend import BackendImpl

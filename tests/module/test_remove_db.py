@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, MetaData, String, Table, create_engine
 from pathlib import Path
+
+from sqlalchemy import Column, Integer, MetaData, String, Table, create_engine
 
 db_path = Path(__file__).parent.joinpath("test.db")
 

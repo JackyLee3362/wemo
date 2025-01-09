@@ -11,6 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class AvatarUpdater(Updater):
+
+    def __str__(self):
+        return "[ AVATAR UPDATER ]"
+
     def __init__(self, db: DBService, dst_dir: Path):
         super().__init__(None, dst_dir)
         self.db = db
@@ -27,7 +31,4 @@ class AvatarUpdater(Updater):
             image = Image.open(io.BytesIO(blob_data.buf))
             image.save(avatar_path, "PNG")
             return avatar_path
-        # logger.warning(
-        #     f"[ AVATAR UPDATER ] can't get {username} avatar, use default."
-        # )
         return self.dst_dir.joinpath("default.png")

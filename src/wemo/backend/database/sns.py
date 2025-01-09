@@ -1,26 +1,21 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
-import random
+from dataclasses import dataclass
 from typing import Optional
 
-from sqlalchemy import Column, String, Integer, LargeBinary
-from sqlalchemy import and_
+from sqlalchemy import Column, Integer, LargeBinary, String, and_
 
-from wemo.backend.database.db import AbsUserCache, AbsUserDB
-from wemo.backend.database.db import UserTable
-from wemo.backend.utils.mock import mock_timestamp, mock_user
-from wemo.backend.utils.mock import mock_sns_content
-
+from wemo.backend.database.db import AbsUserCache, AbsUserDB, WxUserTable
 
 # 朋友圈
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Feed(UserTable):
+class Feed(WxUserTable):
     __tablename__ = "FeedsV20"
+
     feed_id = Column("FeedId", Integer, primary_key=True)
     create_time = Column("CreateTime", Integer)
     fault_id = Column("FaultId", Integer)
@@ -46,25 +41,9 @@ class Feed(UserTable):
     def __hash__(self):
         return self.feed_id
 
-    @staticmethod
-    def mock(seed):
-        random.seed(seed)
-        return Feed(
-            feed_id=-mock_timestamp() * 10,
-            create_time=mock_timestamp(),
-            fault_id=0,
-            type=1,
-            username=mock_user(seed),
-            status=0,
-            ext_flag=1,
-            priv_flag=0,
-            string_id=str(mock_timestamp() * 100),
-            content=mock_sns_content(),
-        )
-
 
 @dataclass
-class Comment(UserTable):
+class Comment(WxUserTable):
     __tablename__ = "CommentV20"
 
     feed_id = Column("FeedId", Integer, primary_key=True)
@@ -106,7 +85,7 @@ class Comment(UserTable):
 
 
 @dataclass
-class SnsConfig(UserTable):
+class SnsConfig(WxUserTable):
     __tablename__ = "SnsConfigV20"
 
     key = Column("Key", String, primary_key=True)

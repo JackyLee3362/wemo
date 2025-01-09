@@ -1,6 +1,6 @@
 from queue import Queue
 
-from PySide6.QtCore import QObject, Slot, Signal, SignalInstance
+from PySide6.QtCore import QObject, Signal, SignalInstance, Slot
 
 
 class MyReceiver(QObject):

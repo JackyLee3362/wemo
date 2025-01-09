@@ -1,10 +1,11 @@
 import logging
+
 from PySide6.QtWidgets import QApplication
 
 from wemo.backend_thread import BackendThread
-from wemo.gui_signal import GuiSignal
 from wemo.gui.log_handler import add_signal_handler
 from wemo.gui.main_window import MainWindow
+from wemo.gui_signal import GuiSignal
 
 
 class App:

@@ -1,11 +1,5 @@
-from PySide6.QtWidgets import (
-    QLabel,
-    QWidget,
-    QVBoxLayout,
-    QDateEdit,
-    QFormLayout,
-)
 from PySide6.QtCore import QDate
+from PySide6.QtWidgets import QDateEdit, QFormLayout, QLabel, QVBoxLayout, QWidget
 
 
 class DateWidget(QWidget):

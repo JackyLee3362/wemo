@@ -11,4 +11,3 @@ class Student(typing.Generic[T]):
 def test_1():
     s = Student[str]()
     print(s.list)
-
