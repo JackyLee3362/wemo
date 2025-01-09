@@ -73,7 +73,8 @@ class Context:
     def generate_output_date_dir(self) -> UserDir:
         date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         p = constant.OUTPUT_DIR.joinpath(date)
-        shutil.copytree(constant.STATIC_DIR, p)
+        if not p.exists():
+            shutil.copytree(constant.STATIC_DIR, p)
         res = UserDir(p)
         res.init_mkdir()
         self.output_date_dir = res

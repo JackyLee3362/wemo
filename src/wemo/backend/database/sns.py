@@ -10,12 +10,7 @@ from sqlalchemy import and_
 
 from wemo.backend.database.db import AbsUserCache, AbsUserDB
 from wemo.backend.database.db import UserTable
-from wemo.backend.utils.utils import (
-    mock_sns_content,
-    mock_timestamp,
-    mock_user,
-    singleton,
-)
+from wemo.backend.utils.utils import mock_sns_content, mock_timestamp, mock_user
 
 
 # 朋友圈
@@ -152,7 +147,6 @@ class SnsConfig(UserTable):
         return SnsConfig(key=str(seed), i_val="Ivalue" + str(seed))
 
 
-@singleton
 class SnsCache(AbsUserCache):
     def __init__(self, user_cache_db_url):
         super().__init__(user_cache_db_url)
@@ -165,7 +159,6 @@ class SnsCache(AbsUserCache):
         )
 
 
-@singleton
 class Sns(AbsUserDB):
     def __init__(self, user_db_url):
         super().__init__(user_db_url)

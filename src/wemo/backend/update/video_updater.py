@@ -4,13 +4,12 @@ from pathlib import Path
 
 from wemo.backend.common.model import MomentMsg
 from wemo.backend.update.updater import Updater
-from wemo.backend.utils.utils import singleton, find_video_by_md5_or_duration
+from wemo.backend.utils.utils import find_video_by_md5_or_duration
 
 
 logger = logging.getLogger(__name__)
 
 
-@singleton
 class VideoUpdater(Updater):
     def __init__(self, src_dir: Path, dst_dir: Path):
         super().__init__(src_dir=src_dir, dst_dir=dst_dir)

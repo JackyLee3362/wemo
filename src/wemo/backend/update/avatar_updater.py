@@ -6,12 +6,10 @@ from PIL import Image
 
 from wemo.backend.database.db_service import DBService
 from wemo.backend.update.updater import Updater
-from wemo.backend.utils.utils import singleton
 
 logger = logging.getLogger(__name__)
 
 
-@singleton
 class AvatarUpdater(Updater):
     def __init__(self, db: DBService, dst_dir: Path):
         super().__init__(None, dst_dir)

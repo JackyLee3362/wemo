@@ -6,14 +6,13 @@ from typing import Optional
 
 from wemo.backend.common.model import MomentMsg, Thumb, Url
 from wemo.backend.update.updater import Updater
-from wemo.backend.utils.utils import find_img_thumb_by_url, singleton
+from wemo.backend.utils.utils import find_img_thumb_by_url
 from wemo.backend.utils.helper import get_img_from_server
 
 
 logger = logging.getLogger(__name__)
 
 
-@singleton
 class ImageUpdater(Updater):
     def __init__(self, dst_dir: Path, src_dir: Path):
         super().__init__(src_dir=src_dir, dst_dir=dst_dir)

@@ -84,7 +84,6 @@ class VideoSync(Syncer):
         p = subprocess.Popen(
             ffprobe_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
         )
-        # logger.debug(f"ffprobe cmd: {ffprobe_cmd}")
         out, err = p.communicate()
         if len(str(err, "gbk")) > 0:
             logger.warning(f"[ VIDEO SYNCER ] out({out}) and err({str(err, 'gbk')})")

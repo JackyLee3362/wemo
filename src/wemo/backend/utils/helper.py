@@ -9,7 +9,7 @@ def get_wx_info(info: dict = None):
     if info.get("wxid", False):
         return info
     infos = pywxdump_get_wx_info()
-    res = infos[0]
+    res: dict = infos[0]
     wx_dir = res.get("wx_dir")
     res["wx_dir"] = Path(wx_dir)
     return res

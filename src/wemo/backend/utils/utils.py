@@ -3,9 +3,7 @@ import random
 import re
 import time
 from datetime import datetime, timezone, timedelta, date
-from functools import wraps
 from pathlib import Path
-import os
 
 
 random.seed(42)
@@ -58,30 +56,6 @@ def to_timestamp(t):
             raise ValueError("Invalid timestamp format")
 
     raise TypeError("Cannot convert to timestamp")
-
-
-def singleton(cls):
-    instance = {}
-
-    @wraps(cls)
-    def get_instance(*args, **kwargs):
-        if cls not in instance:
-            instance[cls] = cls(*args, **kwargs)
-        return instance[cls]
-
-    return get_instance
-
-
-def run_once(func):
-    has_run = False
-
-    def wrapper(*args, **kwargs):
-        nonlocal has_run
-        if not has_run:
-            has_run = True
-            return func(*args, **kwargs)
-
-    return wrapper
 
 
 def mock_url(n):

@@ -8,7 +8,7 @@ from sqlalchemy import LargeBinary, Column, String, Integer
 
 from wemo.backend.database.db import AbsUserCache, AbsUserDB
 from wemo.backend.database.db import UserTable
-from wemo.backend.utils.utils import mock_bytes, mock_timestamp, mock_user, singleton
+from wemo.backend.utils.utils import mock_bytes, mock_timestamp, mock_user
 
 
 # 二进制头像
@@ -67,14 +67,12 @@ class ContactHeadImg1(UserTable):
         )
 
 
-@singleton
 class MiscCache(AbsUserCache):
     def __init__(self, user_cache_db_url):
         super().__init__(user_cache_db_url)
         self.register_tables([BizContactHeadImg, ContactHeadImg1])
 
 
-@singleton
 class Misc(AbsUserDB):
     def __init__(self, user_db_url):
         super().__init__(user_db_url)

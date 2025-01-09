@@ -1,4 +1,6 @@
+import datetime
 import logging
+import time
 from wemo.backend.database.db import UserTable
 from wemo.backend.database.sns import (
     Sns as DB,
@@ -8,10 +10,8 @@ from wemo.backend.database.sns import (
     SnsConfig,
 )
 from wemo.backend.common import constant
-import time
-import datetime
-
 from wemo.backend.utils.utils import to_timestamp
+
 
 DB_N = 200
 CACHE_N = 300
@@ -20,8 +20,8 @@ db_name = "MicroMsg.db"
 user_db_dir = constant.DATA_DIR.joinpath(name, "data")
 user_cache_db_dir = constant.DATA_DIR.joinpath(name, "cache")
 logger = logging.getLogger(__name__)
-db = DB(user_db_dir.joinpath(db_name)
-cache = DBCache(user_cache_db_dir.joinpath(db_name)
+db = DB(user_db_dir.joinpath(db_name))
+cache = DBCache(user_cache_db_dir.joinpath(db_name))
 
 
 class TestMock:
@@ -63,7 +63,7 @@ class TestDB:
         self.db.init()
 
     def test_singleton(self):
-        db2 = DB(self.db_dir
+        db2 = DB(self.db_dir)
         assert self.db == db2
 
     def test_count_all(self):
@@ -119,6 +119,7 @@ class TestDB:
         e = to_timestamp(end_date)
         print(b, "->", e)
         res = self.db.get_feeds_by_dur_and_wxids(b, e)
+        print(res)
 
     def teardown_class(self):
         self.db.close_session()

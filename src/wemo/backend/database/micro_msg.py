@@ -9,7 +9,7 @@ from sqlalchemy import and_, case
 
 from wemo.backend.database.db import AbsUserCache, AbsUserDB
 from wemo.backend.database.db import UserTable
-from wemo.backend.utils.utils import mock_url, mock_user, singleton
+from wemo.backend.utils.utils import mock_url, mock_user
 
 
 logger = logging.getLogger(__name__)
@@ -172,14 +172,12 @@ class ContactLabel(UserTable):
         return ContactLabel(label_id=seed, label_name=names[seed])
 
 
-@singleton
 class MicroMsgCache(AbsUserCache):
     def __init__(self, user_cache_db_url):
         super().__init__(user_cache_db_url)
         self.register_tables([Contact, ContactHeadImgUrl, ContactLabel])
 
 
-@singleton
 class MicroMsg(AbsUserDB):
     def __init__(self, user_db_url):
         super().__init__(user_db_url)

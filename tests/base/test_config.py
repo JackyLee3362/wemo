@@ -1,9 +1,4 @@
-from pathlib import Path
-import pytest
-import json
-
 from wemo.backend.base.scaffold import Scaffold
-from wemo.backend.backend import BackendImpl
 
 TEST_KEY = "foo"
 SECRET_KEY = "config"
