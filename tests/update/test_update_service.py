@@ -1,11 +1,11 @@
 import shutil
 
 from wemo.backend.database.db_service import DBService
+from wemo.backend.utils.mock import mock_ctx
 from wemo.backend.update.updater_service import UserDataUpdateService
-from wemo.backend.ctx import Context
 
 wxid = "test_update"
-ctx = Context.mock_ctx(wxid)
+ctx = mock_ctx(wxid)
 ctx.init_user_info()
 
 

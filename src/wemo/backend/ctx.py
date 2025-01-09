@@ -8,7 +8,6 @@ import shutil
 
 from wemo.backend.common import constant
 from wemo.backend.base.config import TomlConfig
-from wemo.backend.common.constant import MOCK_DIR
 from wemo.backend.utils.helper import get_wx_info
 from wemo.gui_signal import GuiSignal
 
@@ -55,7 +54,7 @@ class Context:
 
     def init_app_info(self):
         self.config.load_file(constant.CONFIG_DEFAULT_FILE)
-        logger.info(f"[ CTX ] init ctx, project dir is {self.proj_dir}")
+        logger.info(f"{self} init ctx, project dir is {self.proj_dir}")
         self.output_date_dir: UserDir = None
         self.generate_output_date_dir()
 
@@ -64,14 +63,12 @@ class Context:
         # 1. 首先获取用户信息
         info = get_wx_info(self.extra_info)
         self.config.update(info)
-        logger.info(f"[ CTX ] init user({self.wx_id})...")
+        logger.info(f"{self} init user({self.wx_id})...")
         # 2. 初始化用户目录
         self.wx_sns_cache_dir = self.wx_dir.joinpath("FileStorage", "Sns", "Cache")
         self.user_dir = constant.DATA_DIR.joinpath(self.wx_id)
         self.user_data_dir = UserDir(self.user_dir.joinpath("data"))
-        self.user_data_dir.init_mkdir()
         self.user_cache_dir = UserDir(self.user_dir.joinpath("cache"))
-        self.user_cache_dir.init_mkdir()
 
     def generate_output_date_dir(self) -> UserDir:
         date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -79,29 +76,15 @@ class Context:
         if not p.exists():
             shutil.copytree(constant.STATIC_DIR, p)
         res = UserDir(p)
-        res.init_mkdir()
         self.output_date_dir = res
         return res
-
-    @staticmethod
-    def mock_ctx(wxid: str) -> Context:
-        proj_path = constant.PROJECT_DIR
-        config = TomlConfig()
-        config.load_file(constant.CONFIG_DEFAULT_FILE)
-        wx_user_dir = MOCK_DIR.joinpath(wxid)
-        info = {"wxid": wxid, "key": None, "wx_dir": wx_user_dir}
-
-        return Context(
-            root=proj_path,
-            config=config,
-            extra=info,
-        )
 
 
 class UserDir:
 
     def __init__(self, user_root_dir: Path):
         self.user_root_dir: Path = user_root_dir
+        self._init_dir()
 
     @property
     def db_dir(self) -> Path:
@@ -119,7 +102,8 @@ class UserDir:
     def avatar_dir(self) -> Path:
         return self.user_root_dir.joinpath("avatar")
 
-    def init_mkdir(self):
+    def _init_dir(self):
+        self.user_root_dir.mkdir(parents=True, exist_ok=True)
         self.db_dir.mkdir(parents=True, exist_ok=True)
         self.img_dir.mkdir(parents=True, exist_ok=True)
         self.video_dir.mkdir(parents=True, exist_ok=True)

@@ -2,13 +2,13 @@ from wemo.backend.common import constant
 from wemo.backend.database.micro_msg import MicroMsgCache, Contact
 from wemo.backend.database.misc import ContactHeadImg1, MiscCache
 from wemo.backend.database.sns import Feed, SnsCache
+from wemo.backend.utils.mock import mock_ctx
 from wemo.backend.sync.video_syncer import VideoSync
 from wemo.backend.sync.db_syncer import DBSyncer
 from wemo.backend.sync.img_syncer import ImgSyncer
-from wemo.backend.ctx import Context
 
 wxid = "test_sync"
-user = Context.mock_ctx(wxid)
+user = mock_ctx(wxid)
 
 
 def setup_module():

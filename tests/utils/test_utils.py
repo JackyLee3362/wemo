@@ -1,9 +1,10 @@
 import datetime
 from datetime import date
+from wemo.backend.utils.mock import mock_bytes, mock_user
 from wemo.backend.utils.utils import get_months_between_dates
 
 from wemo.backend.utils.utils import timestamp_convert
-from wemo.backend.utils.utils import mock_bytes, mock_timestamp, mock_user
+from wemo.backend.utils.mock import mock_timestamp
 
 
 def test_get_months_between_dates():

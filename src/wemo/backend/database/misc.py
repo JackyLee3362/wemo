@@ -8,7 +8,8 @@ from sqlalchemy import LargeBinary, Column, String, Integer
 
 from wemo.backend.database.db import AbsUserCache, AbsUserDB
 from wemo.backend.database.db import UserTable
-from wemo.backend.utils.utils import mock_bytes, mock_timestamp, mock_user
+from wemo.backend.utils.mock import mock_bytes, mock_user
+from wemo.backend.utils.mock import mock_timestamp
 
 
 # 二进制头像

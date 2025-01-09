@@ -32,7 +32,7 @@ class VideoUpdater(Updater):
             except FileNotFoundError as e:
                 msg = e.args[0] if len(e.args) > 0 else ""
                 logger.warning(
-                    f"[ VIDEO UPDATER ] {moment.time} {suffix}-{msg}\n{moment.desc_brief}"
+                    f"{self} {moment.time} {suffix}-{msg}\n{moment.desc_brief}"
                 )
 
     def handle_video(self, src_path: Path, dst_path: Path, md5: str, duration: str):

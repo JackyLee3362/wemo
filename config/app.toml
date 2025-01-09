@@ -2,6 +2,7 @@
 [app]
 name = 'wemo'
 env = 'prod'
+debug = false
 
 [logging]
 level = 10

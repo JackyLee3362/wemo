@@ -30,7 +30,7 @@ def test_handle_moment(mocker):
     with open(file_path, "r", encoding="utf-8") as f:
         xml = f.read()
     moment = MomentMsg.parse_xml(xml)
-    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir
+    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir)
     exp.update_by_moment(moment)
 
 
@@ -47,5 +47,5 @@ def test_handle_moment_private(mocker):
     with open(file_path, "r", encoding="utf-8") as f:
         xml = f.read()
     moment = MomentMsg.parse_xml(xml)
-    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir
+    exp = ImageUpdater(dst_dir=user_img_dir, src_dir=cache_img_dir)
     exp.update_by_moment(moment)

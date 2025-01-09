@@ -1,7 +1,6 @@
 import math
 import random
 import re
-import time
 from datetime import datetime, timezone, timedelta, date
 from pathlib import Path
 
@@ -56,26 +55,6 @@ def to_timestamp(t):
             raise ValueError("Invalid timestamp format")
 
     raise TypeError("Cannot convert to timestamp")
-
-
-def mock_url(n):
-    return f"https://example.com/{n}"
-
-
-def mock_user(n):
-    return f"wxid_{n}"
-
-
-def mock_bytes(size=1024):
-    return bytes(random.getrandbits(8) for _ in range(size))
-
-
-def mock_timestamp():
-    return int(time.time()) + random.randint(0, 100000)
-
-
-def mock_sns_content():
-    return ""
 
 
 def find_video_by_md5_or_duration(path: Path, md5: str, duration: float) -> Path | None:

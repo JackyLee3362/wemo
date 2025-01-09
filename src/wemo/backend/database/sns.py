@@ -10,7 +10,8 @@ from sqlalchemy import and_
 
 from wemo.backend.database.db import AbsUserCache, AbsUserDB
 from wemo.backend.database.db import UserTable
-from wemo.backend.utils.utils import mock_sns_content, mock_timestamp, mock_user
+from wemo.backend.utils.mock import mock_timestamp, mock_user
+from wemo.backend.utils.mock import mock_sns_content
 
 
 # 朋友圈
@@ -103,26 +104,6 @@ class Comment(UserTable):
             (self.feed_id, self.comment_id, self.comment_type, self.from_username)
         )
 
-    @staticmethod
-    def mock(seed):
-        random.seed(seed)
-        return Comment(
-            feed_id=-mock_timestamp() * 10,
-            comment_id=-mock_timestamp() * 10 + 1,
-            create_time=mock_timestamp(),
-            flag=0,
-            comment_type=1,
-            comment_flag=0,
-            content="mock comment" + str(seed),
-            from_username=mock_user(seed + 1),
-            reply_id=0,
-            reply_username=0,
-            del_flag=0,
-            comment_id_64=0,
-            reply_id_64=0,
-            is_ad=0,
-        )
-
 
 @dataclass
 class SnsConfig(UserTable):
@@ -142,10 +123,6 @@ class SnsConfig(UserTable):
     def __hash__(self):
         return self.key
 
-    @staticmethod
-    def mock(seed):
-        return SnsConfig(key=str(seed), i_val="Ivalue" + str(seed))
-
 
 class SnsCache(AbsUserCache):
     def __init__(self, user_cache_db_url):
@@ -160,6 +137,10 @@ class SnsCache(AbsUserCache):
 
 
 class Sns(AbsUserDB):
+
+    def __str__(self):
+        return "[ SNS ]"
+
     def __init__(self, user_db_url):
         super().__init__(user_db_url)
         self.register_tables(
@@ -187,7 +168,7 @@ class Sns(AbsUserDB):
     def get_feed_by_feed_id(self, feed_id: int) -> Feed:
         res = self.session.query(Feed).filter(Feed.feed_id == feed_id).first()
         if res is None:
-            logger.warning(f"[ SNS ] feed_id({feed_id}) NOT FIND")
+            logger.warning(f"{self} feed_id({feed_id}) NOT FIND")
             return Feed()
         return res
 

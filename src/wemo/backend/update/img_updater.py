@@ -27,7 +27,7 @@ class ImageUpdater(Updater):
         """
         # 获取 media 列表中
         for key, res_list in moment.update_pic.items():
-            logger.info(f"[ IMG UPDATER ] updating {key}")
+            logger.info(f"{self} updating {key}")
             # 检查是否存在
             for img in res_list:
                 try:
@@ -126,7 +126,7 @@ class ImageUpdater(Updater):
         logger.debug(f"{self}")
         img_type_lower = img_type.lower()
         if img_type_lower not in ("image", "thumb"):
-            logger.warning("[ IMG UPDATER ] type is not img.")
+            logger.warning(f"{self} type is not img.")
             return
         content = get_img_from_server(urn, params)
         if content:

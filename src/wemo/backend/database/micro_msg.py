@@ -2,14 +2,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
-import random
 
 from sqlalchemy import Column, String, Integer, LargeBinary, not_, or_
 from sqlalchemy import and_, case
 
 from wemo.backend.database.db import AbsUserCache, AbsUserDB
 from wemo.backend.database.db import UserTable
-from wemo.backend.utils.utils import mock_url, mock_user
 
 
 logger = logging.getLogger(__name__)
@@ -94,22 +92,6 @@ class Contact(UserTable):
     def __repr__(self):
         return f"{self.username}-NickName:{self.nick_name}-Remark:{self.remark}"
 
-    @staticmethod
-    def mock(seed):
-        random.seed(seed)
-        user = mock_user(seed)
-        alias = None
-        if seed % 2 == 0:
-            alias = "alias:" + user
-
-        return Contact(
-            username=user,
-            alias=alias,
-            del_flag=0,
-            type=3,
-            verify_flag=0,  # 0 表示是好友
-        )
-
 
 @dataclass
 class ContactHeadImgUrl(UserTable):
@@ -132,18 +114,6 @@ class ContactHeadImgUrl(UserTable):
     def __hash__(self):
         return hash(self.username)
 
-    @staticmethod
-    def mock(seed):
-        random.seed(seed)
-        username = mock_user(seed)
-        url = mock_url(seed)
-        return ContactHeadImgUrl(
-            username=username,
-            small_url=url,
-            big_url=url + "bigHead",
-            r0=0,
-        )
-
 
 @dataclass
 class ContactLabel(UserTable):
@@ -163,13 +133,6 @@ class ContactLabel(UserTable):
 
     def __hash__(self):
         return hash(self.label_id)
-
-    @staticmethod
-    def mock(seed):
-        names = {0: "默认", 1: "家人", 2: "朋友", 3: "同事", 4: "同学", 5: "其他"}
-        if seed not in names.keys():
-            raise ValueError("seed too large")
-        return ContactLabel(label_id=seed, label_name=names[seed])
 
 
 class MicroMsgCache(AbsUserCache):

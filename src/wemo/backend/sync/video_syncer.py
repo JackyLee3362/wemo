@@ -77,9 +77,7 @@ class VideoSync(Syncer):
         """获取视频时长"""
         ffprobe_path = self.ffprobe_path
         if not ffprobe_path.exists():
-            logger.warning(
-                f"[ VIDEO SYNCER ] ffprobe Path({ffprobe_path}) is not exist."
-            )
+            logger.warning(f"{self} ffprobe Path({ffprobe_path}) is not exist.")
             return 0
         ffprobe_cmd = f'"{ffprobe_path}"  -i "{video_path}" -show_entries format=duration -v quiet -of csv="p=0"'
         p = subprocess.Popen(
@@ -87,7 +85,7 @@ class VideoSync(Syncer):
         )
         out, err = p.communicate()
         if len(str(err, "gbk")) > 0:
-            logger.warning(f"[ VIDEO SYNCER ] out({out}) and err({str(err, 'gbk')})")
+            logger.warning(f"{self} out({out}) and err({str(err, 'gbk')})")
             return 0
         if len(str(out, "gbk")) == 0:
             return 0

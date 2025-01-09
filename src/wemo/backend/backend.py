@@ -72,7 +72,7 @@ class BackendImpl(Scaffold):
         self.ctx.signal.sync_progress.emit("开始同步视频...")
         self.syncer.sync_video(begin, end)
         self.ctx.signal.sync_progress.emit("同步完成")
-        logger.info("[ BACKEND ] sync finish.")
+        logger.info(f"{self} sync finish.")
 
     def api_update(self, begin: datetime, end: datetime, wxids: list[str]):
         if not self.ctx.running:
@@ -91,22 +91,22 @@ class BackendImpl(Scaffold):
         self.updater.update_avatar()
 
         self.ctx.signal.update_progress.emit("更新完成")
-        logger.info("[ BACKEND ] update finish.")
+        logger.info(f"{self} update finish.")
 
     def api_render(self, begin: datetime, end: datetime, wxids: list[str]):
         if not self.ctx.running:
             return
         self.render.render_sns(begin, end, wxids)
-        logger.info("[ BACKEND ] render finish.")
+        logger.info(f"{self} render finish.")
         self.ctx.signal.render_progress.emit(
             f"导出完成到 {self.ctx.output_date_dir.user_root_dir}"
         )
         self.ctx.signal.out_dir_signal.emit(str(self.ctx.output_date_dir.user_root_dir))
 
     def api_test(self, *args, **kwargs):
-        logger.info(f"[ BACKEND ] api test, args={args}, kwargs={kwargs}")
+        logger.info(f"{self} api test, args={args}, kwargs={kwargs}")
         for i in range(100):
             time.sleep(0.05)  # 模拟任务
             self.ctx.signal.test_processing.emit(i)
-        logger.info("[ BACKEND ] api test done")
+        logger.info(f"{self} api test done")
         return *args, *kwargs

@@ -26,12 +26,12 @@ class RenderService:
 
     def init(self):
         """初始化"""
-        logger.info("[ RENDER SERVICE ] init render service...")
+        logger.info(f"{self} init render service...")
         self.res_manager = ResourceManager(self.ctx)
         self.html_render = HtmlRender(self.ctx, self.res_manager)
 
     def render_sns_by_feed_id(self, feed_id: int):
-        logger.info("[ RENDER SERVICE ] rendering sns by feed id...")
+        logger.info(f"{self} rendering sns by feed id...")
         feed = self.db.get_feed_by_feed_id(feed_id)
         moment_msg = self.render_moment([feed])
 
@@ -42,7 +42,7 @@ class RenderService:
             f.write(html)
 
     def render_sns(self, begin: datetime, end: datetime, wx_ids: list[str] = None):
-        logger.info("[ RENDER SERVICE ] rendering sns...")
+        logger.info(f"{self} rendering sns...")
         self.ctx.generate_output_date_dir()
         out_index = self.ctx.output_date_dir.user_root_dir.joinpath("index.html")
         b_int = int(begin.timestamp())
@@ -56,14 +56,14 @@ class RenderService:
             f.write(html)
 
     def render_banner(self):
-        logger.info("[ RENDER SERVICE ] rendering banner...")
+        logger.info(f"{self} rendering banner...")
         cover_url = self.db.get_cover_url()
         contact = self.db.get_contact_by_username(self.ctx.wx_id)
         banner_html = self.html_render.render_banner(cover_url, contact)
         return banner_html
 
     def render_moment(self, feeds: list[Feed]):
-        logger.info("[ RENDER SERVICE ] rendering moment...")
+        logger.info(f"{self} rendering moment...")
         html = ""
         banner_html = self.render_banner()
         html += banner_html
@@ -81,7 +81,7 @@ class RenderService:
                 try:
                     moment = MomentMsg.parse_xml(feed.content)
                 except Exception:
-                    logger.debug(f"parse xml error: {feed.feed_id}")
+                    logger.debug(f"{self} parse xml error: {feed.feed_id}")
                     continue
                 html_part = self.html_render.render(contact, moment)
                 html += html_part

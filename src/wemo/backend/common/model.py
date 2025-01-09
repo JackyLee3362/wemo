@@ -130,17 +130,6 @@ class TimelineObject:
     createTime: int
     contentDesc: str = ""
 
-    @staticmethod
-    def mock():
-        return TimelineObject(
-            id=0,
-            username="mock-from-time-object",
-            location=None,
-            ContentObject=None,
-            createTime=1730123456,
-            contentDesc="",
-        )
-
 
 @dataclass_json
 @dataclass
@@ -272,7 +261,3 @@ class MomentMsg:
     def parse_xml(cls, xml: str) -> MomentMsg:
         msg_dict = xmltodict.parse(xml, force_list={"media"})
         return MomentMsg.from_dict(msg_dict)
-
-    @staticmethod
-    def mock():
-        return MomentMsg(TimelineObject.mock())

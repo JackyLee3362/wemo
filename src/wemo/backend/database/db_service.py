@@ -21,12 +21,12 @@ class DBService:
         self.init()
 
     def init(self):
-        logger.info("[ DB SERVICE ] init db...")
+        logger.info(f"{self} init db...")
         self._create_db_cache()
         self._init_db()
 
     def update_db(self):
-        logger.info("[ DB SERVICE ] updating...")
+        logger.info(f"{self} updating...")
         self._update_db_by_cache(self.sns, self.sns_cache)
         self._update_db_by_cache(self.misc, self.misc_cache)
         self._update_db_by_cache(self.micro_msg, self.micro_msg_cache)

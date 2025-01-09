@@ -33,7 +33,7 @@ class DBSyncer(Syncer):
 
     def _decrypt_db(self) -> None:
         if not self.src_dir.exists():
-            logger.warning("[ DECRYPT ] src dir not exists.")
+            logger.warning(f"{self} src dir not exists.")
             return
         Task = namedtuple("Task", ["src", "dst"])
         tasks: dict[str, Task] = {}

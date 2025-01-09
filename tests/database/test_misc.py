@@ -10,12 +10,17 @@ from wemo.backend.common import constant
 
 DB_N = 200
 CACHE_N = 300
+
 name = "test_database"
 db_name = "Misc.db"
+
 user_db_dir = constant.DATA_DIR.joinpath(name, "data")
 user_cache_db_dir = constant.DATA_DIR.joinpath(name, "cache")
+
 logger = logging.getLogger(__name__)
+
 db = DB(user_db_dir.joinpath(db_name))
+
 cache = DBCache(user_cache_db_dir.joinpath(db_name))
 
 

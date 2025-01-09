@@ -11,9 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 class UserTable(DeclarativeBase):
-    @staticmethod
-    def mock(seed: int) -> UserTable:
-        raise NotImplementedError()
 
     @staticmethod
     def split_data(d1: list, d2: list):

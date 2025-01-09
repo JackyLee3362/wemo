@@ -10,6 +10,7 @@ from wemo.backend.database.sns import (
     SnsConfig,
 )
 from wemo.backend.common import constant
+from wemo.backend.utils.mock import mock_comment, mock_sns
 from wemo.backend.utils.utils import to_timestamp
 
 
@@ -35,17 +36,17 @@ class TestMock:
         assert s0.feed_id != s2.feed_id
 
     def test_comment_v20(self):
-        s0 = Comment.mock(1)
-        s1 = Comment.mock(1)
-        s2 = Comment.mock(2)
+        s0 = mock_comment(1)
+        s1 = mock_comment(1)
+        s2 = mock_comment(2)
 
         assert s0.feed_id == s1.feed_id
         assert s0.feed_id != s2.feed_id
 
     def test_sns_config_v20(self):
-        s0 = SnsConfig.mock(1)
-        s1 = SnsConfig.mock(1)
-        s2 = SnsConfig.mock(2)
+        s0 = mock_sns(1)
+        s1 = mock_sns(1)
+        s2 = mock_sns(2)
 
         assert s0.key == s1.key
         assert s0.key != s2.key
