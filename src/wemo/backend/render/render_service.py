@@ -2,9 +2,10 @@ from datetime import datetime
 import logging
 from pathlib import Path
 
+from wemo.backend.common import constant
 from wemo.backend.database.sns import Feed
 from wemo.backend.render.render import HtmlRender
-from wemo.backend.model.moment import MomentMsg
+from wemo.backend.common.model import MomentMsg
 from wemo.backend.database.db_service import DBService
 from wemo.backend.ctx import Context
 from wemo.backend.res.res_manager import ResourceManager
@@ -16,7 +17,7 @@ class RenderService:
     def __init__(self, ctx: Context, db: DBService):
         self.ctx = ctx
         self.db = db
-        self.output_dir: Path = ctx.output_dir
+        self.output_dir: Path = constant.OUTPUT_DIR
         self.init()
 
     def init(self):
@@ -33,13 +34,13 @@ class RenderService:
         file_name = datetime.now().strftime("%Y-%m-%d %H-%M-%S.html")
         temp = self.html_render.template.temp_sns
         html = temp.render(moment_msg=moment_msg)
-        with open(self.ctx.output_dir.joinpath(file_name), "w", encoding="utf-8") as f:
+        with open(self.output_dir.joinpath(file_name), "w", encoding="utf-8") as f:
             f.write(html)
 
     def render_sns(self, begin: datetime, end: datetime, wx_ids: list[str] = None):
         logger.info("[ RENDER SERVICE ] rendering sns...")
         self.ctx.generate_output_date_dir()
-        out_index = self.ctx.output_date_dir.joinpath("index.html")
+        out_index = self.ctx.output_date_dir.user_root_dir.joinpath("index.html")
         b_int = int(begin.timestamp())
         e_int = int(end.timestamp())
         feeds = self.db.get_feeds_by_dur_wxids(b_int, e_int, wx_ids)

@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 
-from wemo.backend.model.moment import MomentMsg, Thumb, Url
+from wemo.backend.common.model import MomentMsg, Thumb, Url
 from wemo.backend.update.updater import Updater
 from wemo.backend.utils.utils import find_img_thumb_by_url, singleton
 from wemo.backend.utils.helper import get_img_from_server

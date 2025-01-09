@@ -7,7 +7,7 @@ from wemo.backend.database.sns import (
     Comment,
     SnsConfig,
 )
-from wemo.backend.base import constant
+from wemo.backend.common import constant
 import time
 import datetime
 

@@ -4,16 +4,17 @@ import logging
 from jinja2 import Template
 
 from wemo.backend.database.micro_msg import Contact
-from wemo.backend.model.moment import MomentMsg
+from wemo.backend.common.model import MomentMsg
 from wemo.backend.ctx import Context
 from wemo.backend.res.res_manager import ResourceManager
+from wemo.backend.common import constant
 
 logger = logging.getLogger(__name__)
 
 
 class RenderTemplate:
-    def __init__(self, ctx: Context):
-        self.temp_dir = ctx.template_dir
+    def __init__(self):
+        self.temp_dir = constant.TEMPLATE_DIR
 
     def get_template(self, name: str):
         full_name = name + ".html"
@@ -39,7 +40,7 @@ class HtmlRender:
         self.ctx = ctx
         self.user_data_dir = ctx.user_data_dir
         self.res_manager = res_manager
-        self.template = RenderTemplate(ctx)
+        self.template = RenderTemplate()
 
     def render(self, contact: Contact, moment: MomentMsg):
         logger.debug(

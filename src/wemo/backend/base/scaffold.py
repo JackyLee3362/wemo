@@ -1,6 +1,6 @@
 from functools import cached_property
 
-from wemo.backend.base import constant
+from wemo.backend.common import constant
 from wemo.backend.base.config import TomlConfig
 from wemo.backend.base.logger import config_app_logger
 

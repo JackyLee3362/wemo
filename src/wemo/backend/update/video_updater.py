@@ -2,7 +2,7 @@ import logging
 import shutil
 from pathlib import Path
 
-from wemo.backend.model.moment import MomentMsg
+from wemo.backend.common.model import MomentMsg
 from wemo.backend.update.updater import Updater
 from wemo.backend.utils.utils import singleton, find_video_by_md5_or_duration
 

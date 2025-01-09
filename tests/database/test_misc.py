@@ -6,7 +6,7 @@ from wemo.backend.database.misc import (
     BizContactHeadImg,
     ContactHeadImg1,
 )
-from wemo.backend.base import constant
+from wemo.backend.common import constant
 
 DB_N = 200
 CACHE_N = 300

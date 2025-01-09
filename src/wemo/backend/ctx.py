@@ -6,9 +6,9 @@ import logging
 from pathlib import Path
 import shutil
 
-from wemo.backend.base import constant
+from wemo.backend.common import constant
 from wemo.backend.base.config import TomlConfig
-from wemo.backend.base.constant import MOCK_DIR
+from wemo.backend.common.constant import MOCK_DIR
 from wemo.backend.utils.helper import get_wx_info
 from wemo.gui_signal import GuiSignal
 
@@ -53,13 +53,8 @@ class Context:
     def init_app_info(self):
         self.config.load_file(constant.CONFIG_DIR.joinpath("app.toml"))
         logger.info(f"[ CTX ] init ctx, project dir is {self.proj_dir}")
-        self.template_dir = self.proj_dir.joinpath("template")
-        self.data_dir = self.proj_dir.joinpath("data")
-        self.output_dir = self.proj_dir.joinpath("output")
-        self.static_dir = self.proj_dir.joinpath("static")
-        self.bin_dir = self.proj_dir.joinpath("bin")
-        self.output_date_dir = None
-        # self.generate_output_date_dir()
+        self.output_date_dir: UserDir = None
+        self.generate_output_date_dir()
 
     def init_user_info(self):
         # 用户目录
@@ -69,7 +64,7 @@ class Context:
         logger.info(f"[ CTX ] init user({self.wx_id})...")
         # 2. 初始化用户目录
         self.wx_sns_cache_dir = self.wx_dir.joinpath("FileStorage", "Sns", "Cache")
-        self.user_dir = self.data_dir.joinpath(self.wx_id)
+        self.user_dir = constant.DATA_DIR.joinpath(self.wx_id)
         self.user_data_dir = UserDir(self.user_dir.joinpath("data"))
         self.user_data_dir.init_mkdir()
         self.user_cache_dir = UserDir(self.user_dir.joinpath("cache"))
@@ -77,8 +72,8 @@ class Context:
 
     def generate_output_date_dir(self) -> UserDir:
         date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        p = self.output_dir.joinpath(date)
-        shutil.copytree(self.static_dir, p)
+        p = constant.OUTPUT_DIR.joinpath(date)
+        shutil.copytree(constant.STATIC_DIR, p)
         res = UserDir(p)
         res.init_mkdir()
         self.output_date_dir = res
@@ -102,7 +97,7 @@ class Context:
 class UserDir:
 
     def __init__(self, user_root_dir: Path):
-        self.user_root_dir = user_root_dir
+        self.user_root_dir: Path = user_root_dir
 
     @property
     def db_dir(self) -> Path:

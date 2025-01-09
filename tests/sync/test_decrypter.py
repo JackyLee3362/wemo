@@ -1,4 +1,4 @@
-from wemo.backend.base import constant
+from wemo.backend.common import constant
 from wemo.backend.database.micro_msg import MicroMsgCache, Contact
 from wemo.backend.database.misc import ContactHeadImg1, MiscCache
 from wemo.backend.database.sns import Feed, SnsCache

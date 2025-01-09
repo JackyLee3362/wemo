@@ -1,6 +1,6 @@
 import logging
 from wemo.backend.ctx import Context
-from wemo.backend.model.moment import MomentMsg
+from wemo.backend.common.model import MomentMsg
 from wemo.backend.utils.utils import (
     find_img_thumb_by_url,
     find_video_by_md5_or_duration,
@@ -32,13 +32,13 @@ class ResourceManager:
             img_path, thm_path = find_img_thumb_by_url(year_month_dir, urn_dir)
             if img_path is not None:
                 img_copy = Path(shutil.copy2(img_path, out.img_dir))
-                img_relative = img_copy.relative_to(out)
+                img_relative = img_copy.relative_to(out.user_root_dir)
             else:
                 img_relative = out.img_dir.joinpath(self.default_img)
 
             if thm_path is not None:
                 thm_copy = Path(shutil.copy2(thm_path, out.img_dir))
-                thm_relative = thm_copy.relative_to(out)
+                thm_relative = thm_copy.relative_to(out.user_root_dir)
             else:
                 thm_relative = out.img_dir.joinpath(self.default_img)
 
@@ -58,7 +58,7 @@ class ResourceManager:
             )
             if video_path is not None:
                 video_copy = Path(shutil.copy2(video_path, out.video_dir))
-                video_relative = Path(video_copy).relative_to(out)
+                video_relative = Path(video_copy).relative_to(out.user_root_dir)
                 video.url = video_relative
                 res.append(video)
         return res
@@ -70,7 +70,7 @@ class ResourceManager:
         avatar_path = dst_dir.joinpath(file_name)
         if avatar_path.exists():
             avatar_copy = Path(shutil.copy2(avatar_path, out.avatar_dir))
-            avatar_relative = avatar_copy.relative_to(out)
+            avatar_relative = avatar_copy.relative_to(out.user_root_dir)
             return avatar_relative
         logger.warning("Avatar not found, using default.")
         return out.avatar_dir.joinpath(self.default_avatar)
@@ -85,7 +85,7 @@ class ResourceManager:
             img_url, _ = find_img_thumb_by_url(year_month_dir, urn_dir)
             if img_url is not None:
                 img_copy = Path(shutil.copy2(img_url, out.img_dir))
-                img_relative = img_copy.relative_to(out)
+                img_relative = img_copy.relative_to(out.user_root_dir)
                 link.thumb = img_relative
                 link.url = link.url.text
                 res.append(link)
@@ -104,7 +104,7 @@ class ResourceManager:
             img_url, _ = find_img_thumb_by_url(year_month_dir, urn_dir)
             if img_url is not None:
                 img_copy = Path(shutil.copy2(img_url, out.img_dir))
-                img_relative = img_copy.relative_to(out)
+                img_relative = img_copy.relative_to(out.user_root_dir)
                 music.thumb = img_relative
                 music.url = music.url.url
                 res.append(music)
@@ -123,7 +123,7 @@ class ResourceManager:
             img_url, _ = find_img_thumb_by_url(year_month_dir, urn_dir)
             if img_url is not None:
                 img_copy = Path(shutil.copy2(img_url, out.img_dir))
-                img_relative = img_copy.relative_to(out)
+                img_relative = img_copy.relative_to(out.user_root_dir)
                 finder.thumb = img_relative
                 finder.title = finder.title or ""
                 finder.description = finder.description or ""

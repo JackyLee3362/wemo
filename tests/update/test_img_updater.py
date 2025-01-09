@@ -3,8 +3,8 @@ from pathlib import Path
 import shutil
 
 from wemo.backend.update.img_updater import ImageUpdater
-from wemo.backend.model.moment import MomentMsg
-from wemo.backend.base.constant import PROJECT_DIR, DATA_DIR
+from wemo.backend.common.model import MomentMsg
+from wemo.backend.common.constant import PROJECT_DIR, DATA_DIR
 
 wxid = "test_update"
 user_img_dir = Path(DATA_DIR.joinpath(wxid), "data", "image")

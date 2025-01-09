@@ -1,2 +1,2 @@
 from wemo.backend.backend import BackendImpl
-from wemo.backend.base import constant
+from wemo.backend.common import constant

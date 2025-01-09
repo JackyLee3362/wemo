@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 import logging
 
-import wemo.backend.base.constant as constant
+import wemo.backend.common.constant as constant
 from wemo.backend.base.scaffold import Scaffold
 from wemo.backend.database.db_service import DBService
 from wemo.backend.render.render_service import RenderService
@@ -95,8 +95,10 @@ class BackendImpl(Scaffold):
             return
         self.render.render_sns(begin, end, wxids)
         logger.info("[ BACKEND ] render finish.")
-        self.ctx.signal.render_progress.emit(f"导出完成到 {self.ctx.output_date_dir}")
-        self.ctx.signal.out_dir_signal.emit(str(self.ctx.output_date_dir))
+        self.ctx.signal.render_progress.emit(
+            f"导出完成到 {self.ctx.output_date_dir.user_root_dir}"
+        )
+        self.ctx.signal.out_dir_signal.emit(str(self.ctx.output_date_dir.user_root_dir))
 
     def api_test(self, *args, **kwargs):
         logger.info(f"[ BACKEND ] api test, args={args}, kwargs={kwargs}")

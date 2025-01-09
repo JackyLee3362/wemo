@@ -4,6 +4,7 @@ from wemo.backend.ctx import Context
 from wemo.backend.sync.video_syncer import VideoSync
 from wemo.backend.sync.db_syncer import DBSyncer
 from wemo.backend.sync.img_syncer import ImgSyncer
+from wemo.backend.common import constant
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ class SyncService:
         self.key = ctx.wx_key
         self.wx_dir = ctx.wx_dir
         self.db_name_list = ctx.db_name_list
-        self.bin_dir = ctx.bin_dir
+        self.bin_dir = constant.BIN_DIR
         self.init()
 
     def init(self):

@@ -1,6 +1,6 @@
-from wemo.backend.base.constant import PROJECT_DIR
+from wemo.backend.common.constant import PROJECT_DIR
 from wemo.backend.render.render_service import RenderService
-from wemo.backend.model.moment import MomentMsg
+from wemo.backend.common.model import MomentMsg
 from wemo.backend.ctx import Context
 
 wxid = "test_export"

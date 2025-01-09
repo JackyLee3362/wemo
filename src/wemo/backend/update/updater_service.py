@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import logging
-from wemo.backend.model.moment import MomentMsg
+from wemo.backend.common.model import MomentMsg
 from wemo.backend.database.db_service import DBService
 from wemo.backend.update.avatar_updater import AvatarUpdater
 from wemo.backend.update.img_updater import ImageUpdater
