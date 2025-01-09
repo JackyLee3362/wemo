@@ -20,4 +20,5 @@ private
 **/test_private_*.xml
 **/test_private_*.py
 **/*private*
+*.lock
 
