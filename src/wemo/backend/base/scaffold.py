@@ -18,7 +18,7 @@ class Scaffold:
 
     @cached_property
     def debug(self) -> bool:
-        return self.config.debug
+        return self.config.app.debug
 
     def setup_logger(self) -> None:
         config_app_logger(self.name, log_dir=constant.LOGS_DIR)

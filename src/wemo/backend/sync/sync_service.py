@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from wemo.backend.common import constant
-from wemo.backend.ctx import Context
+from wemo.backend.ctx import AppContext
 from wemo.backend.sync.db_syncer import DBSyncer
 from wemo.backend.sync.img_syncer import ImgSyncer
 from wemo.backend.sync.video_syncer import VideoSync
@@ -14,7 +14,7 @@ class SyncService:
     def __str__(self):
         return "[ SYNC SERVICE ]"
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: AppContext):
         # 依赖注入
         self.ctx = ctx
         self.cache_dir = ctx.user_cache_dir

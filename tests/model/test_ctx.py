@@ -13,5 +13,5 @@ def test_mock_ctx():
 
 def test_ctx_property():
     ctx = mock_ctx(mock_wx_id)
-    print(ctx.root_dir)
+    print(ctx.root_path)
     print(ctx.user_data_dir)

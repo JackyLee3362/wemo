@@ -4,7 +4,7 @@ from pathlib import Path
 
 from rich.logging import RichHandler
 
-default_log_fmt = "[%(asctime)s] %(levelname)-8s - %(name)s %(funcName)s  : %(message)s"
+default_log_fmt = "[%(asctime)s] %(levelname)-8s - %(name)s %(funcName)s : %(message)s"
 default_date_fmt = "%Y-%m-%d %H:%M:%S"
 default_file_fmt = "%Y-%m-%d.log"
 console_handler = RichHandler(rich_tracebacks=True)

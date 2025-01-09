@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 
 from wemo.backend.common.model import MomentMsg
-from wemo.backend.ctx import Context
+from wemo.backend.ctx import AppContext
 from wemo.backend.database.db_service import DBService
 from wemo.backend.update.avatar_updater import AvatarUpdater
 from wemo.backend.update.img_updater import ImageUpdater
@@ -16,7 +16,7 @@ class UserDataUpdateService:
     def __str__(self):
         return "[ UPDATE SERVICE ]"
 
-    def __init__(self, ctx: Context, db: DBService):
+    def __init__(self, ctx: AppContext, db: DBService):
         self.db = db
         self.ctx = ctx
         self.img_dir = ctx.user_data_dir.img_dir

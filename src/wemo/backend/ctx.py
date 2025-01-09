@@ -6,7 +6,7 @@ from datetime import datetime
 from functools import cached_property
 from pathlib import Path
 
-from wemo.backend.base.config import TomlConfig
+from wemo.backend.base.scaffold import Scaffold
 from wemo.backend.common import constant
 from wemo.backend.utils.helper import get_wx_info
 from wemo.gui_signal import GuiSignal
@@ -14,7 +14,7 @@ from wemo.gui_signal import GuiSignal
 logger = logging.getLogger(__name__)
 
 
-class Context:
+class AppContext(Scaffold):
     """应用上下文对象，主要是目录信息和用户信息"""
 
     @cached_property
@@ -38,10 +38,9 @@ class Context:
     def __str__(self):
         return "[ CTX ]"
 
-    def __init__(self, root: Path, config: TomlConfig, extra: dict = {}):
-        super().__init__()
-        self.root_dir = root
-        self.config = config
+    def __init__(self, name: str, root: Path, extra: dict = {}):
+        super().__init__(name, root)
+        self.config.load_file(constant.CONFIG_DEFAULT_FILE)
         self.signal: GuiSignal = None
         self.running = True
         self.extra_info = extra
@@ -53,7 +52,6 @@ class Context:
         self.signal = signal
 
     def init_app_info(self):
-        self.config.load_file(constant.CONFIG_DEFAULT_FILE)
         logger.info(f"{self} init ctx, project dir is {self.proj_dir}")
         self.output_date_dir: UserDir = None
         self.generate_output_date_dir()

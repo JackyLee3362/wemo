@@ -2,14 +2,14 @@ import hashlib
 import logging
 from pathlib import Path
 
-from wemo.backend.ctx import Context
+from wemo.backend.ctx import AppContext
 from wemo.backend.utils.utils import guess_image_encoding_magic, xor_decode
 
 logger = logging.getLogger(__name__)
 
 
 class Decrypt:
-    def __init__(self, ctx: Context, src_dir: Path):
+    def __init__(self, ctx: AppContext, src_dir: Path):
         self.src_dir = src_dir
 
     def load_data(self, filename: str) -> bytes:

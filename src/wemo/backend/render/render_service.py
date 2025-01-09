@@ -4,7 +4,7 @@ from pathlib import Path
 
 from wemo.backend.common import constant
 from wemo.backend.common.model import MomentMsg
-from wemo.backend.ctx import Context
+from wemo.backend.ctx import AppContext
 from wemo.backend.database.db_service import DBService
 from wemo.backend.database.sns import Feed
 from wemo.backend.render.render import HtmlRender
@@ -18,7 +18,7 @@ class RenderService:
     def __str__(self):
         return "[ RENDER SERVICE ]"
 
-    def __init__(self, ctx: Context, db: DBService):
+    def __init__(self, ctx: AppContext, db: DBService):
         self.ctx = ctx
         self.db = db
         self.output_dir: Path = constant.OUTPUT_DIR

@@ -1,11 +1,9 @@
 import logging
 import time
 from datetime import datetime
-from pathlib import Path
 
-from wemo.backend.base.scaffold import Scaffold
 from wemo.backend.common import constant
-from wemo.backend.ctx import Context
+from wemo.backend.ctx import AppContext
 from wemo.backend.database.db_service import DBService
 from wemo.backend.render.render_service import RenderService
 from wemo.backend.sync.sync_service import SyncService
@@ -14,16 +12,14 @@ from wemo.backend.update.updater_service import UserDataUpdateService
 logger = logging.getLogger(__name__)
 
 
-class BackendImpl(Scaffold):
+class BackendImpl:
     default_config = {}
 
     def __str__(self):
         return "[ BACKEND ]"
 
-    def __init__(self, import_name, root_path: Path = None):
-        super().__init__(import_name, root_path)
-        self.config.load_file(constant.CONFIG_DEFAULT_FILE)
-        self.ctx = Context(root=constant.PROJECT_DIR, config=self.config)
+    def __init__(self, import_name):
+        self.ctx = AppContext(import_name, constant.PROJECT_DIR)
 
     def init(self):
         logger.info(f"{self} init backend...")

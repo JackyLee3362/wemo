@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 from wemo.backend.common.model import MomentMsg
-from wemo.backend.ctx import Context
+from wemo.backend.ctx import AppContext
 from wemo.backend.utils.utils import (
     find_img_thumb_by_url,
     find_video_by_md5_or_duration,
@@ -17,7 +17,7 @@ class ResourceManager:
     def __str__(self):
         return "[ RESOURCE MANAGER ]"
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: AppContext):
         self.ctx = ctx
         self.user_dir = ctx.user_data_dir
         self.default_avatar = "default_avatar.jpg"

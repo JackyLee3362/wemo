@@ -5,7 +5,7 @@ from jinja2 import Template
 
 from wemo.backend.common import constant
 from wemo.backend.common.model import MomentMsg
-from wemo.backend.ctx import Context
+from wemo.backend.ctx import AppContext
 from wemo.backend.database.micro_msg import Contact
 from wemo.backend.res.res_manager import ResourceManager
 
@@ -44,7 +44,7 @@ class HtmlRender:
     def __str__(self):
         return "[ HTML RENDER ]"
 
-    def __init__(self, ctx: Context, res_manager: ResourceManager):
+    def __init__(self, ctx: AppContext, res_manager: ResourceManager):
         self.ctx = ctx
         self.user_data_dir = ctx.user_data_dir
         self.res_manager = res_manager

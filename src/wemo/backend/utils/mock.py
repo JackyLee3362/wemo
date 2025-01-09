@@ -5,20 +5,20 @@ from wemo.backend.base.config import TomlConfig
 from wemo.backend.common import constant
 from wemo.backend.common.constant import MOCK_DIR
 from wemo.backend.common.model import MomentMsg, TimelineObject
-from wemo.backend.ctx import Context
+from wemo.backend.ctx import AppContext
 from wemo.backend.database.micro_msg import Contact, ContactHeadImgUrl, ContactLabel
 from wemo.backend.database.misc import BizContactHeadImg, ContactHeadImg1
 from wemo.backend.database.sns import Comment, Feed, SnsConfig
 
 
-def mock_ctx(wxid: str) -> Context:
+def mock_ctx(wxid: str) -> AppContext:
     proj_path = constant.PROJECT_DIR
     config = TomlConfig()
     config.load_file(constant.CONFIG_DEFAULT_FILE)
     wx_user_dir = MOCK_DIR.joinpath(wxid)
     info = {"wxid": wxid, "key": None, "wx_dir": wx_user_dir}
 
-    return Context(
+    return AppContext(
         root=proj_path,
         config=config,
         extra=info,

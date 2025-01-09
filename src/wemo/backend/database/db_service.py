@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 
-from wemo.backend.ctx import Context
+from wemo.backend.ctx import AppContext
 from wemo.backend.database.db import AbsUserDB
 from wemo.backend.database.micro_msg import Contact, MicroMsg, MicroMsgCache
 from wemo.backend.database.misc import Misc, MiscCache
@@ -15,7 +15,7 @@ class DBService:
     def __str__(self):
         return "[ DB SERVICE ]"
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: AppContext):
         self.ctx = ctx
         self.db_dir = ctx.user_data_dir.db_dir
         self.cache_dir = ctx.user_cache_dir.db_dir
